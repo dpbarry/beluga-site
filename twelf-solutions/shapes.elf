@@ -1,0 +1,198 @@
+% Reasoning about shapes of lambda-terms
+% Author: Brigitte Pientka
+
+
+term: type.
+
+lam: (term -> term) -> term.
+app: term -> term -> term.
+
+exp: type.
+fn: (exp -> exp) -> exp.
+apply: exp -> exp -> exp.
+
+% ------------------------------------------------------------------------------
+% Equality between two representations.
+
+equal: term -> exp -> type.
+
+eq_lam: equal (lam T) (fn  E)
+	 <- ({x}{y}equal x y -> equal (T x) (E y)).
+
+eq_app: equal (app T1 T2) (apply E1 E2)
+	 <- equal T1 E1
+	 <- equal T2 E2.
+
+% ------------------------------------------------------------------------------
+% Shape relation: If we interpret lambda-terms as abstract syntax trees,
+% then two lambda-terms are shape related if they have the same syntax tree 
+% except at the leafs.
+
+shape: term -> exp -> type.
+varT: term -> type.
+varE: exp -> type.
+
+sh_v: shape T E
+       <- varT T
+       <- varE E.
+
+sh_lam: shape (lam T) (fn E)
+	 <- ({x}{y}varT x -> varE y -> shape (T x) (E y)).
+
+sh_app: shape (app T1 T2) (apply E1 E2)
+	 <- shape T1 E1
+	 <- shape T2 E2.
+
+% ------------------------------------------------------------------------------
+% Theorem: If equal T E then shape T E.
+
+eqsh: equal T E -> shape T E -> type.
+%mode eqsh +D -S.
+eqsh_app: eqsh (eq_app D2 D1) (sh_app S2 S1)
+	   <- eqsh D1 S1
+	   <- eqsh D2 S2.
+
+eqsh_lam: eqsh (eq_lam [x][y][u:equal x y] D x y u) (sh_lam [x][y][v][w] S x y v w)
+	   <- ({x}{y}{u:equal x y}{v:varT x}{w:varE y}
+		 eqsh u (sh_v w v) -> eqsh (D x y u) (S x y v w)).
+
+
+%block l : block {x:term}{y:exp}{u:equal x y}
+                 {v:varT x}{w:varE y}{eqproof:eqsh u (sh_v w v)}.
+%worlds (l) (eqsh D S).
+%covers eqsh +D -S.
+%terminates D (eqsh D S).
+%total D (eqsh D S).
+
+% ------------------------------------------------------------------------------
+% Counting variable occurrences
+nat: type.
+z: nat.
+s: nat -> nat.
+
+add: nat -> nat -> nat -> type.
+add_z: add z N N.
+add_s: add (s N) (M) (s M')
+	<- add N M M'.
+
+% Lemma: add it total.
+% Here we need to prove it separately.
+totalAdd: {N1}{N2}{M}add N1 N2 M -> type.
+%mode totalAdd +N1 +N2 -M -D.
+
+t_z: totalAdd z N N add_z.
+t_s: totalAdd (s N) M (s M') (add_s D)
+      <- totalAdd N M M' D.
+
+%worlds () (totalAdd N1 N2 M D).
+%total N1 (totalAdd N1 N2 M D).
+
+% ------------------------------------------------------------------------------
+varTOcc: term -> nat -> type.
+
+v_lm: varTOcc (lam T) N
+       <- ({x:term} varT x  -> varTOcc (T x) N).
+
+v_ap: varTOcc (app T1 T2)  N
+       <- varTOcc T1 N1
+       <- varTOcc T2 N2
+       <- add N1 N2 N.
+
+v_varT: varTOcc T (s z)
+	 <- varT T.
+
+varEOcc: exp -> nat -> type.
+
+
+v_fn: varEOcc (fn E) N
+       <- ({x} varE x  -> varEOcc (E x) N).
+
+v_apply: varEOcc (apply E1 E2)  N
+       <- varEOcc E1 N1
+       <- varEOcc E2 N2
+       <- add N1 N2 N.
+
+v_varE: varEOcc E (s z)
+	 <- varE E.
+
+% --------------------------------------------------------------------
+% Theorem: if shape T E then exists N. varTOcc T N and varEOcc E N.
+
+bndEq: shape T E -> {N}varTOcc T N -> varEOcc E N -> type.
+%mode bndEq +S -N -B -E.
+
+b_l: bndEq (sh_lam [x][y][vt][ve] S x y vt ve) N (v_lm VT) (v_fn VE)
+      <- ({x}{y}{vt:varT x}{ve: varE y}
+	    bndEq (S x y vt ve) N (VT x vt) (VE y ve)).
+
+b_a: bndEq (sh_app S2 S1) M (v_ap D VT2 VT1) (v_apply D VE2 VE1)
+      <- bndEq S1 N1 VT1 VE1
+      <- bndEq S2 N2 VT2 VE2
+      <- totalAdd N1 N2 M D.
+
+b_v: bndEq (sh_v VE VT) (s z) (v_varT VT) (v_varE VE).
+ 
+
+%block lb : block {x:term}{y:exp}{vt:varT x}{ve:varE y}.
+%worlds (lb) (bndEq S N B E).
+%covers bndEq +S -M -B -E.	    
+%terminates S (bndEq S M B E).
+%total S (bndEq S M B E).
+
+% --------------------------------------------------------------------
+% Theorem: if equal T E then exists N. varTOcc T N and varEOcc E N.
+
+bndEq': equal T E -> {N}varTOcc T N -> varEOcc E N -> type.
+%mode bndEq' +S -N -B -E.
+
+b_l': bndEq' (eq_lam [x][y][v] S x y v) N (v_lm VT) (v_fn VE)
+      <- ({x:term}{y:exp}{v:equal x y}{vt: varT x}{ve: varE y}
+	    bndEq' v (s z) (v_varT vt) (v_varE ve) ->
+	    bndEq' (S x y v) N (VT x vt) (VE y ve)).
+
+b_a': bndEq' (eq_app S2 S1) M (v_ap D VT2 VT1) (v_apply D VE2 VE1)
+      <- bndEq' S1 N1 VT1 VE1
+      <- bndEq' S2 N2 VT2 VE2
+      <- totalAdd N1 N2 M D.
+
+%block lb : block {x:term}{y:exp}{v:equal x y}{vt:varT x}{ve:varE y}
+	     {b: bndEq' v (s z) (v_varT vt) (v_varE ve)}.
+
+%worlds (lb) (bndEq' S M D D').
+%covers (bndEq' +S -M -D -D').
+%terminates S (bndEq' S M D D').
+%total S (bndEq' S M D D').
+
+% --------------------------------------------------------------------
+
+% Theorem: if shape T E and varTOcc T N then varEOcc E N.
+
+bndEq-1: shape T E -> varTOcc T N -> varEOcc E N -> type.
+%mode bndEq-1 +S +B -E.
+
+b_l: bndEq-1 (sh_lam [x][y][vt][ve] S x y vt ve) (v_lm VT) (v_fn VE)
+      <- ({x}{y}{vt:varT x}{ve: varE y}
+	    bndEq-1 (S x y vt ve) (VT x vt) (VE y ve)).
+
+b_a: bndEq-1 (sh_app S2 S1) (v_ap D VT2 VT1) (v_apply D VE2 VE1)
+      <- bndEq-1 S1 VT1 VE1
+      <- bndEq-1 S2 VT2 VE2.
+
+b_v: bndEq-1 (sh_v VE VT) (v_varT VT) (v_varE VE).
+     
+
+%block lb : block {x:term}{y:exp}{vt:varT x}{ve:varE y}.
+%worlds (lb) (bndEq-1 S B E).
+%covers bndEq-1 +S  +B -E.	    
+%terminates S (bndEq-1 S B E).
+%total S (bndEq-1 S B E).
+
+
+% --------------------------------------------------------------------
+% Theorem: if shape T E then all N. varTOcc T N implies varEOcc E N.
+%
+% In Twelf we could only represent all N. varTOcc T N implies varEOcc E N. 
+% on the LF layer, which is different from the meta-reasoning layer
+% used to verify the implemented relation  is a total function.  
+
+

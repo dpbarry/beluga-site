@@ -1,0 +1,14 @@
+     </div>
+   </div>
+   <div id="footer">
+     <iframe width="100%" height="100px" scrolling="no" frameBorder="0" src="../../../footer.html"></iframe> 
+   </div>
+
+   <script>
+   $('iframe').iframeAutoHeight({minHeight: 50);
+    </script>
+  </div>
+</body>
+</html>
+
+

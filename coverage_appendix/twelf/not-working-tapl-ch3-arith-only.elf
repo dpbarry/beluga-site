@@ -1,0 +1,26 @@
+%{
+
+ THIS PROOF CANNOT BE COVERAGE CHECKED IN TWELF
+ 
+}%
+
+det: step M N -> step M N' -> eq N N' -> type.
+%mode det +D +E -R.
+
+d_succ     : det (s_succ D) (s_succ F) ref
+           <- det D F ref.
+
+d_pred_zero: det s_pred_zero s_pred_zero ref.
+
+d_pred_succ: det (s_pred_succ V) (s_pred_succ _ ) ref.
+
+d_pred     : det (s_pred D) (s_pred F) ref
+           <- det D F ref.
+      
+d_pred_succ_empty_1:
+             det (s_pred (s_succ D)) (s_pred_succ V) Eq 
+          <- values_dont_step D V I  <- empty_implies_anything I Eq.
+
+d_pred_succ_empty_2:
+             det (s_pred_succ V) (s_pred (s_succ D)) Eq
+          <- values_dont_step D V I  <- empty_implies_anything I Eq.

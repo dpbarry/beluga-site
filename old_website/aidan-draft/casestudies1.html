@@ -1,0 +1,133 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Le styles -->
+<link href="css/bootstrap.css" rel="stylesheet">
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
+<script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/iframe-auto-height.js"></script>
+<script>
+  function fix(){
+  $('iframe').iframeAutoHeight({minHeight: 50);}
+</script>
+</head>
+
+<body>
+
+    <script type="text/javascript">
+
+    $(document).ready(function(){
+
+        $(".dropdown-toggle").dropdown();
+
+        $(document).on('shown.bs.tab', 'a[data-toggle="tab"]', function (e) {
+            $('iframe').iframeAutoHeight({minHeight: 50);})
+      });  
+
+    </script>
+
+    <div align="center">
+	<iframe width="100%" height="50x" scrolling="no" frameBorder="0" src="header.html"></iframe> 
+    </div>
+
+        <div class="row">
+            <div class="col-sm-2">
+                <div class="well">
+                    <div>
+                        <ul class="nav nav-list">
+<li><label class="tree-toggle nav-header"><a onclick="$('.example').addClass(' hidden ');$('.dir').addClass(' hidden ');$('#dir-0').removeClass('hidden');fix();">Advanced</a></label>
+<ul class="nav nav-list tree">
+</ul></li>
+<li><label class="tree-toggle nav-header"><a onclick="$('.example').addClass(' hidden ');$('.dir').addClass(' hidden ');$('#dir-1').removeClass('hidden');fix();">Intermediate</a></label>
+<ul class="nav nav-list tree">
+</ul></li>
+<li><label class="tree-toggle nav-header"><a onclick="$('.example').addClass(' hidden ');$('.dir').addClass(' hidden ');$('#dir-2').removeClass('hidden');fix();">Beginner</a></label>
+<ul class="nav nav-list tree">
+</ul></li>
+</ul>
+    </div>
+
+  </div>
+  
+</div> <!-- end div col-sm-2 -->
+
+<div class="container theme-showcase" role="main">
+<div class="col-sm-10">
+
+        <div class="dir" id="dir-0">
+            <div class="container">
+</div></div>
+
+        <div class="dir" id="dir-1">
+            <div class="container">
+</div></div>
+
+        <div class="dir" id="dir-2">
+            <div class="container">
+	      <h4><a href="tutorial.pdf">Beginner's Guide to
+            Programming in Beluga</a></h4>
+	      <p>This guide is mostly for users who have only a
+            background in functional programming as often taught in an
+            undergraduate class. We show how to write some common simple
+            functional programs in Beluga and also briefly discuss how
+            to write simple proofs in Beluga.Here are a few sample programs discussed in the
+            tutorial to get you started</p>
+            <ul>
+              <li><a href="examples/tutorial/nat.bel">nat.bel:</a> naturals (Section 2);</li>
+              <li><a href="examples/tutorial/yn.bel">yn.bel</a> yes and no (Section 2);</li>
+              <li><a href="examples/tutorial/listnat.bel">listnat.bel:</a> Lists of naturals (Section 2);</li>
+              <li><a href="examples/tutorial/dtlist.bel">dtlist.bel:</a> length indexed lists (Section 3);</li>
+              <li><a href="examples/tutorial/typesterms2.bel">typesterms2.bel:</a> list filtering (Section 3);</li>
+              <li><a href="examples/tutorial/typesterms3.bel">typesterms3.bel:</a> list filtering (Section 3);</li>
+              <li><a href="examples/tutorial/typesterms.bel">typesterms.bel:</a> evaluation is deterministic (Section 4);</li>
+              <li><a href="examples/tutorial/lambda.bel">lambda.bel:</a> lambda-calculus and proof of presevertation (Section 5).</li>
+            </ul>
+          </p>
+
+               <h4><a href="examples/literate_beluga/Beginner/Type_Uniqueness.html">Type Uniqueness</a></h4>
+We prove that every lambda-term has a unique type.
+<br><br>	    
+	    <h4><a href="examples/literate_beluga/Beginner/Parallel_Reduction.html">Parallel Reduction</a></h4>
+The order of assumptions in a context is important in Beluga. However, sometimes the need to reorder assumptions arises, as is illustrated in the proof of the substitution lemma for algorithmic equality. 
+<br><br>
+
+               <h4><a href="examples/literate_beluga/Beginner/Untyped_Algorithmic_Equality_-_Context_Subsumption.html">Untyped Algorithmic Equality - Generalized Context</a></h4>
+This example discusses how to prove completeness of algorithmic equality. It provides a good introduction to how to induct on universally quantified objects and use lemmas. In particular, it demonstrates Beluga's capacity for automatic context subsumption. If schema W is a prefix of a schema W0, then we can always use a context of schema W0 in place of a context of schema W. Essentially, we allow the user to pass a context of schema W0 where a context with schema W if W0 contains at least as much information as W.  We develop the meta-theory about algorithmic equality formulating theorems in a generalized context.
+<br><br>
+
+               <h4><a href="examples/literate_beluga/Beginner/Untyped_Algorithmic_Equality_-_Context_Relation.html">Untyped Algorithmic Equality - Context Relation</a></h4>
+We revisit here the meta-theory about algorithmic equality where we define relationships between context explicitly using inductive datatypes. In the proof below, we use inductive datatypes to establish strengthening and weakening between contexts. 
+<br><br>
+
+               <h4><a href="examples/literate_beluga/Beginner/Polymorphic_Algorithmic_Equality.html">Polymorphic Algorithmic Equality</a></h4>
+In order to prove algorithmic equality for a polymorphic lambda-calculus, we establish schemas with alternating assumptions, depending on the type of the variable.
+<br><br>
+</div></div>
+<div class="dir hidden" id="expanel"> 
+
+  </div></div>
+
+   	<div id="footer">
+	<iframe width="100%" height="100px" scrolling="no" frameBorder="0" src="footer.html"></iframe> 
+	</div>
+
+
+<script type="text/javascript">
+    jQuery(document).ready(function ($) {
+        $('#tabs').tab();
+    });
+</script> 
+
+<script type='text/javascript'> 
+	$(document).ready(function() { $('.tree-toggle').click(function () { $(this).parent().children('ul.tree').toggle(200); }); });
+</script>   
+   
+<script>
+  $('iframe').iframeAutoHeight({minHeight: 50);
+</script>
+   
+</body>
+</html>
+

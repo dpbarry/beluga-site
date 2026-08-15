@@ -1,0 +1,28 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>Case analysis of higher-order data
+    </title>
+  </head>
+
+  <body>
+    <h1>Abstract</h1>
+
+<p>
+  We discuss coverage checking for data that is dependently typed and
+  is defined using higher-order abstract syntax.  Unlike previous work
+  on coverage checking or closed data, we consider
+  open data which may depend on some context.
+  Our work may therefore provide insight into coverage checking in
+  Twelf, and serve as a basis for coverage checking in functional
+  languages such as Delphin and Beluga. More generally, our work is a
+  foundation for proofs by case analysis in systems that reason about
+  higher-order abstract syntax.
+</p>
+
+<!-- Created: Fri Feb 29 18:11:47 EST 2008 -->
+<!-- hhmts start -->
+Last modified: Wed Apr 23 16:30:25 EDT 2008
+<!-- hhmts end -->
+  </body>
+</html>

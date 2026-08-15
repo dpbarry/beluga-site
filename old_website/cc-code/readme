@@ -1,0 +1,21 @@
+ --------------------------------------
+|            Beluga Caviar             |
+| A Type-preserving Compiler in Beluga |
+ --------------------------------------
+as described in "Programming type safe transformations using higher-order abstract syntax"
+
+cps.bel     : Continuation-passing style transformation over STLC
+sfcps.bel   : CPS over System F
+cc.bel      : Closure conversion over STLC
+cchoist.bel : Closure conversion and hoisting over STLC
+
+Beluga is available online at http://complogic.cs.mcgill.ca/beluga/
+
+To run, execute
+|> beluga [filename]
+
+We recommend to run examples with
+|> beluga -implicit [filename]
+to avoid implicit type arguments to term constructors to be printed.
+
+

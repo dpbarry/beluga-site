@@ -1,0 +1,205 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>LF-level</TITLE>
+<META NAME="description" CONTENT="LF-level">
+<META NAME="keywords" CONTENT="userguide">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="userguide.css">
+
+<LINK REL="next" HREF="node11.html">
+<LINK REL="previous" HREF="node9.html">
+<LINK REL="up" HREF="node9.html">
+<LINK REL="next" HREF="node11.html">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html213"
+  HREF="node11.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next"
+ SRC="/usr/share/latex2html/icons/next.png"></A> 
+<A NAME="tex2html209"
+  HREF="node9.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up"
+ SRC="/usr/share/latex2html/icons/up.png"></A> 
+<A NAME="tex2html203"
+  HREF="node9.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous"
+ SRC="/usr/share/latex2html/icons/prev.png"></A> 
+<A NAME="tex2html211"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents"
+ SRC="/usr/share/latex2html/icons/contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html214"
+  HREF="node11.html">Computation-level</A>
+<B> Up:</B> <A NAME="tex2html210"
+  HREF="node9.html">Grammar</A>
+<B> Previous:</B> <A NAME="tex2html204"
+  HREF="node9.html">Grammar</A>
+ &nbsp; <B>  <A NAME="tex2html212"
+  HREF="node1.html">Contents</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H2><A NAME="SECTION00031000000000000000">
+LF-level</A>
+</H2>
+Beluga's first-level implements the logical framework LF for defining logics and representing proofs and derivations using higher order abstract syntax (HOAS). Specifically, a formal system is represented as a <SPAN  CLASS="textit"><SPAN  CLASS="textbf">signature</SPAN></SPAN>, a series of declarations of type families and the constants which inhabit them. The signature establishes the system's syntax, judgments, and inference rules. 
+
+<P>
+There are two ways of making LF declarations. The first follows closely the syntax used by the Twelf system whereas the second is akin to Standard ML datatype declarations.
+
+<P>
+<PRE>
+lf_decl ::= lf_datatype_decl    (* new syntax for LF signatures *)
+          | id ":" lf_type "."  (* Twelf style LF signatures *)
+          | id ":" lf_kind "."  (* Twelf style LF signatures *)
+          | lf_decl %name id ID "."    (* name preference pragma *)
+          | lf_decl %infix id assoc int "."    (* infix pragma *)
+          | lf_decl %prefix id int "."         (* prefix pragma *)
+
+infix_prg ::=  lf_decl %infix id [assoc] nat "."
+
+assoc ::= none
+	   | left
+	   | right 
+
+op_arrow ::= "-&gt;" | "&lt;-"        (* A &lt;- B same as B -&gt; A *)
+
+lf_kind ::= type
+          | lf_type op_arrow lf_kind
+          | "{" id ":" lf_type "}" lf_kind
+
+lf_type ::= id {term}                       (* A M1 ... Mn *)
+          | lf_type op_arrow lf_type
+          | "{" id ":" lf_type "}" lf_type  (* Pi x:A. K  or  Pi x:A. B *)
+
+lf_datatype_decl ::= datatype id ":" lf_kind "=" [lf_con_decl] {"|" lf_con_decl} ";"
+
+lf_con_decl ::= id ":" lf_type
+
+term ::= (id | ID)         (* variable x or constant a or c *)
+       | "\" id "." term   (* lambda x. M *)
+       | term term         (* M N *)
+       | _                 (* hole, inferred by term reconstruction *)
+</PRE>
+The constructs <TT>{x:U} V</TT> and <TT>x |- V</TT> bind the identifier <TT>x</TT> in <TT>V</TT> which may shadow other constants or bound variables. As usual in type theory, <TT>U -&gt; V</TT> is treated as an abbreviation for <TT>{x:U}V</TT> where <TT>x</TT> does not appear in <TT>V</TT>.
+
+<P>
+In the order of precedence, we disambiguate the syntax and impose restrictions as follows:
+
+<UL>
+<LI>Juxtaposition (application) is left associative and has highest precedence
+</LI>
+<LI>!-&gt;! is right and !&lt;-! left associative with equal precedence
+</LI>
+<LI>!:! is left associative
+</LI>
+<LI>!! and ! are weak prefix operators
+</LI>
+<LI>Bound variables and constants must be written with lower-case letters
+</LI>
+<LI>Free variables can be written with upper-case letters or lower case letters; but we use the convention to write them with upper-case letters
+</LI>
+<LI>All terms need to be written in beta-normal form, i.e. no redeces can occur in terms. However, variables do not need to be eta-expanded.
+</LI>
+</UL>
+The following examples illustrate which terms Beluga will parse. For example, the following are parsed identically using the old style LF syntax:
+
+<P>
+<PRE>
+d : a &lt;- b &lt;- {x:term} c x -&gt; p x.
+d : ({x:term} c x -&gt; p x) -&gt; b -&gt; a.
+d : ((a &lt;- b) &lt;- ({x: term} ((c x) -&gt; (p x)))).
+</PRE>
+
+<P>
+The following declarations using old-style LF syntax parses:
+<PRE>
+d : p x &lt;- a &lt;- b &lt;-  c x.  % against our convention but parses
+d : p X &lt;- a &lt;- b &lt;-  c X.  % Better code: uses convention
+
+P:term -&gt; type              % Parse error
+</PRE>
+
+<P>
+The following in the old-style LF syntax will not parse:
+<PRE>
+d: p ((\x.x) a) .    % this will give an error since there is a redex
+d: p a.              % this will parse.
+</PRE>
+
+<P>
+We advocate using a new style for LF declarations based on datatypes.
+
+<P>
+<PRE>
+datatype foo: {x:A} p x -&gt; type =
+  | d : a -&gt; b -&gt; foo c
+  | f : d -&gt; e -&gt; foo k
+;
+</PRE>
+
+<P>
+Other differences between the Twelf system include:
+
+<UL>
+<LI>Lambda-abstractions cannot be annotated with the type of the input. Writing <TT>
+<BR>
+x:nat.x</TT> is illegal in Beluga.
+</LI>
+<LI>Omitting the type in a Pi-type is illegal in Beluga. One cannot simply write <TT>({x}foo x T) -&gt; foo E T'.</TT> . One must give the type of the variable <TT>x</TT>.
+</LI>
+</UL>
+
+<P>
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html213"
+  HREF="node11.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next"
+ SRC="/usr/share/latex2html/icons/next.png"></A> 
+<A NAME="tex2html209"
+  HREF="node9.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up"
+ SRC="/usr/share/latex2html/icons/up.png"></A> 
+<A NAME="tex2html203"
+  HREF="node9.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous"
+ SRC="/usr/share/latex2html/icons/prev.png"></A> 
+<A NAME="tex2html211"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents"
+ SRC="/usr/share/latex2html/icons/contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html214"
+  HREF="node11.html">Computation-level</A>
+<B> Up:</B> <A NAME="tex2html210"
+  HREF="node9.html">Grammar</A>
+<B> Previous:</B> <A NAME="tex2html204"
+  HREF="node9.html">Grammar</A>
+ &nbsp; <B>  <A NAME="tex2html212"
+  HREF="node1.html">Contents</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+Research Group COMPLOGIC
+2014-11-12
+</ADDRESS>
+</BODY>
+</HTML>

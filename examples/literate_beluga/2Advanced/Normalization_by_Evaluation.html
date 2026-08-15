@@ -1,0 +1,130 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		body {
+			padding: 2em 1em 2em 1em;
+			margin: 0;
+			font-family: sans-serif;
+			color: black;
+			background: white;}
+		a{text-decoration:none;}
+		a:link { color: #00C; background: transparent }
+		a:visited { color: #00C; background: transparent }
+		a:active { color: #C00; background: transparent }
+		keyword { color: #3333cc ; background: transparent }
+		pre {
+			border: 1px dashed maroon;  display:block;
+			padding:8px; background-color: #dddddd;}
+		code {
+			background-color: #dddddd;
+			color: black; font-family: "courier";margin:0;
+			white-space: pre-wrap; }
+		.typ {color: #660000; font-weight:bold}
+		.constructor {color: #335C85; font-weight:bold}
+		.function {color: #660033; font-weight:bold}
+		.schema {color: #6600CC; font-weight:bold}
+	</style>
+</head>
+<body>
+
+<p></p><p>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<h1> Normalization by Evaluation</h1>
+</p><p>
+This case study shows how to implement a type-preserving normalizer using normalization by evaluation [Berger and Schwichtenberg 1991]. Here we compute $\eta$-long normal forms for the simply-typed lambda calculus. See also [Cave and Pientka 2012] for more information on this example.
+</p><p>
+The setup is a standard intrinsically-typed lambda calculus: 
+</p><p></p><br><pre><code><span class="typ" id="tp">tp</span> : <keyword>type</keyword>.
+<br><keyword>--name</keyword> tp T. 
+<br><span class="constructor" id="b">b</span> : <a href="#tp">tp</a>.
+<br><span class="constructor" id="arr">arr</span> : <a href="#tp">tp</a> &#x2192 <a href="#tp">tp</a> &#x2192 <a href="#tp">tp</a>.
+<br><span class="typ" id="tm">tm</span> : <a href="#tp">tp</a> &#x2192 <keyword>type</keyword>.
+<br><keyword>--name</keyword> tm E. 
+<br><span class="constructor" id="app">app</span> : <a href="#tm">tm</a> (<a href="#arr">arr</a> T S) &#x2192 <a href="#tm">tm</a> T &#x2192 <a href="#tm">tm</a> S.
+<br><span class="constructor" id="lam">lam</span> : (<a href="#tm">tm</a> T &#x2192 <a href="#tm">tm</a> S) &#x2192 <a href="#tm">tm</a> (<a href="#arr">arr</a> T S).
+<br><keyword>schema</keyword> <span class="schema" id="tctx">tctx</span> = <a href="#tm">tm</a> T;
+</code></pre>
+<p></p><p>
+Below, we describe $\eta$-long normal forms. Notice that we allow embedding of neutral terms into normal terms only at base type <code>b</code>: this enforces $\eta$-longness.
+</p><p></p><br><pre><code><span class="typ" id="neut">neut</span> : <a href="#tp">tp</a> &#x2192 <keyword>type</keyword>.
+<br><keyword>--name</keyword> neut R. 
+<br><span class="typ" id="norm">norm</span> : <a href="#tp">tp</a> &#x2192 <keyword>type</keyword>.
+<br><keyword>--name</keyword> norm M. 
+<br><span class="constructor" id="nlam">nlam</span> : (<a href="#neut">neut</a> T &#x2192 <a href="#norm">norm</a> S) &#x2192 <a href="#norm">norm</a> (<a href="#arr">arr</a> T S).
+<br><span class="constructor" id="rapp">rapp</span> : <a href="#neut">neut</a> (<a href="#arr">arr</a> T S) &#x2192 <a href="#norm">norm</a> T &#x2192 <a href="#neut">neut</a> S.
+<br><span class="constructor" id="embed">embed</span> : <a href="#neut">neut</a> <a href="#b">b</a> &#x2192 <a href="#norm">norm</a> <a href="#b">b</a>.
+<br><keyword>schema</keyword> <span class="schema" id="ctx">ctx</span> = <a href="#neut">neut</a> T;
+</code></pre>
+<p></p><p>
+The key idea is to evaluate terms into a special domain of semantic values, which can then be reified back into normal forms.
+Below we describe the domain of semantic values, which we can think of as being defined by recursion on the type. At base type, semantic values are precisely normal forms. At arrow type <code>arr A B</code>, a semantic value <code>Sem [g] [ &#8866; arr A B]</code> is a function from semantic values of type <code>A</code> in an extended context <code>h</code> to semantic values of type <code>B</code> in <code>h</code>. The extension of a context is tracked by a substitution <code>#W</code> which transports normal terms in context <code>g</code> to normal terms in context <code>h</code>.
+</p><p>
+In the course of this development, <code>#W</code> will only ever be instantiated with a weakening substitution, transporting from <code>g</code> to <code>g,x1:neut T1,&hellip;.,xn:neut Tn</code>, but the extra generality does no harm here.
+</p><p></p><br><pre><code><keyword>inductive</keyword> <span class="typ" id="Sem">Sem</span> : {g : <a href="#ctx">ctx</a>} &#x2192 {y : [ &#x22A2 <a href="#tp">tp</a>]} &#x2192 <keyword>ctype</keyword> = 
+| <span class="constructor" id="Base">Base</span> : [g &#x22A2 <a href="#norm">norm</a> <a href="#b">b</a>] &#x2192 <a href="&sigma;em">Sem</a> [g] [ &#x22A2 <a href="#b">b</a>]
+| <span class="constructor" id="Arr">Arr</span> : {g : <a href="#ctx">ctx</a>} ({h : <a href="#ctx">ctx</a>} [h &#x22A2 g] <a href="&sigma;em">Sem</a> [h] [ &#x22A2 A] &#x2192 <a href="&sigma;em">Sem</a> [h] [ &#x22A2 B]) &#x2192 <a href="&sigma;em">Sem</a> [g] [ &#x22A2 <a href="#arr">arr</a> A B];
+</code></pre>
+<p></p><p>
+We can weaken semantic values:
+</p><p></p><br><pre><code><keyword>rec</keyword> <span class="function" id="sem_wkn">sem_wkn</span> : {h : <a href="#ctx">ctx</a>} [h &#x22A2 g] <a href="&sigma;em">Sem</a> [g] [ &#x22A2 A] &#x2192 <a href="&sigma;em">Sem</a> [h] [ &#x22A2 A]  =
+<keyword>mlam</keyword> h &#x21D2 <keyword>mlam</keyword> W &#x21D2 <keyword>fn</keyword> e &#x21D2 <keyword>case</keyword> e <keyword>of</keyword> 
+  | <a href="#Base">Base</a> ([g &#x22A2 R])  &#x21D2 <a href="#Base">Base</a> [h &#x22A2 R[#W]]
+  | <a href="#Arr">Arr</a> ([g]) f  &#x21D2 <a href="#Arr">Arr</a> [h] (<keyword>mlam</keyword> h' &#x21D2 <keyword>mlam</keyword> W2 &#x21D2 f [h'] [h' &#x22A2 #W[#W2]]);
+</code></pre>
+<p></p><p>
+Environments:
+</p><p></p><br><pre><code><keyword>datatype</keyword> Env : {g : <a href="#tctx">tctx</a>} &#x2192 {h : <a href="#ctx">ctx</a>} &#x2192 <keyword>ctype</keyword> =
+{T : [ &#x22A2 <a href="#tp">tp</a>]} {#p : [g &#x22A2 <a href="#tm">tm</a> T[]]} <a href="&sigma;em">Sem</a> [h] [ &#x22A2 T];
+<br><keyword>rec</keyword> <span class="function" id="env_ext">env_ext</span> : <a href="#Env">Env</a> [g] [h] &#x2192 <a href="&sigma;em">Sem</a> [h] [ &#x22A2 S] &#x2192 <a href="#Env">Env</a> [g, x : <a href="#tm">tm</a> S[]] [h]  =
+<keyword>fn</keyword> s &#x21D2 <keyword>let</keyword>  s : <a href="#Env">Env</a> [g] [h]= s <keyword>in</keyword> <keyword>fn</keyword> e &#x21D2 <keyword>mlam</keyword> T &#x21D2 <keyword>mlam</keyword> p &#x21D2 <keyword>case</keyword> [g, x : <a href="#tm">tm</a> _ &#x22A2 #p] <keyword>of</keyword> 
+  | [g, x : <a href="#tm">tm</a> S &#x22A2 x] &#x21D2 e
+  | [g, x : <a href="#tm">tm</a> S &#x22A2 #q[&hellip;]] &#x21D2 s [ &#x22A2 T] [g &#x22A2 #q];
+<br><keyword>rec</keyword> <span class="function" id="env_wkn">env_wkn</span> : {h' : <a href="#ctx">ctx</a>} {h : <a href="#ctx">ctx</a>} [h' &#x22A2 h] <a href="#Env">Env</a> [g] [h] &#x2192 <a href="#Env">Env</a> [g] [h']  =
+<keyword>mlam</keyword> h' &#x21D2 <keyword>mlam</keyword> h &#x21D2 <keyword>mlam</keyword> W &#x21D2 <keyword>fn</keyword> s &#x21D2 
+  <keyword>let</keyword>  s : <a href="#Env">Env</a> [g] [h]= s <keyword>in</keyword> <keyword>mlam</keyword> T &#x21D2 <keyword>mlam</keyword> p &#x21D2 <a href="#sem_wkn">sem_wkn</a> [h'] [h' &#x22A2 #W] (s [ &#x22A2 T] [g &#x22A2 #p]);
+</code></pre>
+<p></p><p>
+We evaluate a term in an environment providing semantic values for each free variable:
+</p><p></p><br><pre><code><keyword>rec</keyword> <span class="function" id="eval">eval</span> : [g &#x22A2 <a href="#tm">tm</a> S[]] &#x2192 <a href="#Env">Env</a> [g] [h] &#x2192 <a href="&sigma;em">Sem</a> [h] [ &#x22A2 S]  =
+<keyword>fn</keyword> t &#x21D2 <keyword>fn</keyword> s &#x21D2 <keyword>let</keyword>  s : <a href="#Env">Env</a> [g] [h]= s <keyword>in</keyword> <keyword>case</keyword> t <keyword>of</keyword> 
+  | [g &#x22A2 #p] &#x21D2 s [ &#x22A2 _] [g &#x22A2 #p]
+  | [g &#x22A2 <a href="#lam">lam</a> (&lambda;x. E)] &#x21D2
+    <a href="#Arr">Arr</a> [h] (<keyword>mlam</keyword> h' &#x21D2 <keyword>mlam</keyword> W &#x21D2 <keyword>fn</keyword> e &#x21D2 <a href="#eval">eval</a> [g, x : <a href="#tm">tm</a> _ &#x22A2 E] (<a href="#env_ext">env_ext</a> (<a href="#env_wkn">env_wkn</a> [h'] [h] [h' &#x22A2 #W] s) e))
+  | [g &#x22A2 <a href="#app">app</a> E1 E2] &#x21D2
+    <keyword>let</keyword>  <a href="#Arr">Arr</a> ([h]) f = <a href="#eval">eval</a> [g &#x22A2 E1] s <keyword>in</keyword> f [h] [h &#x22A2 &hellip;] (<a href="#eval">eval</a> [g &#x22A2 E2] s);
+</code></pre>
+<p></p><p>
+Reflect and reify
+</p><p></p><br><pre><code><keyword>rec</keyword> <span class="function" id="app'">app'</span> : (g:<a href="#ctx">ctx</a>) {R : [g &#x22A2 <a href="#neut">neut</a> (<a href="#arr">arr</a> T[] S[])]} [g &#x22A2 <a href="#norm">norm</a> T[]] &#x2192 [g &#x22A2 <a href="#neut">neut</a> S[]]  =
+<keyword>mlam</keyword> R &#x21D2 <keyword>fn</keyword> n &#x21D2 <keyword>let</keyword>  [g &#x22A2 N] = n <keyword>in</keyword> [g &#x22A2 <a href="#rapp">rapp</a> R N];
+<br><keyword>rec</keyword> <span class="function" id="reflect">reflect</span> : [g &#x22A2 <a href="#neut">neut</a> A[]] &#x2192 <a href="&sigma;em">Sem</a> [g] [ &#x22A2 A]  =
+<keyword>fn</keyword> r &#x21D2 <keyword>let</keyword>  [g &#x22A2 R] : [g &#x22A2 <a href="#neut">neut</a> A[]]= r <keyword>in</keyword> <keyword>case</keyword> [ &#x22A2 A] <keyword>of</keyword> 
+  | [ &#x22A2 <a href="#b">b</a>] &#x21D2 <a href="#Base">Base</a> [g &#x22A2 <a href="#embed">embed</a> R]
+  | [ &#x22A2 <a href="#arr">arr</a> T S] &#x21D2
+    <a href="#Arr">Arr</a> [g] (<keyword>mlam</keyword> h &#x21D2 <keyword>mlam</keyword> W &#x21D2 <keyword>fn</keyword> e &#x21D2 <a href="#reflect">reflect</a> (<a href="#app'">app'</a> [h &#x22A2 R[#W]] (reify e)))
+<keyword>and</keyword> <span class="function" id="reify">reify</span> : <a href="&sigma;em">Sem</a> [g] [ &#x22A2 A] &#x2192 [g &#x22A2 <a href="#norm">norm</a> A[]]  =
+<keyword>fn</keyword> e &#x21D2 <keyword>case</keyword> e <keyword>of</keyword> 
+  | <a href="#Base">Base</a> ([g &#x22A2 R])  &#x21D2 [g &#x22A2 R]
+  | <a href="#Arr">Arr</a> ([g]) f  &#x21D2
+    <keyword>let</keyword>  [g, x : <a href="#neut">neut</a> _ &#x22A2 E] =
+    <a href="#reify">reify</a> (f [g, x : <a href="#neut">neut</a> _] [g, x &#x22A2 &hellip;] (<a href="#reflect">reflect</a> [g, x : <a href="#neut">neut</a> _ &#x22A2 x])) <keyword>in</keyword> [g &#x22A2 <a href="#nlam">nlam</a> (&lambda;x. E)];
+</code></pre>
+<p></p><p>
+Finally, we can normalize terms, by first evaluating them into semantic values, then reifying them back into semantic values.
+</p><p></p><br><pre><code><keyword>rec</keyword> <span class="function" id="emp_env">emp_env</span> : <a href="#Env">Env</a> [] []  =
+<keyword>mlam</keyword> T &#x21D2 <keyword>mlam</keyword> p &#x21D2 <keyword>impossible</keyword> [ &#x22A2 #p];
+<br><keyword>rec</keyword> <span class="function" id="nbe">nbe</span> : [ &#x22A2 <a href="#tm">tm</a> A] &#x2192 [ &#x22A2 <a href="#norm">norm</a> A]  =
+<keyword>fn</keyword> t &#x21D2 <a href="#reify">reify</a> (<a href="#eval">eval</a> t <a href="#emp_env">emp_env</a>);
+</code></pre>
+<p></p><p>
+One could also implement <code>nbe</code> to directly normalize terms in an environment: <code>[g &#8866; tm A] &#x2192 [h &#8866; norm A]</code> where <code>h</code> is appropriately related to <code>g</code>. We leave this as an exercise for the reader.
+</p><p></p><br><br><h3>To download the code: <a href="Normalization_by_Evaluation.bel" target="_blank">Normalization_by_Evaluation.bel</a></h3>
+
+</body>
+</html>

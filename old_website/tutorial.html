@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Beluga: Functional Programming with Higher-Order Abstract Syntax</title>
+   <link rel="stylesheet" type="text/css" href="../tutorial-style.css" />
+</head>
+
+<body>
+<script type="text/javascript" language="javascript">
+<!--
+function rule(name, top, bottom) {
+    var top = top.join(" &nbsp; &nbsp; ");
+    document.write(
+        "<p><table cellpadding=0>" +
+        "<tr>" +
+            "<td align=center>\n" + top + "<\/td>" +
+            "<td><\/td>" +
+        "<\/tr>" +
+        "<tr style='line-height:0.1'>" +
+            "<td align=center'>" +
+                "<div style='border-bottom: solid 1px #000'><\/div>" +
+            "<\/td>" +
+            "<td> " +
+                // position:relative is necessary to prevent IE from
+                // clipping off the top and bottom of the name
+                "<span style='position:relative'><tt>"+name+"<\/tt><\/span>"+
+                "<\/td>" +
+        "<\/tr>\n" +
+        "<tr>" +
+            "<td align=center>\n" + bottom + "<\/td>" +
+            "<td><\/td>" +
+        "<\/tr>" +
+        "<\/table><\/p>"
+    )
+}
+// -->
+</script>
+
+<div id="wrapper">
+   <iframe width="780" scrolling="no" frameBorder="0" src="header.html"></iframe> 
+  <div id="menu">
+   </div>
+<div id="main">
+
+   <h1>Tutorial</h1>
+
+<p> We discuss five case studies done in Beluga. All of them revolve around the
+ lambda-calculus. If you would like to run any of these examples, we suggest you download the files associated with each of the proofs instead of copy-pasting the code from the webpage. If you'd like to display the examples as we show them on these webpages, please use the emacs-mode for Beluga which is part of the Beluga distribution. </p>
+
+<p><strong>Update (20 April, 2010):</strong> We have recently added context reconstruction to Beluga. This means we can omit passing a context explicitely provided we omit the brackets and the star around a context schema declaration in a computation-level type, i.e. instead of writing <codeinline>{g:(ctx )*}</codeinline> we simply write <codeinline>{g:ctx}</codeinline>.
+</p>
+
+<p><strong>Update (06 September, 2012):</strong> We did an overhaul of the syntax of Beluga. Please refer the <a href="http://complogic.cs.mcgill.ca/beluga/grammar.html">grammar description</a> and the <a href="tutorial.pdf">beginners guide</a> for details.
+
+
+<h3>Defining the simply-typed lambda-calculus in LF</h3>
+<p>
+We begin by defining types and expressions in LF using higher-order abstract syntax. 
+The main idea is to represent binders in the object-language (i.e., the on paper formulation of the lambda-calculus) with binders in our meta-language (i.e., LF). The constructor for abstractions hence takes in two arguments: the type of the input argument and a function of type <codeinline>(exp &rarr; exp)</codeinline> describing the body of the abstraction. For more information on how to represent formal systems in the logical framework LF see the excellent resources for the <a href="http://twelf.plparty.org/wiki/Main_Page">Twelf system</a>. </p>
+
+
+
+<pre class="code">
+<keyword>datatype</keyword> tp : <keyword>type</keyword> =                      
+| arr : tp &rarr; tp &rarr;  tp
+| nat : tp
+;
+<keyword>%name</keyword> tp T.
+
+<keyword>datatype</keyword> exp : <keyword>type</keyword> =                      
+| lam : tp  &rarr; (exp &rarr; exp) &rarr; exp
+| app : exp &rarr; exp &rarr; exp
+;
+<keyword>%name</keyword> exp E.
+</pre>
+
+<h3>Examples</h3>
+<p>
+Next, we give a few examples of encoding lambda-terms from the object-language in our meta-language. 
+</p>
+<ul>
+<li>&lambda; x:nat.x is represented as <codeinline>lam nat \x.x</codeinline>. </li>
+<li>&lambda; x:nat &rArr; nat. &lambda; y:nat. x  y is represented as <codeinline>lam (arr nat nat) (\x. lam nat \y. app x y)</codeinline>.</li>
+</ul>
+
+<h3>Defining the typing rules for the simply-typed lambda-calculus in LF</h3>
+<p>Next, we define the typing judgment.</p>
+
+<pre class="code">
+<keyword>datatype</keyword> type_of : exp &rarr; tp &rarr; <keyword>type</keyword> =     
+| t_lam : ({x:exp}type_of x T1 &rarr; type_of (E x) T2)
+	&rarr; type_of (lam T1 E) (arr T1 T2)
+| t_app : type_of E1 (arr T2 T) &rarr; type_of E2 T2
+       &rarr; type_of (app E1 E2) T
+;
+<keyword>%name</keyword> type_of H.
+</pre>
+
+<p>
+We again use ideas from higher-order abstract syntax representing the parameteric and hypothetical derivation in the premise of the typing rule for lambda-abstraction using a higher-order function with type
+<codeinline>({x:exp}type_of x T1 &rarr; type_of (E x) T2)</codeinline>. The definition <codeinline>t_lam</codeinline> reads as follows: if for all variables <codeinline>x</codeinline> assuming <codeinline>type_of x T1</codeinline> implies <codeinline>type_of (E x) T2</codeinline>, then we can conclude <codeinline>type_of (lam T1 E) (arr T1 T2).</codeinline>.
+</p>
+
+<h2>Proofs about the simply-typed lambda-calculus</h2>
+<h3><a href="uniqueness-example.html">1. Type uniqueness</a></h3> 
+<h3><a href="path-example.html">2. Reasoning about paths in lambda-terms</a></h3>
+<h3><a href="tps-example.html">3. Subject reduction</a></h3>
+<h3><a href="eq-example.html">4. Equality reasoning</a></h3>
+<h3><a href="struct-smaller.html">5. Reasoning about smaller relation on lambda-terms</a></h3>
+
+
+<p>
+</p>
+</div>
+<div id="footer">
+   <?php echoFile("../footer.html"); ?>
+</div>
+
+</div>
+ 
+
+</body>
+</html>

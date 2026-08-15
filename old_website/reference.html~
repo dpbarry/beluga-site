@@ -1,0 +1,283 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Beluga Quick Reference</title>
+<!--   <link rel="stylesheet" type="text/css" href="../style.css" /> -->
+</head>
+<body>
+
+<!-- header -->
+<div id="header">
+
+<p style="float:right;padding:6pt 6pt 6pt 6pt">
+  <a href="../images/beluga-med.png">
+    <img src="../images/beluga-sm.png"
+         alt="Beluga logo" />
+      </a>
+</p>
+
+<h1><a href="http://complogic.cs.mcgill.ca/beluga/">Beluga</a> Quick Reference</h1>
+<br /><br /><br />
+</div>
+<!-- header end -->
+<div id="wrapper">
+<div id="main">
+
+  <h1>Syntax</h1>
+
+  <h2>Lexical</h2>
+
+  <ul>
+  <li><b>Reserved characters:</b> <tt>% , . : ; ( ) [ ] { } \ "</tt>
+  </li><li>
+  </li></ul>
+<table>
+    <tr><td><i>digit</i></td> <td>::=</td> <td><b><tt>1</tt></b> | <b><tt>2</tt></b> | <b><tt>3</tt></b> | <b><tt>4</tt></b> | <b><tt>5</tt></b> | ... | <b><tt>9</tt></b></td></tr>
+
+    <tr><td><i>number</i></td> <td>::=</td> <td>(<i>digit</i>)+
+    </td></tr>
+
+    <tr><td><i>sym</i></td> <td>::=</td> <td><i>startchar</i>(<i>symchar</i>)*
+        </td></tr>
+
+    <tr><td><i>upsym</i></td> <td>::=</td> <td>(<b><tt>A</tt></b> | ... | <b><tt>Z</tt></b>)(<i>symchar</i>)*
+        </td></tr>
+
+    <tr><td><i>startchar</i></td> <td>::=</td> <td><b><tt>A</tt></b> | ... | <b><tt>Z</tt></b>
+                                      | <b><tt>a</tt></b> | ... | <b><tt>z</tt></b>
+        </td></tr>
+        <tr><td></td><td align="right">|</td> <td> <b><tt>!</tt></b> | <b><tt>$</tt></b> | <b><tt>&amp;</tt></b>
+                             | <b><tt>'</tt></b> | <b><tt>*</tt></b> | <b><tt>+</tt></b> | <b><tt>-</tt></b> | <b><tt>/</tt></b>
+                             | <b><tt>:</tt></b> | <b><tt>=</tt></b> | <b><tt>?</tt></b> | <b><tt>@</tt></b>
+        </td></tr>
+        <tr><td></td><td align="right">|</td> <td> <i>(any non-ASCII UTF-8 character)</i>
+        </td></tr>
+
+    <tr><td><i>symchar</i></td> <td>::=</td> <td><b><tt>A</tt></b> | ... | <b><tt>Z</tt></b>
+                                      | <b><tt>a</tt></b> | ... | <b><tt>z</tt></b>
+        </td></tr>
+        <tr><td></td><td align="right">|</td> <td> <b><tt>!</tt></b> | <b><tt>$</tt></b> | <b><tt>&amp;</tt></b>
+                             | <b><tt>'</tt></b> | <b><tt>*</tt></b> | <b><tt>+</tt></b> | <b><tt>-</tt></b> | <b><tt>/</tt></b>
+                             | <b><tt>:</tt></b> | <b><tt>=</tt></b> | <b><tt>?</tt></b> | <b><tt>@</tt></b>
+        </td></tr>
+        <tr><td></td><td align="right">|</td> <td> <i>digit</i>
+        </td></tr>
+        <tr><td></td><td align="right">|</td> <td> <b><tt>#</tt></b>
+        </td></tr>
+        <tr><td></td><td align="right">|</td> <td> <i>(any non-ASCII UTF-8 character)</i>
+        </td></tr>
+</table>
+
+<p>
+<b>Reserved words</b>:
+ &nbsp;&nbsp; &nbsp; <b><tt>|</tt></b> &nbsp;&nbsp; <b><tt>!</tt></b> &nbsp;&nbsp; <b><tt>=</tt></b> &nbsp;&nbsp; <b><tt>+</tt></b> &nbsp;&nbsp; <b><tt>*</tt></b> &nbsp;&nbsp; <b><tt>&lt;</tt></b> &nbsp;&nbsp; <b><tt>&gt;</tt></b> &nbsp;&nbsp; <b><tt>-&gt;</tt></b> &nbsp;&nbsp; <b><tt>&lt;-</tt></b> &nbsp;&nbsp; <b><tt>=&gt;</tt></b> &nbsp;&nbsp; <b><tt>FN</tt></b> &nbsp;&nbsp; <b><tt>block</tt></b> &nbsp;&nbsp; <b><tt>case</tt></b> &nbsp;&nbsp; <b><tt>fn</tt></b> &nbsp;&nbsp; <b><tt>in</tt></b> &nbsp;&nbsp; <b><tt>let</tt></b> &nbsp;&nbsp; <b><tt>mlam</tt></b> &nbsp;&nbsp; <b><tt>of</tt></b> &nbsp;&nbsp; <b><tt>rec</tt></b> &nbsp;&nbsp; <b><tt>schema</tt></b> &nbsp;&nbsp; <b><tt>some</tt></b> &nbsp;&nbsp; <b><tt>type</tt></b> &nbsp;&nbsp; <b><tt>%name</tt></b> &nbsp;&nbsp; <b><tt>%not</tt></b>
+</p>
+
+<p><b>Reserved but unused:</b>
+ &nbsp;&nbsp;   <b><tt>box</tt></b> &nbsp;&nbsp; <b><tt>coercion</tt></b> &nbsp;&nbsp; <b><tt>id</tt></b> 
+</p>
+
+<p><b>The characters &lt; and &gt; are also permitted in identifiers; however</b>: no letter can follow <b><tt>&lt;</tt></b> or
+precede a <b><tt>&gt;</tt></b>, and a symbol containing either can only contain:
+</p>
+<p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   <b><tt>!</tt></b> <b><tt>$</tt></b> <b><tt>&amp;</tt></b> <b><tt>'</tt></b> <b><tt>*</tt></b> <b><tt>+</tt></b> <b><tt>-</tt></b> <b><tt>/</tt></b>
+   <b><tt>:</tt></b> <b><tt>=</tt></b> <b><tt>:</tt></b> <b><tt>?</tt></b> <b><tt>@</tt></b>
+   <b><tt>^</tt></b> <b><tt>`</tt></b> <b><tt>|</tt></b> <b><tt>~</tt></b> <b><tt>#</tt></b>
+</p>
+<p>(In <tt>&lt;g, x. U .. x&gt;</tt>, intended to form
+part of a meta-variable application, we thus interpret <tt>&lt;g</tt> as <tt>&lt; g</tt>, not as a single identifier <tt>&lt;g</tt>.)</p>
+
+
+  <h2>Grammar</h2>
+
+    <table>
+    <tr><td>program</td> <td>::=</td>  <!-- sgn_eoi -->
+            <td>declaration*</td>
+    </tr>  
+
+    <tr><td>declaration</td> <td>::=</td>     <td><i>sym</i> : kind <b><tt>.</tt></b></td></tr>
+        <tr><td></td><td align="right">|</td> <td><i>sym</i> : type <b><tt>.</tt></b></td></tr>
+        <tr><td></td><td align="right">|</td> <td><b><tt>%name</tt></b> <i>sym</i> <i>upsym</i> [<i>sym</i>] <b><tt>.</tt></b></td></tr>
+        <tr><td></td><td align="right">|</td> <td><b><tt>%not</tt></b></td><td><i>For testing only</i></td></tr>
+        <tr><td></td><td align="right">|</td> <td><b><tt>schema</tt></b> <i>sym</i> <b><tt>=</tt></b> schema-elem (<b><tt>+</tt></b> schema-elem)* <b><tt>;</tt></b></td></tr>
+        <tr><td></td><td align="right">|</td> <td><b><tt>let</tt></b> <i>sym</i> [<b><tt>:</tt></b> cmp-typ]
+            <b><tt>=</tt></b> cmp-exp-syn <b><tt>;</tt></b></td></tr>
+        <tr><td></td><td align="right">|</td> <td><b><tt>rec</tt></b> cmp-rec (<b><tt>and</tt></b> cmp-rec)* <b><tt>;</tt></b></td></tr>
+    
+    <tr><td>kind</td> <td>::=</td>     <td><b><tt>{</tt></b> <i>sym</i> <b><tt>:</tt></b> type <b><tt>}</tt></b> kind</td></tr>
+        <tr><td></td><td align="right">|</td>  <td>kind <b><tt>-&gt;</tt></b> kind </td></tr>
+        <tr><td></td><td align="right">|</td>  <td>kind <b><tt>&lt;-</tt></b> kind </td></tr>
+        <tr><td></td><td align="right">|</td>  <td><b><tt>type</tt></b></td></tr>
+
+    <tr><td>type</td> <td>::=</td>     <td><b><tt>{</tt></b> <i>sym</i> <b><tt>:</tt></b> type <b><tt>}</tt></b> type</td></tr>
+        <tr><td></td><td align="right">|</td>  <td>type <b><tt>-&gt;</tt></b> type </td></tr>
+        <tr><td></td><td align="right">|</td>  <td>type <b><tt>&lt;-</tt></b> type </td></tr>
+        <tr><td></td><td align="right">|</td>  <td>lf-typ</td></tr>
+
+
+    <tr><td>lf-typ</td> <td>::=</td>   <td><b><tt>{</tt></b> <i>sym</i> <b><tt>:</tt></b> lf-typ <b><tt>}</tt></b> lf-typ</td></tr>
+        <tr><td></td><td align="right">|</td> <td>lf-typ <b><tt>-&gt;</tt></b> lf-typ</td></tr>
+        <tr><td></td><td align="right">|</td> <td>lf-typ <b><tt>&lt;-</tt></b> lf-typ</td></tr>
+        <tr><td></td><td align="right">|</td> <td><b><tt>(</tt></b> lf-typ <b><tt>)</tt></b></td></tr>
+        <tr><td></td><td align="right">|</td> <td><i>sym</i> lf-term*</td></tr>
+
+    <tr><td>lf-term</td> <td>::=</td> <td><tt>\</tt> <i>sym</i> <tt>.</tt> lf-term</td></tr>
+        <tr><td></td><td align="right">|</td> <td><i>sym</i> lf-term*</td></tr>
+        <tr><td></td><td align="right">|</td> <td><tt>_</tt></td></tr>
+        <tr><td></td><td align="right">|</td> <td><tt>(</tt> lf-term <tt>)</tt></td></tr>
+
+    <tr><td>schema-elem</td> <td>::=</td><td>[<b><tt>some</tt></b> <b><tt>[</tt></b> <i>sym</i> <b><tt>:</tt></b> lf-typ (<b><tt>,</tt></b> <i>sym</i> <b><tt>:</tt></b> lf-typ)* <b><tt>]</tt></b> ] lf-typ-rec</td></tr>
+
+    <tr><td>lf-typ-rec-opt</td><td>::=</td><td>lf-typ-rec</td></tr>
+        <tr><td></td><td align="right">|</td> <td><b><tt>_</tt></b></td></tr>
+
+    <tr><td>lf-typ-rec</td><td>::=</td><td>[ <b><tt>block</tt></b> <i>sym</i> <b><tt>:</tt></b> lf-typ (<b><tt>,</tt></b> <i>sym</i> <b><tt>:</tt></b> lf-typ)* <b><tt>.</tt></b> ] lf-typ</td></tr>
+
+    <tr><td>lf-hat-elem</td> <td>::=</td><td> <i>sym</i> </td><td></td></tr>
+
+    <tr><td>clf-ctyp-decl</td> <td>::=</td><td><b><tt>{</tt></b> <b><tt>#</tt></b> <i>sym</i> <b><tt>::</tt></b>
+                                               clf-typ-sigma <b><tt>[</tt></b> clf-dctx <b><tt>]</tt></b> <b><tt>}</tt></b>
+    </td></tr>
+        <tr><td></td><td align="right">|</td> <td><b><tt>{</tt></b> <i>upsym</i> <b><tt>::</tt></b> clf-typ <b><tt>[</tt></b> clf-dctx <b><tt>]</tt></b> <b><tt>}</tt></b> </td></tr>
+
+<!-- clf-term is called clf-normal in parser.ml -->
+    <tr><td>clf-term</td> <td>::=</td>
+      <td><b><tt>\</tt></b> <i>sym</i> <b><tt>.</tt></b> clf-term-app
+      </td><td>
+      </td></tr>
+        <tr><td></td><td align="right">|</td> <td>
+          <i>upsym</i>
+        </td></tr>
+        <tr><td></td><td align="right">|</td> <td>
+          <b><tt>(</tt></b> <i>upsym</i> clf-sub <b><tt>)</tt></b>
+        </td></tr>
+
+        <tr><td></td><td align="right">|</td> <td>
+          clf-head
+        </td></tr>
+
+        <tr><td></td><td align="right">|</td> <td>
+          <b><tt>_</tt></b>
+        </td></tr>
+
+        <tr><td></td><td align="right">|</td> <td>
+          <b><tt>(</tt></b> clf-term-app <b><tt>)</tt></b>
+        </td></tr>
+
+        <tr><td></td><td align="right">|</td> <td>
+          <b><tt>&lt;</tt></b> clf-term-app (<b><tt>,</tt></b> clf-term-app)*
+          <b><tt>&gt;</tt></b>
+        </td></tr>
+    
+
+    <tr><td>clf-typ</td> <td>::=</td><td><b><tt>{</tt></b> <i>sym</i> <b><tt>:</tt></b> clf-typ <b><tt>}</tt></b> clf-typ</td></tr>
+        <tr><td></td><td align="right">|</td> <td><b><tt>(</tt></b> clf-typ <b><tt>)</tt></b></td></tr>
+        <tr><td></td><td align="right">|</td> <td><i>sym</i> clf-term*</td></tr>
+
+    <tr><td>clf-typ-sigma</td> <td>::=</td><td><b><tt>block</tt></b> clf-typ-rec-elem (<b><tt>,</tt></b> clf-typ-rec-elem) <b><tt>.</tt></b> clf-typ </td></tr>
+        <tr><td></td><td align="right">|</td> <td><b><tt>(</tt></b> clf-typ-sigma <b><tt>)</tt></b></td></tr>
+        <tr><td></td><td align="right">|</td> <td><i>sym</i> clf-term*</td></tr>
+
+    <tr><td>clf-typ-rec-elem</td> <td>::=</td><td><i>sym</i> <b><tt>:</tt></b> clf-typ</td></tr>
+        <tr><td></td><td align="right">|</td> <td><i>upsym</i> <b><tt>:</tt></b> lf-typ</td></tr>
+
+    <tr><td>clf-term-x</td> <td>::=</td>     <td>clf-term</td></tr>
+        <tr><td></td><td align="right">|</td> <td><i>upsym</i> [clf-sub] </td></tr>
+
+    <tr><td>clf-term-app</td> <td>::=</td>     <td>clf-head clf-term*</td></tr>
+        <tr><td></td><td align="right">|</td> <td>clf-term-x </td></tr>
+
+    <tr><td>clf-head</td> <td>::=</td> <td><b><tt>#</tt></b> <i>sym</i> [<b><tt>.</tt></b> <i>number</i>] clf-sub
+                                       </td></tr>
+        <tr><td></td><td align="right">|</td> <td> <i>sym</i> [<b><tt>.</tt></b> <i>number</i>] </td></tr>
+
+
+    <tr><td>clf-sub</td> <td>::=</td> <td><b><tt>..</tt></b>
+                                       </td></tr>
+        <tr><td></td><td align="right">|</td> <td>clf-sub clf-head </td></tr>
+        <tr><td></td><td align="right">|</td> <td>clf-sub clf-term </td></tr>
+        <tr><td></td><td align="right">|</td> <td>clf-head </td></tr>
+        <tr><td></td><td align="right">|</td> <td>clf-term </td></tr>
+
+    <tr><td>clf-dctx</td> <td>::=</td> <td><i>(empty string)</i>
+                                       </td></tr>
+        <tr><td></td><td align="right">|</td> <td><i>sym</i>
+        </td></tr>
+        <tr><td></td><td align="right">|</td> <td><i>sym</i> <b><tt>:</tt></b> clf-typ
+        </td></tr>
+        <tr><td></td><td align="right">|</td> <td>clf-dctx <b><tt>,</tt></b> <i>sym</i> <b><tt>:</tt></b> clf-typ
+        </td></tr>
+
+    <tr><td>cmp-typ</td> <td>::=</td> <td><b><tt>{</tt></b> <i>sym</i> <b><tt>:</tt></b> <b><tt>(</tt></b> <i>sym</i> <b><tt>)</tt></b> <b><tt>*</tt></b> <b><tt>}</tt></b> cmp-typ
+        </td></tr>
+        <tr><td></td><td align="right">|</td> <td>cmp-typ <b><tt>*</tt></b> cmp-typ
+        </td></tr>
+        <tr><td></td><td align="right">|</td> <td>clf-typ <b><tt>[</tt></b> clf-dctx <b><tt>]</tt></b>
+        </td></tr>
+        <tr><td></td><td align="right">|</td> <td><b><tt>(</tt></b> cmp-typ <b><tt>)</tt></b>
+        </td></tr>
+
+    <tr><td>cmp-rec</td> <td>::=</td> <td><i>sym</i> <b><tt>:</tt></b> cmp-typ <b><tt>=</tt></b> cmp-exp-chk
+                                       </td></tr>
+
+    <tr><td>cmp-exp-chk</td> <td>::=</td><td> <b><tt>fn</tt></b> <i>sym</i> <b><tt>=&gt;</tt></b> cmp-exp-chk
+        </td><td>Computation-level abstraction</td></tr>
+
+        <tr><td></td><td align="right">|</td> <td> <b><tt>FN</tt></b> <i>sym</i> <b><tt>=&gt;</tt></b> cmp-exp-chk
+        </td><td>Context variable abstraction</td></tr>
+
+        <tr><td></td><td align="right">|</td> <td> <b><tt>mlam</tt></b> <i>upsym</i> <b><tt>=&gt;</tt></b> cmp-exp-chk
+        </td><td>Meta-variable abstraction</td></tr>
+
+        <tr><td></td><td align="right">|</td> <td> <b><tt>case</tt></b> cmp-exp-syn <b><tt>of</tt></b> [<b><tt>|</tt></b>] cmp-branch (<b><tt>|</tt></b> cmp-branch)*
+        </td><td>Case expression</td></tr>
+
+        <tr><td></td><td align="right">|</td> <td> <b><tt>let</tt></b> <b><tt>(</tt></b> <i>sym</i> <b><tt>,</tt></b> <i>sym</i> <b><tt>)</tt></b> <b><tt>=</tt></b> cmp-exp-syn <b><tt>in</tt></b> cmp-exp-chk
+        </td><td>LetPair</td></tr>
+
+        <tr><td></td><td align="right">|</td> <td>
+               <b><tt>let</tt></b> clf-ctyp-decl* <b><tt>[</tt></b> clf-dctx <b><tt>]</tt></b> clf-term-app
+               [<b><tt>:</tt></b> clf-typ <b><tt>[</tt></b> clf-dctx <b><tt>]</tt></b>]
+               <b><tt>=</tt></b> cmp-exp-syn <b><tt>in</tt></b> cmp-exp-chk
+        </td><td>Let</td></tr>
+
+        <tr><td></td><td align="right">|</td> <td> <b><tt>[</tt></b> lf-hat-elem (<b><tt>,</tt></b> lf-hat-elem)* <b><tt>]</tt></b> clf-term-app
+        </td><td>Boxed data</td></tr>
+
+        <tr><td></td><td align="right">|</td> <td> <b><tt>(</tt></b> cmp-exp-chk <b><tt>)</tt></b>
+        </td><td></td></tr>
+        <tr><td></td><td align="right">|</td> <td> <b><tt>(</tt></b> cmp-exp-chk <b><tt>,</tt></b> cmp-exp-chk <b><tt>)</tt></b>
+        </td><td></td></tr>
+        <tr><td></td><td align="right">|</td> <td> cmp-exp-syn
+        </td><td></td></tr>
+
+
+    <tr><td>cmp-exp-syn</td> <td>::=</td><td> cmp-exp-syn <b><tt>[</tt></b> clf-dctx <b><tt>]</tt></b>
+        </td><td>Context application</td></tr>
+
+        <tr><td></td><td align="right">|</td> <td>cmp-exp-syn <b><tt>&lt;</tt></b> [lf-hat-elem (<b><tt>,</tt></b> lf-hat-elem)*] <b><tt>.</tt></b> clf-term-app <b><tt>&gt;</tt></b>
+        </td><td>Meta-variable application</td></tr>
+
+        <tr><td></td><td align="right">|</td> <td>cmp-exp-syn cmp-exp-chk
+        </td><td>Computation-level application</td></tr>
+
+        <tr><td></td><td align="right">|</td> <td><i>sym</i>
+        </td><td>Variable</td></tr>
+
+        <tr><td></td><td align="right">|</td> <td><b><tt>[</tt></b> clf-dctx <b><tt>]</tt></b> clf-term-app
+        </td><td>BoxVal</td></tr>
+
+    <tr><td>cmp-branch</td> <td>::=</td><td> clf-ctyp-decl* <b><tt>[</tt></b> clf-dctx <b><tt>]</tt></b> clf-term-app [<b><tt>:</tt></b> clf-typ <b><tt>[</tt></b> clf-dctx <b><tt>]</tt></b>
+                                        <b><tt>=&gt;</tt></b> cmp-exp-chk
+        </td><td> </td></tr>
+    </table>
+
+
+</div>
+&nbsp;
+</div>
+</body>
+</html>

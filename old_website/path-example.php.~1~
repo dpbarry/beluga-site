@@ -1,0 +1,232 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Beluga: Functional Programming with Higher-Order Abstract Syntax</title>
+   <link rel="stylesheet" type="text/css" href="../tutorial-style.css" />
+</head>
+
+<body>
+<?php include "../functions.php"; ?>
+<div id="wrapper">
+   <?php echoFile("header.html"); ?>
+  <div id="menu">
+   </div>
+<div id="main">
+
+<h1><a href="tutorial.php">Tutorial</a></h1>
+<h2>Proofs about the simply-typed lambda-calculus</h2>
+<h3><a href="uniqueness-example.php">1. Type uniqueness</a></h3>
+<h3>2. Reasoning about paths in lambda-terms</h3>
+
+<p>This example illustrates that the expressive power of Beluga. We interpret lambda-terms essentially as a tree-structure and paths describe how to traverse it. We begin by defining paths to describe a path through a given lambda-term.
+</p>
+<pre class="code">
+path  : type.                              %name path P.
+bind  : tp -> (path -> path) -> path.
+left  : path -> path.
+right : path -> path.
+done  : path.
+</pre>
+
+<p>We can either go <codeinline>left</codeinline> or <codeinline>right</codeinline> when when encounter an application. When we see an abstraction, we memoize the type of the input argument as well as the binder. We again use higher-order abstract syntax encoding for the constructor <codeinline>bind</codeinline> which describes the path going underneath an abstraction. Finally, we allow partial paths, i.e., paths to sub-expressions, using the constructor <codeinline>done</codeinline>.
+</p>
+
+<p>Next,we define the inference rules for the traversal of a lambda-term.</p>
+
+<pre class="code">
+is_path: path &rarr; exp &rarr; type.                               %name is_path I.
+
+p_lam: is_path (bind T P) (lam T E)
+       &larr; ({x:exp}{q:path}type_of x T &rarr; is_path q x &rarr; is_path (P q) (E x)).
+
+p_left: is_path (left P) (app M N)
+       &larr; is_path P M.
+
+p_right: is_path (right P) (app M N)
+       &larr; is_path P N.
+
+p_done: is_path done M.
+</pre>
+
+<p>We want to prove the following theorem:
+</p>
+
+<p>
+<strong>Theorem:</strong>For all <codeinline>M</codeinline>, <codeinline>N</codeinline>,
+if for all paths <codeinline>P</codeinline>,  &#x22A2 <codeinline>is_path P M</codeinline>  implies  &#x22A2 <codeinline>is_path P N</codeinline>
+then   &#x22A2 <codeinline>equal M N</codeinline>. 
+</p>
+
+<p>Since during the proof we will introduce assumptions about variables and the context will not remain empty, we will prove a more general version of the theorem first, and then derive the theorem as a corollary. The generalized version is next: 
+</p>
+<p>
+<strong>Lemma:</strong>For all <codeinline>M</codeinline>, <codeinline>N</codeinline>,
+if for all paths <codeinline>P</codeinline>, &Gamma; &#x22A2 <codeinline>is_path P M</codeinline>  implies &Gamma; &#x22A2 <codeinline>is_path P N</codeinline>
+then  &Gamma; &#x22A2 <codeinline>equal M N</codeinline>. 
+</p>
+
+<p>The context &Gamma; contains assumptions <codeinline>x:exp</codeinline>, <codeinline>q:path</codeinline>, 
+<codeinline>type_of x T</codeinline>, and <codeinline>is_path q x</codeinline>. We pair all these assumptions together to ensure that whenever we have a variable <codeinline>x</codeinline> we also have a path variable <codeinline>q</codeinline> which leads to it and we know the type of it. This is achieved using the following schema declaration which defines the shape of the context &Gamma;
+</p>
+
+<pre class="code">
+schema ctx = some [t:tp] block x:exp, p:path, u:type_of x t . is_path p x ; 
+</pre>
+
+
+<h3>On paper proof:</h3>
+
+<p>
+The proof for the stated lemma can we implemented as a recursive function <codeinline> </codeinline>which has the following type:
+</p>
+
+<pre class="code">
+{g:(ctx)*}{M::exp[g]}{N::exp[g]}
+          ({P::path[g]} (is_path (P &hellip;) (M &hellip;))[g] &rarr; (is_path (P &hellip) (N &hellip))[g])
+      &rarr; (eq (M &hellip) (N &hellip))[g]  
+</pre>
+
+<p>
+The type corresponds directly to the specified lemma where <codeinline>{g:(ctx)*}</codeinline> introduces quantification over the context variable <codeinline>g</codeinline> which has schema <codeinline>ctx</codeinline>. 
+Meta-variables written with curly braces such as <codeinline>{M::exp[g]}</codeinline>,<codeinline>{N::exp[g]}</codeinline>, and 
+<codeinline>{P::exp[g]}</codeinline> correspond to universal quantification over the variables <codeinline>M</codeinline>, <codeinline>N</codeinline>, and <codeinline>P</codeinline>. 
+</p>
+
+<p>The overall type can be read as follows: For all contexts <codeinline>g</codeinline> and for all <codeinline>M</codeinline> and <codeinline>N</codeinline>, if given a proof that for all paths <codeinline>P</codeinline> where <codeinline>is_path (P &hellip;) (M &hellip;)</codeinline> in the context <codeinline>g</codeinline>, we kow <codeinline>is_path (P &hellip;) (N &hellip;)</codeinline> in the same context <codeinline>g</codeinline>, then we know that <codeinline>M</codeinlne> and <codeinline>N</codeinline> are equal (in  <codeinline>g</codeinline>). 
+</p>
+
+<p>We first show one case of the proof how it is written on paper.
+</p>
+
+<p> <strong>Case:</strong> <codeinline>M = lam T \x. M' &hellip; x</codeinline>
+
+
+<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=1>
+<TR><TD>1</TD><TD COLSPAN=2>for all <codeinline>P.(is_path (P &hellip;) (lam T \x.M' &hellip; x))[g] &rarr; (is_path (P &hellip;) (N &hellip;))[g]</TD> 
+</TR>
+<TR><TD></TD><TD></TD>
+    <TD Align=right> by assumption </TD>
+</TR>
+<TR><TD>2</TD><TD COLSPAN=2><codeinline>(is_path (bind T \q.done) (lam T \x.M' &hellip; x))[g] </codeinle> </TD>
+</TR>
+<TR>
+<TD></TD><TD>
+<codeinline>&rarr; (is_path (bind T \q.done) (N &hellip;))[g]</codeinline></TD>
+    <TD Align=right>using <codeinline>bind T \q.done</codeinline> for <codeinline>P</codeinline>  </TD>
+</TR>
+<TR><TD>3</TD><TD COLSPAN=2><codeinline>(is_path done (M' &hellip; b.1))[g, b:block x:exp,q:path,u:type_of x T.v:is_path q x]</codeinline> </TD>
+</TR>
+<TR><TD>&nbsp;</TD><TD>&nbsp;</TD>
+    <TD Align=right> by rule <codeinline>p_done</codeinline> </TD>
+</TR>
+<TR>
+<TD>4</TD><TD><codeinline>(is_path (bind T \q.done) (lam T \x.M' &hellip; x))[g]</TD>
+<TD Align=right>by rule <codeinline>p_bind</codeinline></TD>
+</TR>
+<TR>
+<TD>5</TD><TD><codeinline>(is_path (bind T \q.done) (N &hellip;))[g]</codeinline></TD>
+          <TD Align=right>using line 2 and line 4</TD>
+</TR>
+<TR>
+<TD>6</TD><TD COLSPAN=2><codeinline>(is_path done (N' &hellip; b.1))[g, block x:exp,q:path,u:type_of x T.v:is_path q x]</codeinline></TD>
+</TR>
+<TR>
+<TD>&nbsp;</TD><TD>where <codeinline>N = lam T \x.N' &hellip; x</codeinline></TD>
+               <TD Align=right> using rule <codeinline>p_bind</codeinline>  </TD>
+</TR>
+<TR>
+<TD>7</TD><TD COLSPAN=2><codeinline>(is_path done (N' &hellip; b.1))[g, block x:exp,q:path,u:type_of x T.v:is_path q x]</codeinline></TD>
+</TR>
+<TR>
+<TD>&nbsp;</TD><TD>&nbsp;</TD>
+<TD Align=right>using rule <codeinline>p_done</codeinline></TD>
+</TR>
+<TR>
+<TD>&nbsp;</TD><TD COLSPAN=2>Let <codeinline>g' = g, b:block x:exp,q:path,u:type_of x T.v:is_path q x </codeinline>
+</TR>
+<TR>
+<TD>8</TD><TD COLSPAN=2>for all <codeinline>P.(is_path done (M' &hellip; b.1))[g'] &rarr; (is_path done (N' &hellip; b.1)[g']</codeinline> </TD>
+<TD></TD>
+</TR>
+<TR>
+<TD>&nbsp;</TD>
+<TD Align=right COLSPAN=2> is obviously provable using rule <codeinline>p_done</codeinline>; more precisely its proof can be represented as:</TD>
+</TR>
+<TR><TD>&nbsp;</TD><TD COLSPAN=2 Align=right><codeinline>mlam P &rArr; <keyword>fn</keyword> ip &rArr; <keyword>let</keyword> [g'] p_done = ip <keyword>in</keyword> [g'] p_done </TD>
+</TR>
+<TR>
+<TD>9</TD><TD><codeinline>(equal (M' &hellip; b.1) (N' &hellip; b.1))[g']</codeinline></TD>
+          <TD Align=right>by i.h. on <codeinline>M'</codeinline>, <codeinline>N'</codeinline> and line 8</TD>
+</TR>
+<TR>
+<TD>10</TD><TD><codeinline>M' = N'</codeinline></TD><TD Align=right>by rule <codeinline>e_ref</codeinlne> </TD>
+</TR>
+<TR>
+<TD>11</TD><TD><codeinline>(equal (lam T \x. M' &hellip; x) (lam T \x.N' &hellip; x))[g]</codeinline></TD>
+          <TD Align=right>by rule <codeinline>e_ref</codeinline> and line 10</TD>
+</TR>
+</TABLE>
+</p>
+
+
+
+
+<p> The inductive proof can be implemented as a recursive function in Beluga following closely the more informal development given earlier. We treat computation-level expressions which correspond to quantifier introduction and elimination differently from the expressions corresponding to implication introduction and elimination. For introducing a universally quantified meta-variable <codeinline>P</codeinline>, we write <codeinline><keyword>mlam</keyword> P &rArr; ...</codeinline>. For eliminating a universal quantifier, we write <codeinline>e &lt;g.M&gt;</codeinline>  where <codeinline>e</codeinline> has type <codeinline>{M::A[g]}.tau</codeinline> and <codeinline>g.M</codeinline> describes the data-level object used to instantiate the universal quantifier and has type <codeinline>A</codeinline> in the context <codeinline>g</codeinline>. For implication introduction, we write <codeinline><keyword>fn</keyword> x &rArr; ...</codeinline>
+</p>
+<pre class="code">
+<keyword>rec</keyword> eqPath : {g:(ctx)*}{M::exp[g]}{N::exp[g]}
+             ({P::path[g]} (is_path (P &hellip;) (M &hellip;))[g] &rarr; (is_path (P &hellip;) (N &hellip;))[g])
+	     &rarr; (eq (M &hellip;) (N &hellip;))[g] = 
+<kewyord>&Lambda;</keyword> g &rArr; <keyword>mlam</keyword> M &rArr; <keyword>mlam</keyword> N &rArr; <keyword>fn</keyword> f &rArr; <keyword>case</keyword> [g] M &hellip; <keyword>of</keyword>
+ | [g] app (M1 &hellip;) (M2 &hellip;)  &rArr; 
+    <keyword>let</keyword> [g] p_left p_done : (is_path (left done) (app (N1 &hellip;) (N2 &hellip;)))[g] 
+       = f &lt;g. (left done)&gt; ([g] p_left p_done) <keyword>in</keyword>
+
+    <keyword>let</keyword> [g] e_ref = eqPath [g] &lt;g. M2 &hellip; &gt; &lt;g. (N2 &hellip;) &gt; 
+  			   (mlam Q &rArr; fn iq &rArr; <keyword>let</keyword> [g] p_done = iq <keyword>in</keyword> [g] p_done ) <keyword>in</keyword>
+
+    <keyword>let</keyword> [g] e_ref  = eqPath [g] &lt;g. M1 &hellip;&gt; &lt;g. (N1 &hellip;)&gt;
+                           (mlam R &rArr; fn ip &rArr; <keyword>let</keyword> [g] p_done = ip <keyword>in</keyword> [g] p_done ) <keyword>in</keyword>  			 
+    [g] e_ref
+
+| [g] #p.1 &hellip; &rArr; 
+  <keyword>let</keyword> [g] #q.4 &hellip; = f &lt;g. #p.2 &hellip; &gt; ([g] #p.4 &hellip; ) <keyword>in</keyword> 
+    [g] e_ref
+
+| [g] lam T (\x. M' &hellip; x) &rArr; 
+  <keyword>let</keyword>  [g] p_lam (\x.\p.\u. \i. p_done)  : 
+       (is_path (bind T' (\p.done)) (lam _ (\x. N' &hellip; x)))[g] 
+    = f &lt;g. bind T (\p.done)&gt; ([g] p_lam (\x.\p.\u. \i. p_done)) <keyword>in</keyword> 
+
+  <keyword>let</keyword> [g,b:block x:exp, q:path,u:type_of x T'' . is_path q x] e_ref = 
+    eqPath [g, b:block x:exp, q:path, u:type_of x T' . is_path q x] 
+      &lt;g,b. M' &hellip; b.1 &gt; &lt;g,b. N' &hellip; b.1&gt; 
+      (mlam R &rArr; fn ip &rArr;  
+         <keyword>let</keyword> [g,b:block x:exp, q:path, u:type_of x T' . is_path q x] p_done = ip <keyword>in</keyword> 
+	    [g,b] p_done)
+  <keyword>in</keyword> 
+    [g] e_ref
+;
+
+<keyword>rec</keyword> path_thm : {M::exp[ ]}{N::exp[ ]}
+               ({P::path[ ]}(is_path P M)[ ] &rarr; (is_path P N)[ ])
+	     &rarr; (eq M N)[ ] = 
+<keyword>mlam</keyword> M &rArr; <keyword>mlam</keyword> N &rArr; <keyword>fn</keyword> f &rArr; eqPath [ ] &lt; . M &gt; &lt; . N &gt;  f ;
+</pre>
+
+<h3><a href="tps-example.php">3. Subject reduction</a></h3>
+<h3><a href="eq-example.php">4. Equality reasoning</a></h3>
+
+<p>
+</p>
+</div>
+<div id="footer">
+   <?php echoFile("../footer.html"); ?>
+</div>
+
+</div>
+ 
+
+</body>
+</html>

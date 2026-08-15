@@ -1,0 +1,196 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Beluga: Functional Programming with Higher-Order Abstract Syntax</title>
+   <link rel="stylesheet" type="text/css" href="../tutorial-style.css" />
+</head>
+
+<body>
+<?php include "../functions.php"; ?>
+<div id="wrapper">
+   <?php echoFile("header.html"); ?>
+  <div id="menu">
+   </div>
+<div id="main">
+
+   <h1><a href="tutorial.php">Tutorial</a></h1>
+
+<h2>Proofs about the simply-typed lambda-calculus</h2>
+<h3><a href="uniqueness-example.php">1. Type uniqueness</a></h3> 
+<h3><a href="path-example.php">2. Reasoning about paths in lambda-terms</a></h3>
+<h3><a href="tps-example.php">3. Subject reduction</a></h3>
+<h3>4. Equality reasoning</a></h3>
+
+<p>
+To illustrate some issues when combining lemmas, we choose equality
+reasoning. To simplify matters this example will concentrate on
+untyped lambda-terms. They are defined as before but
+lambda-abstractions do not carry type annotations. The example is a
+quite simple, but it has the advantage that it is easily
+understood and helps the novice understand the issues arising when
+formalizing a given formal system together with proofs. We first
+define a declarative definition of equality which we call
+<codeinline>equal</codeinline> and then give an algorithmic equality
+definition, called <codeinline>eq</codeinline> where general
+reflexivity and transitivity rules can be proven to be
+admissible. Then we prove the equivalence between both definitions of
+equality. 
+</p>
+<p>First, we define the declarative equality using
+<codeinline>equal</codeinline>. In particular, it has a generic
+reflexivity rule, called <codeinline>e_r</codeinline>, and a generic
+transitivity rule, called <codeinline>e_t</codeinline>. 
+</p>
+<pre class="code">
+equal: exp &rarr; exp &rarr; type.
+e_l: ({x:exp} equal x x &rarr; equal (T x) (T' x)) 
+     &rarr; equal (lam (\x. T x)) (lam (\x. T' x)).
+e_a: equal T2 S2  &rarr; equal T1 S1 
+     &rarr; equal (app T1 T2) (app S1 S2).
+e_r: equal T T.
+e_t: equal T' S &rarr; equal T T' 
+     &rarr; equal T S.
+</pre>
+
+<p>For each variable we add the fact that <codeinline>equal x x</codeinline>.  
+  Next, we define the algorithmic equality using <codeinline>eq</codeinline>. 
+</p>
+<pre class="code">
+eq: exp &rarr; exp &rarr; type.   
+eq_app : eq E1 F1 &rarr; eq E2 F2 
+         &rarr; eq (app E1 E2) (app F1 F2).
+
+eq_lam :  ({x : exp} eq x x &rarr; eq (E x) (F x)) 
+          &rarr; eq (lam (\x. E x)) (lam (\x. F x)).
+</pre>
+
+<p>For algorithmic equality, we can prove reflexivity to be
+admissible. Before we state the reflexivity and transitivity theorems
+we will carefully define the context used when reasoning about the
+equality of terms.  
+<p>
+
+<p>
+<table border=0 cellspacing=0 cellpadding=1>
+<TR>
+<TD> &Psi; </TD><TD> ::= </TD> <TD> . | &Psi;, eq x x
+</TR>
+</table>
+</p>
+
+<p>We define the shape of contexts in Beluga using context schema as follows:
+
+<pre class="code">
+<keyword>schema</keyword> eqCtx = some [] block x: exp . eq x x ;
+</pre>
+</p>
+
+<p>
+<strong>Theorem (Reflexivity):</strong> For all <codeinline>M</codeinline>,  &Psi; &#x22A2 <codeinline>eq M M</codeinline>.
+</p>
+
+<p>The reflexivity theorem is represented as a computation-level type in Beluga and its proof corresponds to a recursive program of this type.
+</p>
+
+<pre class="code">
+<keyword>rec</keyword> ref : {g:(eqCtx)*} {M::exp[g]} (eq (M &hellip;) (M &hellip;))[g] =
+<keyword>&Lambda;</keyword> g &rArr; <keyword>mlam</keyword> M &rArr; <keyword>case</keyword> [g] (M &hellip;) <keyword>of</keyword>
+| [g] #p.1 &hellip; &rArr; [g] #p.2 &hellip;              
+
+| [g] lam \x. N &hellip; x &rArr;
+  <keyword>let</keyword> [g,b:<keyword>block</keyword> y:exp. eq y y] E &hellip; b =  
+    ref [g, b:<keyword>block</keyword> q:exp. eq q q] &lt;g, b. N &hellip; b.1&gt; <keyword>in</keyword>
+    [g] eq_lam \x. \w. (E &hellip; &lt; x, w &gt;)  
+
+| [g] app (M1 &hellip;) (M2 &hellip;)  &rArr;
+  <keyword>let</keyword> [g] E1 &hellip; = ref [g] &lt; g . M1 &hellip; &gt; <keyword>in</keyword>
+  <keyword>let</keyword> [g] E2 &hellip; = ref [g] &lt; g . M2 &hellip; &gt  <keyword>in</keyword>
+    [g] eq_app (E1 &hellip;) (E2 &hellip;)
+;
+</pre>
+
+<p>
+<strong>Theorem (Transitivity):</strong> If &Psi; &#x22A2 <codeinline>eq M K</codeinline> and &Psi; &#x22A2 <codeinline>eq K N</codeinline> then &Psi; &#x22A2 <codeinline>eq M N</codeinline>.
+</p>
+
+<p>The transitivity theorem is represented as a computation-level type in Beluga and its proof corresponds to a recursive program of this type.
+</p>
+
+<pre class="code">
+<keyword>rec</keyword> trans: {g:(eqCtx)*}(eq (M &hellip;) (K &hellip;))[g]  &rarr; (eq (K &hellip;) (N &hellip;))[g]    
+        &rarr; (eq (M &hellip;) (N &hellip;))[g]  =
+<keyword>&Lambda;</keyword> g &rArr; <keyword>fn</keyword> e1 &rArr; <keyword>fn</keyword> e2 &rArr; <keyword>case</keyword> e1 <keyword>of</keyword>
+| [g] #p.2 &hellip; &rArr; e2
+
+| [g] eq_lam \x.\u. D1 &hellip; x u &rArr;
+  <keyword>let</keyword> [g] eq_lam \x.\u. D2 &hellip; x u =  e2  <keyword>in</keyword>	
+  <keyword>let</keyword> [g, b:block x:exp. eq x x] E &hellip; b = 
+    trans [g, b:block x':exp. eq x' x'] 
+        ([g, b] D1 &hellip; b.1 b.2)
+        ([g, b] D2 &hellip; b.1 b.2)
+  <keyword>in</keyword>
+    [g] eq_lam \x. \u. E &hellip; &lt;x, u&gt;
+       
+| [g] eq_app (D1 &hellip;) (D2 &hellip;) &rArr;
+  <keyword>let</keyword> [g] eq_app (F1 &hellip;) (F2 &hellip;) = e2 <keyword>in</keyword> 
+  <keyword>let</keyword> [g] E1 &hellip; = trans [g]  ([g] D1 &hellip;)  ([g] F1 &hellip;) <keyword>in</keyword>
+  <keyword>let</keyword> [g] E2 &hellip; = trans [g]  ([g] D2 &hellip;)  ([g] F2 &hellip;) <keyword>in</keyword>
+    [g] eq_app  (E1 &hellip;)  (E2 &hellip;)
+;
+</pre>
+
+<p>
+Finally, we will show the proof for completeness, i.e., every proof using declarative equality can be translated in a proof using algorithmic equality.</p>
+
+<pre class="code">
+<keyword>schema</keyword> equalCtx = <keyword>some</keyword> [] <keyword>block</keyword> x: exp, u:eq x x . equal x x ;
+
+<keyword>rec</keyword> ceq: {g:(equalCtx)*} (equal (T &hellip;) (S &hellip;))[g] &rarr; (eq (T &hellip;) (S &hellip;))[g]  =
+<keyword>&Lambda;</keyword> g &rArr;  <keyword>fn</keyword> e &rArr; <keyword>case</keyword> e <keyword>of</keyword> 
+| [g] #p.3 &hellip; &rArr; [g] #p.2 &hellip;
+
+| [g] e_r &rArr; ref [g] &lt; g. _ &gt;
+
+| [g] e_t (D2 &hellip;) (D1 &hellip;) &rArr; 
+  <keyword>let</keyword> [g] F2 &hellip; = ceq [g] ([g] D2 &hellip;) <keyword>in</keyword> 
+  <keyword>let</keyword> [g] F1 &hellip; = ceq [g] ([g] D1 &hellip;) <keyword>in</keyword> 
+    trans [g] ([g] F1 &hellip;)  ([g] F2 &hellip;)           
+
+| [g] e_l (\x.(\u. (D &hellip; x u))) &rArr; 
+  <keyword>let</keyword> {F:: (eq (R &hellip; x) (Q &hellip; x))[g, x:exp, u: eq x x]}
+     [g,b:block x:exp,u:eq x x . equal x x] F &hellip; b.1 b.2 = 
+        ceq [g, b:block x:exp, u:eq x x . equal x x]   ([g, b] D &hellip; b.1 b.3)
+  <keyword>in</keyword>
+     [g] eq_lam (\x.\v. F &hellip; x v)
+
+| [g] e_a (D2 &hellip;) (D1 &hellip;) &rArr; 
+  <keyword>let</keyword> [g] F1 &hellip; = ceq [g] ([g] D1 &hellip;) <keyword>in</keyword> 
+  <keyword>let</keyword> [g] F2 &hellip; = ceq [g] ([g] D2 &hellip;) <keyword>in</keyword> 
+      [g] eq_app (F1 &hellip;) (F2 &hellip;)
+
+;
+
+
+<keyword>rec</keyword> ceq_main: (equal T S)[ ] &rarr; (eq T S)[ ] =  <keyword>fn</keyword> e &rArr;  ceq [ ] e ;
+</pre>
+
+<p>
+The most interesting part about this proof is the fact that we need context subsumption. For example, in the case where we have applied as a last rule to <codeinline>equal (T &hellip;) (S &hellip)</codeinline> the rule <codeinline>e_r</codeinline>,  we refer to the reflexivity lemma by calling the previously defined function <codeinline>ref</codeinline>. However, the function <codeinline>ref</codeinline> expects a contxt <codeinline>eqCtx</codeinline>. Since the context schema <codeinline>eqCtx</codeinline> is a prefix of the schema <codeinline>equalCtx</codeinline>, we can always weaken any object originally defined in a context of schema <codeinline>eqCtx</ctxinline> to obtain an object defined in a context of schema <codeinline>equlaCtx</codeinline>.
+</p>
+
+
+<h3><a href="struct-smaller.php">5. Reasoning about smaller relation on lambda-terms</h3>
+
+<p>
+</p>
+</div>
+<div id="footer">
+   <?php echoFile("../footer.html"); ?>
+</div>
+
+</div>
+ 
+
+</body>
+</html>

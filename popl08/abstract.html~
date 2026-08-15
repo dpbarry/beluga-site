@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>A type-theoretic foundation for programming with
+     higher-order abstract syntax and first-class substitutions</title>
+  </head>
+
+  <body>
+    <h1>Abstract</h1>
+
+<p>
+Higher-order abstract syntax (HOAS) is a simple, powerful technique
+for implementing object languages, since it directly supports common
+and tricky routines dealing with variables, such as capture-avoiding
+substitution and renaming. This is achieved by representing binders in
+the object-language via binders in the meta-language. However,
+enriching functional programming languages with direct support for
+HOAS has been a major challenge, because recursion over HOAS
+encodings requires one to traverse &lambda;-abstractions and
+necessitates programming with open objects.
+
+We present a novel type-theoretic foundation based on contextual modal
+types which allows us to recursively analyze open terms via
+higher-order pattern matching. By design, variables occurringin open
+terms can never escape their scope. Using several examples, we
+demonstrate that our framework provides a name-safe foundation to
+operations typically found in nominal systems. In contrast to nominal
+systems however, we also support capture-avoiding substitution
+operations and even provide first-class substitutions to the
+programmer. The main contribution of this paper is a syntax-directed
+bi-directional type system where we distinguish between the data
+language and the computation language together with the progress and
+preservation proof for our language.
+</p>
+
+<!-- Created: Fri Feb 29 18:11:47 EST 2008 -->
+<!-- hhmts start -->
+Last modified: Fri Feb 29 18:27:12 EST 2008
+<!-- hhmts end -->
+  </body>
+</html>

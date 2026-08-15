@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# turn custom tags {codeinline, keyword} into <span class="..."></span>,
+#  to make the validator happy
+
+sed -e 's/<codeinline>/<span class="codeinline">/g' \
+    -e 's/<\/codeinline>/<\/span>/g' \
+    -e 's/<keyword>/<span class="keyword">/g' \
+    -e 's/<\/keyword>/<\/span>/g' \
+    $1 > E$1
+chmod a+rx E$1
+chmod a-w E$1

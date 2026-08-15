@@ -1,0 +1,12 @@
+
+nat  : type.
+z    : nat.
+succ : nat -> nat.
+
+
+rec add : [ |- nat ] -> [ |- nat ] -> [ |- nat ] = fn x => fn y => case x of
+| [ |- z ]      => y
+| [ |- succ N ] => let [ |- R ] = add [ |- N ] y in
+    [ |- succ R ]
+;
+

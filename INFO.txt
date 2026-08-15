@@ -1,0 +1,55 @@
+INSTRUCTIONS TO UPDATE WEBSITE
+
+1. Clone the website repository to your local machine.
+git clone ssh://<username>@git.cs.mcgill.ca/xtra/complogic/git/website.git
+2. When you've committed your update locally, push the content to the website repo. This does NOT publish your content
+online.
+3. Sign on to the complogic server and pull the updates to its local repo, located in public_html. You must be logged on
+to linux.cs.mcgill.ca in order to ssh into complogic.
+ssh complogic@complogic
+[~/public_html] git pull origin master
+
+NOTE: if you modify the contents on the local complogic repo directly, remember to push those updates to the central repo.
+Otherwise, they will not be reflected on your local machine.
+
+
+INSTRUCTIONS TO UPDATE CASE-STUDIES
+
+1. Update the CompLogic server's beluga git directory: ~/git/beluga.
+2. From the CompLogic server, run ~/public_html/beluga/gen_examples.sh. This script creates HTML pages from the bel files 
+saved in local the beluga repo. It kicks off python scripts which list all the case-studies with their descriptions on 
+the main case-studies page and category-specific pages.
+
+NOTE: This script automatically commits its changes and pushes them to the master repo. 
+
+INSTRUCTIONS TO UPDATE THE WEB DOCS
+
+1. Update website.git/beluga/userguide.tex.
+2. Run latex2html on userguide.tex. This program has been installed on the CompLogic server. It is available on atp. This
+will overwrite the files in website.git/beluga/userguide.
+NOTE: Ensure that userguide.tex does not begin with a \tableofcontents command. This will create a duplicate ToC 
+on the webpage.
+3. Issue the following Find & Replace commands on all HTML files in the new userguide directory. I used Notepad++'s 
+FIND IN FILES feature. 
+
+/usr/share/latex2html/icons -> ../icons
+
+<HEAD> -> <HEAD><div align="center"><iframe width="1250px" height="50px" scrolling="no" frameBorder="0" src="../header.html"></iframe> </div>
+
+userguide.css -> ../css/bootstrap.css
+
+Next:.+?<BR> -> Download the <a href="userguide.pdf">PDF</a></B><BR> 
+NOTE: this is a regex. Your regex command must match on newline: the(?s) option with some utilities.
+
+<ADDRESS>
+Research Group COMPLOGIC
+2015-01-23
+</ADDRESS>
+
+||
+\/
+
+<div id="footer">
+   <iframe width="100%" height="100px" scrolling="no" frameBorder="0" src="../footer.html"></iframe> 
+</div>
+

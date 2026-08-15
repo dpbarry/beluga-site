@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Name Preference</TITLE>
+<META NAME="description" CONTENT="Name Preference">
+<META NAME="keywords" CONTENT="userguide">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="userguide.css">
+
+<LINK REL="next" HREF="node29.html">
+<LINK REL="previous" HREF="node27.html">
+<LINK REL="up" HREF="node21.html">
+<LINK REL="next" HREF="node29.html">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html343"
+  HREF="node29.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next"
+ SRC="../icons/next.png"></A> 
+<A NAME="tex2html341"
+  HREF="node21.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up"
+ SRC="../icons/up.png"></A> 
+<A NAME="tex2html335"
+  HREF="node27.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous"
+ SRC="../icons/prev.png"></A>   
+<BR>
+<B> Next:</B> <A NAME="tex2html344"
+  HREF="node29.html">Type errors</A>
+<B> Up:</B> <A NAME="tex2html342"
+  HREF="node21.html">Type Reconstruction</A>
+<B> Previous:</B> <A NAME="tex2html336"
+  HREF="node27.html">LF and Computation Holes</A>
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H2><A NAME="SECTION00047000000000000000">
+Name Preference</A>
+</H2>
+Beluga assigns names to anonymous variables during reconstruction. These names are generated randomly but appending a type family constructor declarations the <TT>%name</TT> pragma sets a preferred naming choice for anonymous variables of that type. 
+<PRE>
+name_prg ::=  lf_decl %name id ID "."    
+</PRE>
+The first identifier must match the name of the constructor to which it is being applied. The second identifier is the preferred name itself. Note that name preference declarations have no affect on parsing. 
+
+<P>
+<BR><HR>
+<ADDRESS>
+Research Group COMPLOGIC
+2015-01-27
+</ADDRESS>
+</BODY>
+</HTML>

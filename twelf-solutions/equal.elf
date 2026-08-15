@@ -1,0 +1,111 @@
+% Definition of lambda-calculus
+% Author: Brigitte Pientka
+
+term: type.
+
+lam: (term -> term) -> term.
+app: term -> term -> term.
+
+% ------------------------------------------------------------------------------
+% Declarative definition of equality
+eq: term -> term -> type.
+eq_l: eq (lam T) (lam T')
+       <- ({x}eq x x -> eq (T x) (T' x)).
+
+eq_a: eq (app T1 T2) (app E1 E2)
+       <- eq T1 E1
+       <- eq T2 E2.
+
+eq_r: eq T T.
+eq_t: eq T S
+       <- eq T T'
+       <- eq T' S.
+
+% Algorithmic definition of equality
+equal: term -> term -> type.
+
+equ_l: equal (lam T) (lam T')
+       <- ({x}equal x x -> equal (T x) (T' x)).
+
+equ_a: equal (app T1 T2) (app E1 E2)
+       <- equal T1 E1
+       <- equal T2 E2.
+
+
+% ------------------------------------------------------------------------------
+% Reflexivity is admissible in equal.
+ref: {T}equal T T -> type.
+%mode ref +T -D.
+r_l: ref (lam T) (equ_l D)
+      <- ({x}{u:equal x x}ref x u -> ref (T x) (D x u)).
+
+r_a: ref (app T1 T2) (equ_a D2 D1)
+      <- ref T1 D1
+      <- ref T2 D2.
+
+%block l : block {x:term}{u:equal x x}{r_x: ref x u}.
+%worlds (l) (ref T D).
+%covers ref +T -D.
+%terminates T (ref T D).
+%total T (ref T D).
+
+% ------------------------------------------------------------------------------
+% Transitivity is admissible
+tr: equal T R -> equal R S -> equal T S -> type.
+%mode tr +E1 +E2 -E3.
+
+tr_l: tr (equ_l E1) (equ_l E2) (equ_l E3)
+       <- ({x}{u:equal x x} {r_x: ref x u}
+	    tr u (F x) (F x)  -> tr (Q x) u (Q x) 
+       ->  tr u u u 
+   -> tr (E1 x u) (E2 x u) (E3 x u)).
+
+tr_a: tr (equ_a E2 E1) (equ_a F2 F1) (equ_a G2 G1)
+       <- tr E1 F1 G1
+       <- tr E2 F2 G2.
+
+%block lt : some {S:term -> term}{F:{x:term}equal x (S x)}
+                 {S':term -> term}{Q:{x:term}equal (S' x) x}
+           block {x:term}{u:equal x x}{r_x:ref x u}{t_x1: tr u (F x) (F x)}
+	         {t_x2: tr (Q x) u (Q x)}{t_x3:tr u u u}.
+% %block lt : block {x:term}{u:equal x x}{r_x:ref x u}{t_x: tr u u u}.
+%worlds (lt) (tr E1 E2 E3).
+%covers tr +E1 +E2 -E3.
+%terminates E1 (tr E1 E2 E3).
+%total E1  (tr E1 E2 E3).
+
+
+% Correctness:
+ceq: eq T S -> equal T S -> type.
+%mode ceq +E -D.
+c_l: ceq (eq_l E) (equ_l D)
+      <- ({x}{u:equal x x} {r_x: ref x u}
+	     {t_x1: tr u (F x) (F x)}{t_x2: tr (Q x) u (Q x) }
+	     {t_x: tr u u u} {v:eq x x} 
+	    ceq v u -> ceq (E x v) (D x u)).
+
+c_a: ceq (eq_a F2 F1) (equ_a D2 D1)
+      <- ceq F1 D1
+      <- ceq F2 D2.
+
+
+c_r: ceq eq_r E
+      <- ref _ E.
+
+c_t: ceq (eq_t D2 D1) E
+      <- ceq D2 E2
+      <- ceq D1 E1
+      <- tr E1 E2 E.
+
+%block cl :  some {S:term -> term}{F:{x:term}equal x (S x)}
+                  {S':term -> term}{Q:{x:term}equal (S' x) x}
+          block {x:term}{u:equal x x}{r_x:ref x u}
+	  {t_x1: tr u (F x) (F x)}{t_x2: tr (Q x) u (Q x) }
+	  {t_x3: tr u u u}{v:eq x x}
+	     {c_x: ceq v u}.
+
+%worlds (cl) (ceq E D).
+
+%covers ceq +E -D.
+%terminates E (ceq E D).
+%total E (ceq E D).

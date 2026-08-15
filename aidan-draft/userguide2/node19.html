@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Inductive Datatypes</TITLE>
+<META NAME="description" CONTENT="Inductive Datatypes">
+<META NAME="keywords" CONTENT="userguide">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="userguide.css">
+
+<LINK REL="next" HREF="node20.html">
+<LINK REL="previous" HREF="node18.html">
+<LINK REL="up" HREF="node12.html">
+<LINK REL="next" HREF="node20.html">
+</HEAD>
+
+<body><div align="center"><iframe width="100%" height="100px" scrolling="no" frameborder="0" src="../header.html"></iframe></div>
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html328"
+  HREF="node20.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next"
+ SRC="icons/next.png"></A> 
+<A NAME="tex2html324"
+  HREF="node12.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up"
+ SRC="icons/up.png"></A> 
+<A NAME="tex2html318"
+  HREF="node18.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous"
+ SRC="icons/prev.png"></A> 
+<A NAME="tex2html326"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents"
+ SRC="icons/contents.png"></A>  
+<BR>
+<a href="userguide.pdf">Download the PDF</a>
+
+<H2><A NAME="SECTION00047000000000000000">
+Inductive Datatypes</A>
+</H2>
+<SPAN  CLASS="textbf"><SPAN  CLASS="textit">Inductive datatypes</SPAN></SPAN> are indexed by contextual objects to express relationships between contextual objects and contexts. They are declared in a similar fashion to Beluga-style LF type families, using the <TT>ctype</TT> keyword instead of <TT>type</TT> to invoke the computation level. Inductive datatypes may be formed of other inductive datatypes, of contexts and of contextual objects, guarded by a constructor. Inductive datatypes take upper-case identifiers. 
+<BR>
+<P>
+<SPAN  CLASS="textbf">Example:</SPAN> The inductive datatype <TT>Opt</TT>, for example, encodes an option type which is built in to many ML-style languages. A value of type <TT>Opt</TT> is either empty (<TT>None</TT>) or contains a term of type <TT>T</TT>.
+<PRE>
+datatype Opt : ctype =
+| None : Opt
+| Some : {T : tp}Tm [T] -&gt; Opt;
+</PRE>
+
+<P>
+<BR><HR>
+<ADDRESS>
+Scott
+2014-08-26
+</ADDRESS>
+<div id="footer"><iframe width="100%" height="100px" scrolling="no" frameborder="0" src="../footer.html"></iframe> </div></body>
+</HTML>

@@ -1,0 +1,258 @@
+﻿<!DOCTYPE html>
+    <html lang="en"> <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
+
+
+    <title>Beluga</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="css/beli-styles.css" rel="stylesheet">
+
+
+
+    <!-- Just for debugging purposes. Don't actually copy this line! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body role="document">
+
+    <script type="text/javascript">
+
+    $(document).ready(function(){
+
+        $(".dropdown-toggle").dropdown();
+
+    });  
+
+    </script>
+
+
+    <!-- Fixed navbar -->
+
+    <div>
+	<iframe width="1250px" height="50px" scrolling="no" frameBorder="0" src="header.html"></iframe> 
+	</div>
+
+
+    <div class="container theme-showcase" role="main">
+
+      <!-- Main jumbotron for a primary marketing message or call to action -->
+      <div class="jumbotron">
+        <p> <img align="left" src="beluga-med.png"/> Beluga is a functional programming language
+	designed for reasoning about formal systems. It features direct support for object-level
+	binding constructs using higher order abstract syntax and treats contexts as first class objects.
+      </p>
+          <p><a href="#overview" class="btn btn-primary btn-lg" role="button">Overview</a>
+          <a href="#installation" class="btn btn-default btn-lg" role="button">Installation</a>          
+          <a href="documentation.html" class="btn btn-info btn-lg" role="button">Documentation</a></p>
+    </div>
+
+      <div class="row">
+        <!-- <div class="col-lg-4"> -->
+        <!--   <h2></h2> -->
+        <!--   <p>Beluga seperates data from computation providing an expression computation language on top of the -->
+        <!--   logical framework LF. Its strength and elegance comes on the -->
+        <!-- one hand from encoding formal systems in LF where we represent -->
+        <!-- binders in the object language as binders in LF directly -->
+        <!-- inheriting capture-avoiding substitution and renaming of -->
+        <!-- variables. We can reason about LF objects by encapsulating the -->
+        <!-- object together with its surrounding context using -->
+        <!-- <emph>contextual objects></p> -->
+        <!--   <p><a class="btn btn-primary" href="flops10/flops.pdf" role="button">View details »</a></p> -->
+        <!-- </div> -->
+
+      <!--   <div class="col-lg-4"> -->
+      <!--     <h2>Interactive</h2> -->
+      <!--     <p>Beluga's Interactive mode makes writting proofs a littler easier. Get information about types, variables, and holes or output your program as HTML. Integrate with Emacs or use the terminal. </p> -->
+      <!--     <p><a class="btn btn-primary" href="#overview" role="button">View details »</a></p> -->
+      <!--   </div> -->
+
+      <!--   <div class="col-lg-4"> -->
+      <!--     <h2>Easy to Read</h2> -->
+      <!--     <p>Writing proofs in Beluga is syntactically as it gets to working with pencil and paper. We include an Emacs mode with the current distribution to make programs more presentable. A VIM mode is also avalaible.</p> -->
+      <!--     <p><a class="btn btn-primary" href="#" role="button">View details »</a></p> -->
+      <!--   </div> -->
+      <!-- </div> -->
+
+      <div id="overview" class="row">
+        <div class="col-lg-10">
+          <div class="bs-docs-header">
+            <h2>Overview</h2>
+            <p>Beluga allows specification of formal
+        systems (such as lambda calculi and type systems) using a foundation of
+	contextual modal logic. As in the Twelf
+        system, we can encode object-level binding constructs using higher order abstract
+        syntax. We also pair terms with the contexts that give them meaning and then reason
+	about these contextual objects. Proofs in Beluga are represented by recursive programs
+	according to the Curry-Howard Isomorphism.
+       </p>
+	    <p>Beluga is developed at the Complogic group at McGill University, led by Professor
+	Brigitte Pientka. It is implemented in OCaml.
+	    </p>
+	<p>To learn more about Beluga we recommend the following
+        tutorial style papers and talks. If you have trouble 
+		discerning Beluga code from older releases, 
+	    consult the <a href="changes.html">legacy syntax</a> for clarification.
+	    <h4>Tutorial:</h4>
+         <ul>
+	   <li><a href="beluga-tutorial.pdf">Mechanizing Meta-Theory in
+        Beluga</a> (CADE-25 Tutorial), August 2015 </li>
+	   <li><a
+        href="https://github.com/Beluga-lang/Meta">Mechanizing
+        Types and Programming Languages: A Companion</a>: This is a
+        companion that loosely follows B. Pierce's book "Types and
+        Programming Languages" and shows how to mechanize the material
+        in Beluga. The code to the companion is available on GitHub
+        (see <a href="https://github.com/Beluga-lang/Meta/tree/master/beluga-code">beluga-code</a>)
+	   <br>For an up-to-date version or to contribute see our  <a
+        href="https://github.com/Beluga-lang/Meta">GitHub</a> repository.<br>
+	   </li>
+	
+        </ul>
+		
+
+	<h4>Overview Talks:</h4>
+         <ul>
+	   <li><a href="http://www.cs.mcgill.ca/~bpientka/talks/beluga-mechanize-june15.pdf">Mechanizing Meta-Theory in Beluga</a>, 2nd International Workshop on Rewriting Techniques for Program Transformations and Evaluation (WPTE 2015), June 2015 </li></li>
+	   <li>Programming logical relations proofs, Brigitte Pientka, <a href="https://ihp2014.pps.univ-paris-diderot.fr/doku.php?id=workshop_5">Certification
+		    of high-level and low-level programs</a>, Institut Henri Poincare, Paris, France, June 2014 (<a href="http://cs.mcgill.ca/~bpientka/talks/beluga-logrel.pdf">slides</a>)</li>
+	    <li>Beluga-mu: Programming proofs in context, Brigitte Pientka, POP Seminar, Carnegie Mellon University, May 2014 (<a href="http://cs.mcgill.ca/~bpientka/talks/beluga-update-May14.pdf">slides</a>)</li>
+	    <li> Beluga-mu: Programming proofs in context, Brigitte Pientka, Invited talk at <a
+         href="http://people.csail.mit.edu/adamc/lfmtp12/index.html">International Workshop on Logical Frameworks and Meta-Languages: Theory and Practice (LFMTP'12)</a>. (<a href="http://cs.mcgill.ca/~bpientka/talks/beluga-lfmtp12-updated.pdf">slides</a>)</li>
+        </ul>  	    
+	</p>
+
+	
+
+          </div>
+        </div>
+      </div>
+      
+ <div id="installation" class="row">
+    <div class="col-lg-10">
+          <div class="bs-docs-header">
+            <h2>Installation</h2>
+        </div>
+        </div>
+  
+
+<div class="col-lg-3">
+          <br>
+            <div class="list-group">
+              <a class="list-group-item active">
+                Prerequisite Packages
+              </a>
+              <a href="http://ocaml.org/" target="_blank" class="list-group-item">OCaml  4.04+</a>
+              <a href="http://opam.ocaml.org/packages/ocamlfind/ocamlfind.1.5.1/" target="_blank" class="list-group-item">ocamlfind</a>
+ 	<a href="https://opam.ocaml.org/packages/ulex/ulex.1.1/" target="_blank" class="list-group-item">ulex</a>
+              <a href="https://opam.ocaml.org/packages/extlib/extlib.1.6.1/" target="_blank" class="list-group-item">extlib</a>
+	<a href="https://opam.ocaml.org/packages/camlp4/camlp4.4.02.0/" target="_blank" class="list-group-item">camlp4 (for OCaml 4.02+ only)</a>
+	<a href="http://www.gnu.org/software/make/" target="_blank" class="list-group-item">make</a>
+              <a class="list-group-item active">   Optional Packages </a>
+              <a href="http://www.oracle-base.com/articles/linux/rlwrap.php" target="_blank" class="list-group-item">rlwrap</a>
+            </div>        
+        </div>
+
+<!-- <div class="col-lg-8">-->
+ <!--         <div class="bs-docs-header">-->
+ <!--          <h2>Get Started</h2>-->
+ <!--          <h3>Installation</h3>-->
+ <!--          <div class="alert alert-info">-->
+ <!--            <strong>NOTE:</strong> These are only a few quick steps to get users up and running with Beluga. Please refer to the <strong>full installation guide included with the distribution, <a href="http://complogic.cs.mcgill.ca/beluga/install.html">available online</a> </strong> if you run into any issues.-->
+<!--           </div>-->
+<!--           <ol>-->
+<!--             <li>Install all the prerequisite packages.</li>-->
+<!--            <li>Clone Beluga from GitHub: <a href="https://github.com/Beluga-lang/Beluga.git">https://github.com/Beluga-lang/Beluga.git</a></li>-->
+<!--           <li>From the Beluga directory, build the executable by using: <br>-->
+ <!--              <code>~/beluga# make</code> <!-- or  <code>~/beluga# omake</code> -->
+ <!--            <li>Use the executable located in the bin directory to run Beluga programs:-->
+ <!--              <ul>-->
+<!--                 <li> Use <code>~/beluga# bin/beluga path/to/program.bel</code> to run a Beluga program.-->
+<!--                 <li> Beluga includes a major mode for programming in Emacs. See <a href="http://complogic.cs.mcgill.ca/beluga/install.html#exec"> here</a>. -->
+<!-- 	<li> Run in an Emacs buffer to use the Interactive mode. See the Docs file for how to use the Interactive mode commands.-->
+<!--               </ul>--> 
+<!--           </ol>-->
+<!--           <h3>Bug reports</h3>-->
+<!--              For any bugs or issues, please, use the <a href="https://github.com/Beluga-lang/Beluga/issues">GitHub issue tracker</a>.-->
+<!--          </div> 
+<!--    </div> -->
+
+
+
+<div class="col-lg-8">
+         Please refer to the installation guide in the GitHub repository of Beluga:  <br> <a href="https://github.com/Beluga-lang/Beluga/blob/master/INSTALL"> https://github.com/Beluga-lang/Beluga/blob/master/INSTALL</a>.           
+        </div>  
+ </div> 
+   
+
+<div id="funding" class="row">
+      <div class="col-lg-10">
+      	<div class="bs-docs-header">
+	   <h2>Funding</h2>
+	   This research has been funded through: NSERC (Natural Science and Engineering Research Council), FQRNT Recherche d'Equipe,
+	   PSR-SIIRI Projets conjoints de recherche et d'innovation and 
+	     63e session de la Commission permanente de coopération franco-québécoise by Minist&egrave;re du Développement
+	     &eacute;conomique, de l'Innovation et de l'Exportation au Quebec,
+              </div> 
+       </div>
+</div>
+
+              </div> 
+       </div>
+</div>
+
+	<div id="footer">
+	<iframe width="100%" height="100px" scrolling="no" frameBorder="0" src="footer.html"></iframe> 
+	</div>
+
+
+
+
+
+    <script type="text/javascript" src="js/dropdown.js"></script>
+
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="../../assets/js/docs.min.js"></script>
+
+   <!-- Start of StatCounter Code -->
+   <script type="text/javascript">
+   var sc_project=5164105; 
+   var sc_invisible=1; 
+   var sc_partition=49; 
+   var sc_click_stat=1; 
+   var sc_security="70de7a64"; 
+   </script>
+
+   <script type="text/javascript"
+   src="http://www.statcounter.com/counter/counter.js"></script><noscript><div
+   class="statcounter"><a title="profile counter"
+   href="http://www.statcounter.com/free_profile_counter.html"
+   target="_blank"><img class="statcounter"
+   src="http://c.statcounter.com/5164105/0/70de7a64/1/"
+   alt="profile counter" ></a></div></noscript>
+   <!-- End of StatCounter Code -->
+
+
+
+  </body>
+</html>

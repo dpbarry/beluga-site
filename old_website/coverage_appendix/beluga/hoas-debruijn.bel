@@ -1,0 +1,99 @@
+%{
+  Translating HOAS terms into de Bruijn terms:
+  Case study for system F
+
+  Author: Brigitte Pientka
+
+  Feature: 
+    - Distinguish between types and expression in source language
+    - Uniform language for types and expressions in target language
+    - Use of dependent types and context matching
+
+}%
+
+% ---------------------------------------------------------- %
+% Source language: System F
+
+% Types
+tp     : type.                                     %name tp T.
+nat    : tp.
+arr    : tp -> tp -> tp.
+all    : (tp -> tp) -> tp.
+
+% Intrinsically well-typed expressions
+exp    :  type.                                   %name exp E.
+
+app    : exp  -> exp  -> exp.
+lam    : tp -> (exp -> exp) -> exp.
+tlam   : (tp -> exp) -> exp.
+tapp   : exp  -> {T:tp}exp.
+
+% ---------------------------------------------------------- %
+% Target language: System F
+
+% Types or Terms
+term_or_typ : type.                       %name term_or_typ T.
+typ    : term_or_typ.
+term   : term_or_typ.
+
+% deBruijn terms 
+
+obj'   : term_or_typ -> type.  
+
+one    : obj' T.
+shift  : obj' T -> obj' T.  
+lam'   : {A:obj' typ}obj' term -> obj' term.
+app'   : obj' term -> obj' term  -> obj' term.
+tlam'  : obj' term -> obj' term.
+tapp'  : obj' term -> obj' typ -> obj' term.
+nat'   : obj' typ.
+arr'   : obj' typ -> obj' typ -> obj' typ.
+all'   : obj' typ -> obj' typ.
+
+% ---------------------------------------------------------- %
+schema ctx = exp + tp ;
+
+rec tp2tp' : {g:ctx} tp[g] -> (obj' typ) [ ] = 
+fn t => case t of 
+| [g, a:tp] a         => [ ] one
+| [g, x:exp] #p ..     =>
+  let [ ] Db = tp2tp' ([g] #p ..) in [ ] Db
+| [g, a:tp] #p ..      =>
+  let [ ] Db = tp2tp' ([g] #p ..) in [ ] shift Db
+| [g] nat             => [ ] nat'
+| [g] arr (T ..) (S ..) => 
+  let [ ] T' = tp2tp' ([g] T ..) in 
+  let [ ] S' = tp2tp' ([g] S ..) in 
+    [ ] arr' T' S'
+
+| [g] all \a. T .. a   => 
+  let [ ] T' = tp2tp' ([g, a:tp] T .. a) in [ ] all' T'
+;
+
+rec hoas2db : {g:ctx} exp[g]  -> (obj' term) [ ] = 
+fn v =>  case v of 
+| [h,x:exp] x               => [ ] one
+
+| [h,x:exp] #p ..            =>
+  let [ ] Db = hoas2db ([h] #p ..) in [ ] shift Db
+
+| [h,x:tp] #p ..             =>
+  let [ ] Db = hoas2db ([h] #p ..) in [ ]  Db
+
+| [g] lam (T ..) (\x. E .. x) =>
+  let [ ] T' =  tp2tp' ([g] T ..) in 
+  let [ ] F  =  hoas2db ([g,x:exp] E .. x) in [ ] lam' T' F
+
+| [g] tlam \a. E .. a        => 
+  let [ ] F = hoas2db ([g,a : tp] E .. a) in [ ] tlam' F
+
+| [g] app (E1 .. ) (E2 .. )   =>
+   let [ ] F1 = hoas2db ([g] E1 ..)  in 
+   let [ ] F2 = hoas2db ([g] E2 ..)  in [ ] app' F1 F2
+| [g] tapp (E .. ) (T .. )    =>
+   let [ ] F = hoas2db ([g] E ..)  in 
+   let [ ] T' = tp2tp' ([g] T ..)  in  [ ] tapp' F T'
+;
+
+
+

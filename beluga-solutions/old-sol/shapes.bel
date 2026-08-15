@@ -1,0 +1,250 @@
+% Reasoning about shapes of lambda-terms
+% Author: Brigitte Pientka
+
+term: type.
+
+lam: (term -> term) -> term.  %name term T.
+app: term -> term -> term.
+
+exp: type.   %name exp E.
+fun: (exp -> exp) -> exp.
+apply: exp -> exp -> exp.
+
+% ------------------------------------------------------------------------------
+% Equality between two representations.
+
+equal: term -> exp -> type.
+
+eq_lam: equal (lam T) (fun  E)
+	 <- ({x:term}{y:exp}equal x y -> equal (T x) (E y)).
+
+eq_app: equal (app T1 T2) (apply E1 E2)
+	 <- equal T1 E1
+	 <- equal T2 E2.
+
+
+shape: term -> exp -> type.
+varT: term -> type.
+varE: exp -> type.
+
+sh_v: shape T E
+       <- varT T
+       <- varE E.
+
+sh_lam: shape (lam T) (fun E)
+	 <- ({x:term}{y:exp}varT x -> varE y -> shape (T x) (E y)).
+
+sh_app: shape (app T1 T2) (apply E1 E2)
+	 <- shape T1 E1
+	 <- shape T2 E2.
+
+% ------------------------------------------------------------------------------
+% Proof: If equal T E then shape T E.
+schema esctx = block x:exp, y:term, u:equal y x, vt:varT  y . varE x ;
+
+rec eqsh : {g:(esctx)*}(equal (T ..) (E ..))[g] -> (shape (T ..) (E ..))[g] = 
+FN g => fn d => case d of 
+| [g] #p.3 .. => [g] sh_v (#p.5 ..) (#p.4 ..)
+| [g] eq_app (D2 ..) (D1 ..) => 
+  let [g] S1 .. = eqsh [g] ([g] D1 ..) in 
+  let [g] S2 .. = eqsh [g] ([g] D2 ..) in 
+    [g] sh_app (S2 ..) (S1 ..)
+
+| [g] eq_lam \x.\y.\u. D .. x y u => 
+  let {S::(shape (T' .. x y) (E' .. x y))[g, x:exp, y:term, vt:varT y, ve: varE x]}
+      [g,b:block x:exp, y:term, u:equal y x, vt:varT  y  |-  varE x ] S .. b.1 b.2 b.4 b.5 = 
+    eqsh [g, b:block x:exp, y:term, u:equal y x, vt:varT  y  |-  varE x ] ([g,b] D .. b.2 b.1 b.3) in 
+  [g] sh_lam \x.\y.\vt.\ve. S .. y x vt ve
+;
+
+% ------------------------------------------------------------------------------
+% Counting variable occurrences
+nat: type. %name nat N.
+z: nat.
+s: nat -> nat.
+
+add: nat -> nat -> nat -> type.
+add_z: add z N N.
+add_s: add (s N) (M) (s M')
+	<- add N M M'.
+
+
+add': nat -> nat -> type.
+add'_z : add z N N 
+         -> add' z N.
+
+add'_s : add (s N) M M'
+         -> add' (s N) M.
+
+
+rec totalAdd : {N1::nat[ ]}{N2::nat[ ]}(add' N1 N2)[ ] = 
+mlam N1 => mlam N2 => case [ ] N1 of 
+| [ ] z => [ ] add'_z add_z
+| [ ] s M1 => 
+  case totalAdd < . M1 > < . N2 > of 
+    | [ ] add'_z D => [ ] add'_s (add_s D)
+    | [ ] add'_s D => [ ] add'_s (add_s D)
+;
+
+% Just as in Twelf, we will need this lemma when we reason about variable occurrences.
+
+% ------------------------------------------------------------------------------
+% There exists an N s.t. varTOcc T N and varEOcc E N
+%
+varTOcc: term -> nat -> type.
+
+v_lm: varTOcc (lam T) N
+       <- ({x:term} varT x  -> varTOcc (T x) N).
+
+v_ap: varTOcc (app T1 T2)  N
+       <- varTOcc T1 N1
+       <- varTOcc T2 N2
+       <- add N1 N2 N.
+
+v_varT: varTOcc T (s z)
+	 <- varT T.
+
+varEOcc: exp -> nat -> type.
+
+v_fun: varEOcc (fun E) N
+       <- ({x:exp} varE x  -> varEOcc (E x) N).
+
+v_apply: varEOcc (apply E1 E2)  N
+       <- varEOcc E1 N1
+       <- varEOcc E2 N2
+       <- add N1 N2 N.
+
+v_varE: varEOcc E (s z)
+	 <- varE E.
+
+ 
+varOcc: term -> exp -> type.
+
+v_occ: varTOcc T N -> varEOcc E N -> varOcc T E .
+
+% ------------------------------------------------------------------------------
+
+schema vctx = block x:exp, y:term, vt:varT  y . varE x ;
+%{
+% ------------------------------------------------------------------------------
+%{
+Theorem: If G |- shape T E then there exists an N s.t.  varTOcc T N and varTOcc E N.
+}%
+rec bndEq : {g:(vctx)*} (shape (T ..) (E ..))[g] -> (varOcc (T ..) (E ..))[g] = 
+FN g => fn s => case s of
+| [g] sh_v (VE ..) (VT ..) =>
+   [g] v_occ (v_varT (VT ..)) (v_varE (VE ..))  
+
+| [g] sh_lam \x.\y.\vt.\ve. S .. x y vt ve =>
+  let {Ot::(varTOcc (T y) N)[g, y:term, vt:varT y]}{Oe::(varEOcc (E x) N)[g,x:exp, ve:varE x]}
+      [g,b:block x:exp,y:term, vt:varT y  |-  varE x] v_occ (Ot .. b.2 b.3) (Oe .. b.1 b.4) = 
+    bndEq [g,b:block x:exp,y:term, vt:varT y  |-  varE x] ([g,b] S .. b.2 b.1 b.3 b.4)  in 
+
+  [g]  v_occ (v_lm (\x.\vt. Ot .. x vt)) (v_fun (\y.\ve. Oe .. y ve))
+
+| [g] sh_app (S2 ..) (S1 ..) => 
+  let {Ot1::(varTOcc (T1 ..) N1)[g]}{Oe1::(varEOcc (E1 ..) N1)[g]}
+      [g] v_occ (Ot1 ..) (Oe1 ..) = bndEq [g] ([g] S1 ..) in 
+  let {Ot2::(varTOcc (T2 ..) N2)[g]}{Oe2::(varEOcc (E2 ..) N2)[g]}
+      [g] v_occ (Ot2 ..) (Oe2 ..) = bndEq [g] ([g] S2 ..) in 
+  case (totalAdd < . N1 > < . N2 >)  of 
+    | [ ] add'_z D =>  [g] v_occ  (v_ap D (Ot2 ..) (Ot1 ..)) (v_apply D (Oe2 ..) (Oe1 ..))
+    | [ ] add'_s D =>  [g] v_occ  (v_ap D (Ot2 ..) (Ot1 ..)) (v_apply D (Oe2 ..) (Oe1 ..))
+
+;
+
+% ------------------------------------------------------------------------------
+%{
+Theorem: If G |- shape T E  and varTOcc T N then varTOcc E N.
+ }%
+
+rec bndEq-2 : {g:(vctx)*}(shape (T ..) (E ..))[g] -> (varTOcc (T ..) N)[g]
+            -> (varEOcc (E ..) N)[g] = 
+FN g => fn s => fn vtocc => case s of 
+|[g] sh_v (#p.4 ..) (#p.3 ..) => 
+ let [g] v_varT _ = vtocc in  
+   [g] v_varE (#p.4 ..)
+
+|[g] sh_lam \x.\y.\vt.\ve. S .. x y vt ve =>
+ let [g] v_lm \x.\vt. Ot .. x vt = vtocc in 
+ let {Oe::(varEOcc (E x) N)[g,x:exp, ve:varE x]}
+     [g, b:block x:exp,y:term, vt:varT y  |-  varE x] Oe .. b.1 b.4 = 
+   bndEq-2 [g, b:block x:exp,y:term, vt:varT y  |-  varE x] 
+           ([g,b] S .. b.2 b.1 b.3 b.4) ([g,b] Ot .. b.2 b.3) in 
+  [g] v_fun \y.\ve. Oe .. y ve
+
+
+| [g] sh_app (S2 ..) (S1 ..) => 
+  let [g]v_ap D (Vt2 ..) (Vt1 ..) = vtocc in 
+  let [g] Ve1 .. = bndEq-2 [g] ([g] S1 ..) ([g] Vt1 ..) in 
+  let [g] Ve2 .. = bndEq-2 [g] ([g] S2 ..) ([g] Vt2 ..) in 
+   [g] v_apply D (Ve2 ..) (Ve1 ..)
+;
+
+}%
+% ------------------------------------------------------------------------------
+%{
+Theorem: If G |- shape T E then for all N. varTOcc T N implies varEOcc E N.
+ }%
+
+
+rec bndEq-3 : {g:(vctx)*}(shape (T ..) (E ..))[g] -> 
+              ({N::nat[ ]}(varTOcc (T ..) N)[g]  -> (varEOcc (E ..) N)[g]) = 
+FN g => fn s => case s of 
+| [g] sh_v (#p.4 ..) (#p.3 ..) => 
+   (mlam N => fn vt => let [g] v_varT (#r.3 .. ) = vt in [g] v_varE (#p.4 ..))
+
+|  [g] sh_app (S2 ..) (S1 ..) => 
+   (mlam N => fn vt => 
+     let {D::(add N1 N2 N)[ ]} {Vt2::(varTOcc (T2 ..) N2)[g]}{Vt1::(varTOcc (T1 ..) N1)[g]}
+         [g] v_ap D (Vt2 ..) (Vt1 ..) = vt in 
+     let [g] Ve1 .. = (bndEq-3 [g] ([g] S1 ..)) < . N1 > ([g] Vt1 ..) in 
+     let [g] Ve2 .. = (bndEq-3 [g] ([g] S2 ..)) < . N2 > ([g] Vt2 ..) in 
+
+       [g] v_apply D (Ve2 ..) (Ve1 ..) )
+
+| [g] sh_lam \x.\y.\vt.\ve. S .. x y vt ve => 
+  (mlam N => fn vt =>  let [g] v_lm \x.\v. Ot .. x v = vt in 
+    let {Oe::(varEOcc (E .. x) N)[g,x:exp, ve:varE x]}
+        [g, b:block x:exp,y:term, vt:varT y  |-  varE x] Oe .. b.1 b.4 = 
+          bndEq-3 [g, b:block x:exp,y:term, vt:varT y  |-  varE x] 
+           ([g,b] S .. b.2 b.1 b.3 b.4)  < . N > ([g,b] Ot .. b.2 b.3) in 
+    [g] v_fun \y.\ve. Oe .. y ve)
+
+;
+
+
+% ------------------------------------------------------------------------------
+%{
+Theorem: If G |- shape T E then for all N. varEOcc E N implies varTOcc T N.
+ }%
+
+
+rec bndEq-4 : {g:(vctx)*}(shape (T ..) (E ..))[g] -> 
+              ({N::nat[ ]}(varEOcc (E ..) N)[g]  -> (varTOcc (T ..) N)[g]) = 
+FN g => fn s => case s of 
+| [g] sh_v (#p.4 ..) (#p.3 ..) => 
+   (mlam N => fn vt => let [g] v_varE (#r.4 .. ) = vt in [g] v_varT (#p.3 ..))
+
+|  [g] sh_app (S2 ..) (S1 ..) => 
+   (mlam N => fn ve => 
+     let {D::(add N1 N2 N)[ ]} {Ve2::(varEOcc (E2 ..) N2)[g]}{Ve1::(varEOcc (E1 ..) N1)[g]}
+         [g] v_apply D (Ve2 ..) (Ve1 ..) = ve in 
+     let [g] Vt1 .. = (bndEq-4 [g] ([g] S1 ..)) < . N1 > ([g] Ve1 ..) in 
+     let [g] Vt2 .. = (bndEq-4 [g] ([g] S2 ..)) < . N2 > ([g] Ve2 ..) in 
+
+       [g] v_ap D (Vt2 ..) (Vt1 ..) )
+
+| [g] sh_lam \x.\y.\vt.\ve. S .. x y vt ve => 
+  (mlam N => fn ve =>  let [g] v_fun \x.\v. Oe .. x v = ve in 
+    let {Ot::(varTOcc (T .. x) N)[g,x:term, vt:varT x]}
+        [g, b:block x:exp,y:term, vt:varT y  |-  varE x] Ot .. b.2 b.3 = 
+          bndEq-4 [g, b:block x:exp,y:term, vt:varT y  |-  varE x] 
+           ([g,b] S .. b.2 b.1 b.3 b.4)  < . N > ([g,b] Oe .. b.1 b.4) in 
+    [g] v_lm \y.\ve. Ot .. y ve)
+
+;
+
+
+
+

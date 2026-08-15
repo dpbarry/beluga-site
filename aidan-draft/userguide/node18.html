@@ -1,0 +1,80 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Substitution Variables</TITLE>
+<META NAME="description" CONTENT="Substitution Variables">
+<META NAME="keywords" CONTENT="userguide">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="userguide.css">
+
+<LINK REL="next" HREF="node19.html">
+<LINK REL="previous" HREF="node17.html">
+<LINK REL="up" HREF="node12.html">
+<LINK REL="next" HREF="node19.html">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html316"
+  HREF="node19.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next"
+ SRC="/usr/share/latex2html/icons/next.png"></A> 
+<A NAME="tex2html312"
+  HREF="node12.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up"
+ SRC="/usr/share/latex2html/icons/up.png"></A> 
+<A NAME="tex2html306"
+  HREF="node17.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous"
+ SRC="/usr/share/latex2html/icons/prev.png"></A> 
+<A NAME="tex2html314"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents"
+ SRC="/usr/share/latex2html/icons/contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html317"
+  HREF="node19.html">Inductive Datatypes</A>
+<B> Up:</B> <A NAME="tex2html313"
+  HREF="node12.html">Syntax</A>
+<B> Previous:</B> <A NAME="tex2html307"
+  HREF="node17.html">Meta-variables and Parameter Variables</A>
+ &nbsp; <B>  <A NAME="tex2html315"
+  HREF="node1.html">Contents</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H2><A NAME="SECTION00046000000000000000">
+Substitution Variables</A>
+</H2>
+Substitutions can be represented as <SPAN  CLASS="textit"><SPAN  CLASS="textbf">substitution variables</SPAN></SPAN>, denoted with the tag <TT>#</TT> and an upper-case identifier. They are indexed as <TT>#S: g |- h</TT>, where <TT>#S</TT> is a substitution variable which stands from mapping with domain <TT>g</TT> and range <TT>h</TT>. Substitution variables are associated with a substitution closure just as contextual variables are associated with a delayed substitution. A substitution closure specifies the substitution to be applied to the substitution variable itself, written with brackets <TT>[ ]</TT> after the substitution variable as <TT>#S[</TT><SPAN CLASS="MATH"><IMG
+ WIDTH="15" HEIGHT="18" ALIGN="BOTTOM" BORDER="0"
+ SRC="img15.png"
+ ALT="$\sigma$"></SPAN>] where <SPAN CLASS="MATH"><IMG
+ WIDTH="15" HEIGHT="18" ALIGN="BOTTOM" BORDER="0"
+ SRC="img15.png"
+ ALT="$\sigma$"></SPAN> is the closure substitution. Closure substitutions are encoded with the same tokens as delayed substitutions for meta-variables. 
+
+<P>
+Note that the parameter variable <TT>#id</TT>, the meta-variable <TT>Id</TT>, and the substitution variable <TT>#Id</TT> are all unrelated. The case of the identifier and the presence of the tag <TT>#</TT> are merely syntactic devices to distinguish variable types.
+
+<P>
+<BR><HR>
+<ADDRESS>
+Research Group COMPLOGIC
+2014-11-12
+</ADDRESS>
+</BODY>
+</HTML>

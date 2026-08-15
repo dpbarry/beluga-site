@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>LF</TITLE>
+<META NAME="description" CONTENT="LF">
+<META NAME="keywords" CONTENT="userguide">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="userguide.css">
+
+<LINK REL="next" HREF="node23.html">
+<LINK REL="previous" HREF="node21.html">
+<LINK REL="up" HREF="node21.html">
+<LINK REL="next" HREF="node23.html">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html283"
+  HREF="node23.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next"
+ SRC="../icons/next.png"></A> 
+<A NAME="tex2html281"
+  HREF="node21.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up"
+ SRC="../icons/up.png"></A> 
+<A NAME="tex2html275"
+  HREF="node21.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous"
+ SRC="../icons/prev.png"></A>   
+<BR>
+<B> Next:</B> <A NAME="tex2html284"
+  HREF="node23.html">Functions</A>
+<B> Up:</B> <A NAME="tex2html282"
+  HREF="node21.html">Type Reconstruction</A>
+<B> Previous:</B> <A NAME="tex2html276"
+  HREF="node21.html">Type Reconstruction</A>
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H2><A NAME="SECTION00041000000000000000">
+LF</A>
+</H2>
+Type reconstruction is, in general, undecidable for LF. Beluga's algorithm reports a principal type, a type error, or that the source term needs more type information. Every LF declaration is processed one at a time. Given a constant declaration, the types of the free variables and any omitted index arguments are inferred when necessary, constituting implicit arguments. As consequence, users need only provide type annotations where no type can be inferred. 
+
+<P>
+Note that Beluga only outputs type information about the LF objects embedded within computations, not the actual LF signature. By default, implicit arguments are not printed beside their constructors. The <TT>+implicit</TT> command argument overrides this behavior. 
+<BR>
+<P>
+<SPAN  CLASS="textbf">Example:</SPAN> Say for instance that terms are indexed by type <TT>tp</TT>, corresponding to the LF declaration <TT>term: tp -&gt; type</TT>. Type reconstruction can infer that any free variable following the <TT>term</TT> constructor must be of type <TT>tp</TT>. A contextual object <TT>M: [term T]</TT> takes an implicit quantifier: <TT>{T : tp} M : [term T]</TT>. Note that <TT>T</TT> may itself contain implicit arguments depending on the type of the term. If <TT>T</TT> is an arrow type <TT>arr A B</TT>, then <TT>A</TT> and <TT>B</TT> will be implicit to <TT>T</TT>.
+
+<P>
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html283"
+  HREF="node23.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next"
+ SRC="../icons/next.png"></A> 
+<A NAME="tex2html281"
+  HREF="node21.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up"
+ SRC="../icons/up.png"></A> 
+<A NAME="tex2html275"
+  HREF="node21.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous"
+ SRC="../icons/prev.png"></A>   
+<BR>
+<B> Next:</B> <A NAME="tex2html284"
+  HREF="node23.html">Functions</A>
+<B> Up:</B> <A NAME="tex2html282"
+  HREF="node21.html">Type Reconstruction</A>
+<B> Previous:</B> <A NAME="tex2html276"
+  HREF="node21.html">Type Reconstruction</A></DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+Research Group COMPLOGIC
+2015-01-27
+</ADDRESS>
+</BODY>
+</HTML>

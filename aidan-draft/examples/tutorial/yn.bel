@@ -1,0 +1,12 @@
+
+yes_or_no  : type.
+yes  : yes_or_no.
+no   : yes_or_no.
+
+
+rec andalso : [ |- yes_or_no ] -> [ |- yes_or_no ] -> [ |- yes_or_no ] =
+fn x => fn y => case x of
+| [ |- no ] => [ |- no ]
+| [ |- yes ] => y
+;
+

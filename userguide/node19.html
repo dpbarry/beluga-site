@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Functions</TITLE>
+<META NAME="description" CONTENT="Functions">
+<META NAME="keywords" CONTENT="userguide">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="userguide.css">
+
+<LINK REL="next" HREF="node20.html">
+<LINK REL="previous" HREF="node18.html">
+<LINK REL="up" HREF="node11.html">
+<LINK REL="next" HREF="node20.html">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html247"
+  HREF="node20.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next"
+ SRC="../icons/next.png"></A> 
+<A NAME="tex2html245"
+  HREF="node11.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up"
+ SRC="../icons/up.png"></A> 
+<A NAME="tex2html239"
+  HREF="node18.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous"
+ SRC="../icons/prev.png"></A>   
+<BR>
+<B> Next:</B> <A NAME="tex2html248"
+  HREF="node20.html">Pattern-matching</A>
+<B> Up:</B> <A NAME="tex2html246"
+  HREF="node11.html">Syntax</A>
+<B> Previous:</B> <A NAME="tex2html240"
+  HREF="node18.html">Inductive Datatypes</A>
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H2><A NAME="SECTION00038000000000000000">
+Functions</A>
+</H2>
+Functions analyze contextual objects, contexts, and indexed datatypes. They are declared with the <TT>let</TT> keyword or the <TT>rec</TT> keyword for recursive functions. A function signature defines the function type using higher-order abstract syntax, where the arrow <TT>-&gt;</TT> is taken as the simply-typed function space, overloading the notation for the LF function space. Universal quantification is denoted between braces <TT>{}</TT> by an indexed variable. Context variables are indexed by schemas, meta-variables by a contextual object, and substitutions by domain and range.
+
+<P>
+Explicit arguments from the function signature correspond to computation variables in the function body. An object comprising the left-hand side of an arrow function is introduced as <TT>fn id</TT> whereas quantifiers are constructed as <TT>mlam id</TT>. Multiple variables may be introduced at once by writing <TT>fn id, id, ... </TT> or <TT>mlam id, id, ...</TT> though the two keywords must be separated by the double arrow <TT>=&gt;</TT>. If a term from the signature does not require a variable representation in the body, it is surrounded by parentheses <TT>( )</TT> to indicate it is implicit. 
+<BR>
+<P>
+<SPAN  CLASS="textbf">Example:</SPAN> The type signature below reads: "for all contexts <TT>g</TT> with schema <TT>xaG</TT>, for terms <TT>M</TT> which are expression in the context of <TT>g</TT>, there is a proof that <TT>M</TT> is equal to itself. The computation-level variables are identified as <TT>h</TT> and <TT>N</TT>.
+<PRE>
+rec refl : {g : xaG} {M : [g |- exp]} [g |- eq (M ..) (M ..)] =
+FN h =&gt; mlam N =&gt; ...
+</PRE>
+
+<P>
+<SPAN  CLASS="textbf">Example:</SPAN> In this type signature, the context <TT>g</TT> is implicit, not used anywhere within the function body. Variables need only be introduced for the input types <TT>[g |- oft (M ..) T]</TT> and <TT>[g |- oft (M ..) T1]</TT>, where <TT>oft</TT> stands for "of type". The meta-variables <TT>T</TT> and <TT>T1</TT> are implicitly bound and thus do not require an associated substitutions. 
+<PRE>
+rec trans : (g:xaG) [g |- type_of (M ..) T] -&gt; [g |-  (M ..) T1] -&gt; 
+[g |- eq T T1] = fn d1, d2 =&gt; ...
+</PRE>
+
+<P>
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html247"
+  HREF="node20.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next"
+ SRC="../icons/next.png"></A> 
+<A NAME="tex2html245"
+  HREF="node11.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up"
+ SRC="../icons/up.png"></A> 
+<A NAME="tex2html239"
+  HREF="node18.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous"
+ SRC="../icons/prev.png"></A>   
+<BR>
+<B> Next:</B> <A NAME="tex2html248"
+  HREF="node20.html">Pattern-matching</A>
+<B> Up:</B> <A NAME="tex2html246"
+  HREF="node11.html">Syntax</A>
+<B> Previous:</B> <A NAME="tex2html240"
+  HREF="node18.html">Inductive Datatypes</A></DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+Research Group COMPLOGIC
+2015-01-27
+</ADDRESS>
+</BODY>
+</HTML>

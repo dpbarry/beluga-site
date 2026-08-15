@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Grammar</TITLE>
+<META NAME="description" CONTENT="Grammar">
+<META NAME="keywords" CONTENT="userguide">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="userguide.css">
+
+<LINK REL="next" HREF="node11.html">
+<LINK REL="previous" HREF="node1.html">
+<LINK REL="up" HREF="userguide.html">
+<LINK REL="next" HREF="node9.html">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html128"
+  HREF="node9.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next"
+ SRC="../icons/next.png"></A> 
+<A NAME="tex2html126"
+  HREF="userguide.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up"
+ SRC="../icons/up.png"></A> 
+<A NAME="tex2html120"
+  HREF="node7.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous"
+ SRC="../icons/prev.png"></A>   
+<BR>
+<B> Next:</B> <A NAME="tex2html129"
+  HREF="node9.html">LF-level</A>
+<B> Up:</B> <A NAME="tex2html127"
+  HREF="userguide.html">Beluga Reference Guide</A>
+<B> Previous:</B> <A NAME="tex2html121"
+  HREF="node7.html">Command Options</A>
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION00020000000000000000">
+Grammar</A>
+</H1>
+Beluga is a two-level system:
+
+<UL>
+<LI>the LF logical framework level, supporting specification of formal systems
+</LI>
+<LI>the computation-level, supporting programming with LF specifications
+</LI>
+</UL>
+
+<P>
+This section describes both levels in EBNF<A NAME="tex2html1"
+  HREF="footnode.html#foot69"><SUP><SPAN CLASS="arabic">1</SPAN></SUP></A> metasyntax. In particular:
+
+<UL>
+<LI><SPAN CLASS="MATH"><IMG
+ WIDTH="31" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img7.png"
+ ALT="$\{a\}$"></SPAN> represents repeat production <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="18" ALIGN="BOTTOM" BORDER="0"
+ SRC="img8.png"
+ ALT="$a$"></SPAN> zero or more times 
+</LI>
+<LI><SPAN CLASS="MATH"><IMG
+ WIDTH="24" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img9.png"
+ ALT="$[a]$"></SPAN> represents optionally apply production <SPAN CLASS="MATH"><IMG
+ WIDTH="14" HEIGHT="18" ALIGN="BOTTOM" BORDER="0"
+ SRC="img8.png"
+ ALT="$a$"></SPAN> 
+</LI>
+<LI><SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img10.png"
+ ALT="$(*$"></SPAN> and <SPAN CLASS="MATH"><IMG
+ WIDTH="20" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img11.png"
+ ALT="$*)$"></SPAN> enclose comments in the grammar
+</LI>
+</UL>
+<PRE>
+sig ::= { lf_decl         (* LF constant declaraction *)
+        | c_decl }        (* Computation-level declaration *)
+</PRE>
+<SPAN  CLASS="textit">id</SPAN> refers to identifiers starting with a lower case letter and <SPAN  CLASS="textit">ID</SPAN> identifiers starting with an upper case letter.
+
+<P>
+<BR><HR>
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL CLASS="ChildLinks">
+<LI><A NAME="tex2html130"
+  HREF="node9.html">LF-level</A>
+<LI><A NAME="tex2html131"
+  HREF="node10.html">Computation-level</A>
+</UL>
+<!--End of Table of Child-Links-->
+<BR><HR>
+<ADDRESS>
+Research Group COMPLOGIC
+2015-01-27
+</ADDRESS>
+</BODY>
+</HTML>

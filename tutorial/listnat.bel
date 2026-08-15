@@ -1,0 +1,32 @@
+
+nat  : type.
+z    : nat.
+succ : nat -> nat.
+
+
+rec add : [ |- nat ] -> [ |- nat ] -> [ |- nat ] = fn x => fn y => case x of
+| [ |- z ]      => y
+| [ |- succ N ] => let [ |- R ] = add [ |- N ] y in
+    [ |- succ R ]
+;
+
+
+list : type.
+nil  : list.
+cons : nat -> list -> list.
+
+
+rec length : [ |- list ] -> [ |- nat ] = fn l => case l of
+| [ |- nil ]      => [ |- z ]
+| [ |- cons H T ] => let [ |- N ] = length ([ |- T ]) in [ |- succ N ]
+;
+
+
+rec map : ([ |- nat ] -> [ |- nat ]) -> [ |- list ] -> [ |- list ] =
+fn f => fn l => case l of
+| [ |- nil ]      => [ |- nil ]
+| [ |- cons H T ] => let [ |- R ] = f [ |- H] in
+                   let [ |- T' ] = map f [ |- T ] in
+                       [ |- cons R T' ]
+;
+

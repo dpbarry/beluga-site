@@ -1,0 +1,99 @@
+% Reasoning about paths in lambda-terms
+% Author: Brigitte Pientka
+%
+% This example requires nested implications and quantifiers.
+% 
+% Note: if you'd like to display the code as it is shown on the webpage,
+%       please use the beluga-mode for emacs written by Stefan Monnier.
+%
+
+tm: type. %name tm T.
+lam: (tm -> tm) -> tm.
+app: tm -> tm -> tm.
+
+path: type. %name path P.
+bind: (path -> path) -> path.
+left: path -> path.
+right: path -> path.
+done: path.
+
+% ------------------------------------------------------------------------------
+% Definition of paths
+
+is_path: path -> tm -> type. %name is_path I.
+
+p_lam: is_path (bind P) (lam E)
+       <- ({x:tm}{q:path}is_path q x -> is_path (P q) (E x)).
+
+p_left: is_path (left P) (app M N)
+       <- is_path P M.
+
+p_right: is_path (right P) (app M N)
+       <- is_path P N.
+
+p_done: is_path done M.
+
+eq: tm -> tm -> type.  %name eq E.
+e_ref: eq T T.
+
+% ------------------------------------------------------------------------------
+% Context schema declaration 
+ 
+schema ctx = block x:tm,p:path . is_path p x ; 
+
+% ------------------------------------------------------------------------------
+%{
+Theorem:
+
+For all M, N.
+
+If for all paths P, is_path P M  implies is_path P N
+then  eq M N. 
+
+}%
+rec eqPath : {g:(ctx)*}{M::tm[g]}{N::tm[g]}
+             ({P::path[g]} (is_path (P ..) (M ..))[g] -> (is_path (P ..) (N ..))[g])
+	     -> (eq (M ..) (N ..))[g] = 
+FN g => mlam M => mlam N => fn f => case [g] M .. of 
+| [g] app (M1 ..) (M2 ..)  => 
+    let [g] p_left p_done : (is_path (left done) (app (N1 ..) (N2 ..)))[g] 
+       = f <g. (left done)> ([g] p_left p_done) in 
+
+    let [g] e_ref = eqPath [g] <g. M2 .. > <g. (N2 ..)  > 
+      (mlam Q => fn iq => let [g] D .. = iq in 
+           let [g] p_right (D' ..) : (is_path (right (Q' .. )) (app (N1 ..) (N2 ..)))[g] 
+              = f < g. (right (Q ..)) > ([g] p_right (D .. )) in 
+		[g] D' ..   )
+    in  	 
+    let [g] e_ref  = eqPath [g] <g. M1 .. > <g. (N1 ..)  >
+		       (mlam Q => fn iq => 
+                        let [g] D .. = iq in 
+			let [g] p_left (D' ..) : (is_path (left (Q' .. )) (app (N1 ..) (N2 ..)))[g] 
+              = f < g. (left (Q ..)) > ([g] p_left (D .. )) in 
+		[g] D' ..   )
+    in  	 
+			 
+    [g] e_ref
+
+| [g] #p.1 .. => 
+  let [g] #q.3 .. = f <g. #p.2 .. > ([g] #p.3 .. ) in 
+    [g] e_ref
+
+
+| [g] lam (\x. M' .. x) => 
+  let  [g] p_lam (\x.\p.\u. p_done)  : (is_path (bind (\p.done)) (lam (\x. N' .. x)))[g] = 
+       f <g. bind (\p.done) > ([g] p_lam (\x.\p.\u. p_done)) in 
+
+  let [g,b:block x:tm, q:path  |-  is_path q x] e_ref = 
+       eqPath [g, b:block x:tm, q:path |-  is_path q x] <g,b. M' .. b.1 > <g,b. N' .. b.1 > 
+       (mlam Q => fn ip =>
+         let [g,b:block x:tm, q:path |-  is_path q x] Qs .. b.2 = [g,b:block x:tm, q:path |-  is_path q x] Q .. b in  % strengthening
+         let [g,b:block x:tm, q:path |-  is_path q x] D .. b = ip in 
+         let [g] p_lam (\x.\q.\iq. D' .. x q iq) : (is_path (bind (\q. Q' .. q)) (lam (\x. N' .. x)))[g] =  
+           f < g. bind (\q. Qs .. q) >  ([g] p_lam (\x.\q.\iq. D .. <x,q,iq> )  ) in
+             [g,b] D' .. b.1 b.2 b.3
+       )
+
+  in 
+      [g] e_ref
+;

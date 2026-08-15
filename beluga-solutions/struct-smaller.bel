@@ -1,0 +1,76 @@
+% Structural relationship between lambda-terms
+% Simple example to illustrate the power of
+% the computation-layer in Beluga.
+% Author: Brigitte Pientka
+%
+% Theorem: if forall N. le N K implies le N L then  le K L.
+%
+% Note: Nested universal quantification and implication.
+%
+%
+% Note: if you'd like to display the code as it is shown on the webpage,
+%       please use the beluga-mode for emacs written by Stefan Monnier.
+%
+
+datatype term : type =
+| lam : (term -> term) -> term
+| app : term -> term -> term
+;
+%name term T.
+
+
+
+% Equality between two representations.
+datatype eq : term -> term -> type =
+| e_ref : eq T T
+;
+
+datatype lt : term -> term -> type =
+| lt_lam  : ({x:term}le N (M x)) -> lt N (lam M)
+| lt_appl : le N M1 -> lt N (app M1 M2)
+| lt_appr : le N M2 -> lt N (app M1 M2)
+and le: term -> term -> type =
+| le_= : eq M N -> le M N
+| le_< : lt M N -> le M N
+;
+
+
+
+
+
+
+
+% ------------------------------------------------------------------------------
+schema ctx =  term ;
+
+rec ref : {g:ctx} {M:[g |- term]}[g |- (le (M ..) (M ..))] =
+mlam g => mlam M => [g |- le_= e_ref]
+;
+
+
+
+% Theorem: if forall N. le N K implies le N L then  le K L.
+rec thm' : {g:ctx} {K:[g |- term]}
+         ({N:[g |- term]} [g |- (le (N .. ) (K ..))] -> [g |- (le (N ..) (L ..))])
+		     -> [g |- (le (K ..) (L ..))] =
+
+mlam g => mlam K => fn f => f [g |- K ..] ([g |- le_= e_ref]) ;
+
+
+
+% Different proof: By case analysis ...
+rec thm : {g:ctx} {K:[g |- term]}
+         ({N:[g |- term]} [g |- (le (N .. ) (K ..))] -> [g |- (le (N ..) (L ..))])
+		     -> [g |- (le (K ..) (L ..))] =
+mlam g => mlam K => fn f => case [g |- K ..] of
+| {#p: [g |- block x:term , _t:eq x x] }
+ [g |- #p.1 ..] =>
+   f [g |- #p.1 .. ] ([g |- le_= e_ref] )
+
+
+| [g |- app (M1 .. ) (M2 .. )] =>
+  f [g |- app (M1 .. ) (M2 ..)]  ([g |- le_= e_ref])
+
+| [g |- lam \x. M .. x] =>
+ f [g |- lam \x. M .. x] ([g |- le_= e_ref])
+;

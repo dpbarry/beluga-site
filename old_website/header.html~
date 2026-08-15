@@ -1,0 +1,39 @@
+<head>
+   <link rel="stylesheet" type="text/css" href="../tutorial-style.css" />
+</head>
+<!-- header -->
+<div id="header">
+<!--
+<p style="float:right;padding:20pt 20pt 20pt 20pt">
+ <a href="http://validator.w3.org/check?uri=referer">
+    <img src="images/valid-xhtml10.png"
+         alt="Valid XHTML 1.0 Strict" height="31" width="88" />
+	</a>
+</p>
+-->
+
+<p style="float:right;padding:15pt 12pt 12pt 12pt">
+  <a href="../images/beluga-med.png">
+    <img src="../images/beluga-sm.png"
+         alt="Beluga logo" />
+      </a>
+</p>
+
+<h1><a href="http://complogic.cs.mcgill.ca/beluga/">Beluga</a></h1>
+<h2><a href="http://complogic.cs.mcgill.ca/">Computation and Logic
+	  Group</a><br />
+    <a href="http://www.cs.mcgill.ca/">School of Computer Science</a><br />
+    <a href="http://www.mcgill.ca/">McGill University</a><br /><br /></h2>
+</div>
+      <div id="menu">
+        <ul> 
+          <li><a href="index.php">Home</a></li> 
+          <li><a href="people.php">People</a></li> 
+          <li><a href="links.php">Links</a></li> 
+          <li><a href="seminar.php">Seminar</a></li> 
+	  <li>&nbsp;&nbsp;&nbsp;&nbsp;</li>
+ 	  <li><a href="cade22/">CADE-22</a></li>
+	  <li><a href="beluga/">Beluga</a></li>          
+	</ul>
+      </div>
+<!-- header end -->

@@ -1,0 +1,7 @@
+@Unpublished{Pientka:LICS08Draft,
+    author = "Brigitte Pientka and Joshua Dunfield",
+    title = "Functional programming with dependently-typed higher-order data",
+    note = "Draft submitted to LICS '08",
+    month = jan,
+    year = "2008"
+}

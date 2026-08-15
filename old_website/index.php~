@@ -1,0 +1,294 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Beluga: Functional Programming with Higher-Order Abstract Syntax</title>
+   <link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+
+<body>
+<?php include "../functions.php"; ?>
+<div id="wrapper">
+   <?php echoFile("header.html"); ?>
+<!--   <div id="menu">
+   </div>
+-->
+<div id="main">
+
+   <h1>Beluga: Functional Programming with Higher-Order Abstract Syntax</h1>
+
+<p> Our main interest in this project is to investigate programming
+and reasoning with data structures that provide support for
+binders. Many object languages include binding constructs, and it is
+striking that functional languages still lack direct support for
+binders and common tricky operations such as renaming,
+capture-avoiding substitution, and fresh name generation. </p>
+
+<p> We advocate the use of <i>higher-order abstract syntax</i> (HOAS) where
+we represent binders in the object language with binders in the
+meta-language. One of the key benefits is that we not only get support
+for renaming and fresh name generation, but also for capture-avoiding
+substitution. While HOAS encodings have played an important role in
+mechanizing the meta-theory of programming languages, it has been
+difficult to incorporate HOAS encodings directly into functional
+programming. </p>
+
+
+<h2>Publications</h2> 
+
+<ul>
+<li>Olivier Savary-Belanger, Stefan Monnier and Brigitte Pientka.
+  <a href="papers/tp-compile.pdf">Programming type-safe transformations using higher-order abstract syntax</a>, 3rd International Conference on Certified Programs and Proofs (CPP'13). (<a href="cc-code">code</a>)
+</li>  
+
+<li>Andrew Cave and Brigitte Pientka. <a href="papers/lfmtp13.pdf">First-class substitutions in contextual type theory</a>, International Workshop on Logical Frameworks and Meta-Languages: Theory and Practice (LFMTP'13).
+				  </li>
+<li>Brigitte Pientka.
+  <a href="submitted/cover-cpp.pdf">Coverage checking contextual objects</a>,
+  draft June 2012, (<a href="submitted/beluga-coverage-examples.tar">tar-ball with Beluga
+  examples</a>)
+</li>  
+<li>Andrew Cave and Brigitte Pientka.
+  <a href="papers/recursive-types.pdf">Programming with Binders and Indexed
+  Data-types</a>,  39th ACM SIGPLAN-SIGACT Symposium on Principles of
+  Programming Languages (POPL'12).
+</li>
+<li>Mathieu Boespflug and Brigitte Pientka.
+<a href="papers/multilevelcmtt.pdf">Multi-level Contextual Type Theory</a>, 6th International Workshop on Logical Frameworks and Meta-Languages: Theory and Practice (LFMTP'11) (<a href="papers/multilevelcmtt-long.pdf">long version</a>).
+</li>
+<li>Andreas Abel and Brigitte Pientka.
+    <a href="papers/unif-sigma-final.pdf">Higher-order dynamic pattern unification for dependent types and records</a>,
+    10th Conference on Typed Lambda Calculi and Applications (TLCA'11). (<a href="papers/unif-sigma-long.pdf">long version</a>)
+</li>				  
+</li>
+<li>Brigitte Pientka and Joshua Dunfield.
+    Covering all bases: design and implementation of case analysis for contextual objects. 
+ <i>Technical report, Oct 2010</i>.
+ (<a href="submitted/cover.pdf">pdf</a>, <a href="coverage_appendix">electronic appendix</a>, <a href="coverage_appendix.tar">electronic appendix (tar-ball)</a>)
+</li>                     
+
+<li>Amy Felty and Brigitte Pientka.
+    Reasoning with Higher-Order Abstract Syntax and Contexts: A Comparison.
+In <i>First International Conference on Interactive Theorem Proving (ITP'10)</i>, Lecture Notes in Computer Science (LNCS), vol 6172, page 227-242, Springer, 2010. (<a href="itp10/abstract.html">abstract</a>)
+    (<a href="itp10/worlds-rev.pdf">pdf</a>) 
+    (<a href="itp10/appendix.pdf">appendix</a>)
+</li>
+
+
+<li>Brigitte Pientka and Joshua Dunfield.
+    Beluga: A Framework for Programming and Reasoning with Deductive Systems (System Description). 
+In <i>5th International Joint Conference on Automated Reasoning (IJCAR'10)</i>,
+Lecture Notes in Computer Science (LNCS), vol 6173, page 15-21, Springer, 2010.
+ (<a href="ijcar10/abstract.html">abstract</a>)
+                           (<a href="ijcar10/system-description.pdf">pdf</a>)
+</li>                     
+
+<li>Andreas Abel and Brigitte Pientka.
+Explicit substitutions for contextual type theory. 
+In <i> 5th International Workshop on Logical Frameworks: Theory and Practice (LFMTP'10)</i>, Electronic Proceedings in Theoretical Computer Science (EPCS), vol 34, page 5 - 21, 2010. (<a href="http://arxiv.org/html/1009.2189">electronic version of proceeding</a>)  (<a href="lfmtp10/abstract.html">abstract</a>)
+                           (<a href="lfmtp10/lfmtp10.pdf">pdf</a>)
+                           (<a href="lfmtp10">Implementation of type-checker in Haskell</a>)
+</li>
+<li>Brigitte Pientka.
+<a href="papers/prog-proofs.pdf">Programming inductive proofs: a new approach
+based on contextual types</a>, Brigitte Pientka, Verification, Induction, and
+Termination analysis, Lecture Notes in Artificial Intelligence (LNAI), Springer, 2010</li>
+<li>Brigitte Pientka.
+    Beluga: programming with dependent types, contextual data, and contexts (Invited talk).
+    In <i>10th International Symposium on Functional and Logic Programming (FLOPS'10)</i>, Lecture Notes in Computer Science (LNCS), vol 6009, page 1-12, Springer, 2010.
+    (<a href="flops10/abstract.html">abstract</a>)
+    (<a href="flops10/flops.pdf">pdf</a>)
+</li>                      
+
+<li>Brigitte Pientka and Joshua Dunfield.
+    Programming with proofs and explicit contexts.
+In <i>ACM SIGPLAN Symposium on Principles and Practice of Declarative Programming (PPDP'08)</i>, pages 163-173.  ACM Press, July 2008.
+    (<a href="ppdp08/abstract.html">abstract</a>)
+    (<a href="ppdp08/Pientka08_dependent-hoas.pdf">pdf</a>)
+    (<a href="ppdp08/bibtex.bib">bibtex</a>)
+</li>
+
+<li>Joshua Dunfield and Brigitte Pientka.
+    Case analysis of higher-order data.
+In <i>International Workshop on Logical Frameworks and Meta-Languages: Theory and Practice (LFMTP'08)</i>.  Elsevier, June 2008.
+    (<a href="lfmtp08/abstract.html">abstract</a>)
+    (<a href="lfmtp08/Dunfield08_case-analysis-hoas.pdf">pdf</a>&mdash;extended
+     version including appendix)
+    (<a href="lfmtp08/bibtex.bib">bibtex</a>)
+</li>
+
+<!-- Joshua Dunfield and Brigitte Pientka.
+    Case analysis of higher-order data.
+    Manuscript, February 2008.
+    (<a href="tphols08-draft/abstract.html">abstract</a>)
+    (<a href="tphols08-draft/Dunfield08_case-analysis-hoas.pdf">pdf</a>)
+    (<a href="tphols08-draft/bibtex.bib">bibtex</a>)
+ -->
+
+<li>Brigitte Pientka.
+    A type-theoretic foundation for programming
+    with higher-order abstract syntax and first-class substitutions.
+    In
+    <i>35th ACM Symposium on Principles of Programming Languages (POPL'08)</i>,
+    pages 371-382.
+    ACM Press, January 2008.
+    (<a href="popl08/abstract.html">abstract</a>)
+    (<a href="popl08/Pientka08_hoasfun.pdf">pdf</a>)
+    (<a href="popl08/bibtex.bib">bibtex</a>)
+</li>
+
+</ul>
+
+<h2>Implementation</h2>
+
+<p> We are actively developing a prototype implementation of our
+  language, Beluga, in OCaml. The Beluga implementation provides an
+  implementation of the logical framework LF, and in addition a
+  functional programming environment which supports dependent types
+  and analyzing LF data via pattern  matching. It is a completely new
+  implementation effort. Its implementation of the logical framework
+  LF in OCaml shares, adapts and  extends some fundamental ideas from
+  the Twelf system. The functional programming environment,
+  built on top of the logical framework LF, is a completely new
+  implementation based on previous theoretical ideas presented in
+  [Pientka:POPL08] and [PientkaDunfield:PPDP08].  
+</p>
+<p> The lead implementor is Brigitte Pientka. Since 2008, the following people have
+contributed to the implementation:
+Costin Bǎdescu,
+Mathieu Boespflug,
+Andrew Cave,
+Joshua Dunfield,
+Francisco Ferreira,
+Renaud Germain,
+Stefan Monnier,
+Darin Morrison,
+Olivier Savary.
+</p>
+<p>Questions and bugs: Send email to Brigitte Pientka (bpientka at cs.mcgill.ca)</p>
+
+<p>
+<strong>Current implementation</strong>: 
+</p>
+ <ul>
+<li>
+   <strong>
+   <a href="beluga-0.5-substvars.tar.gz">Experimental Version supporting substitution variables. Version 0.5 (31 January 2014) </a>
+   </strong>: This version supports first-class substitution variables and a rich equational theory about substitutions. 
+  </li>
+<li>
+   <strong>
+   <a href="beluga-0.6-20140213.tar.gz">Version 0.6 (13 February 2014)</a>
+   </strong>: Main branch of the Beluga development.
+  </li>
+  <li>An Emacs mode for Beluga (written by Stefan Monnier) is part of the distribution.</li>
+  <li>A VIM plug-in for Beluga can be found <a href="http://www.vim.org/scripts/script.php?script_id=3136">here</a>; contributed by <a href="http://membres-lig.imag.fr/aravantinos/Site/Home.html">Vincent Aravantinos</a>.
+ <li><a href="grammar.php">Grammar</a> </li>
+  </li>
+ </ul>
+
+<p>
+Older versions: 
+</p>
+ <ul> 
+<li>
+   <a href="beluga-0.5-20130207.tar.gz">Version 0.5 (7 Feb 2013)</a>
+   Beluga development supporting indexed recursive types. 
+</li>
+<li>
+  <a href="beluga-0.5-20120920.tar.gz">Version 0.5 (20 Sep 2012)</a>
+   computation-level inductive datatypes, extended coverage checking, logic engine,
+   revised syntax, revised error messages.
+</li>
+<li>
+   <a href="beluga-0.3-20101007.tar.gz">Version 0.3 (7 Oct 2010)</a>
+   revised coverage checking and improved error messages, emacs mode
+</li>
+<li>
+   <a href="beluga-0.3-20100904.tar.gz">Version 0.3 (4 Sep 2010)</a>
+    revised coverage checking (experimental) and includes bug fixes
+  </li>
+  <li>
+   <a href="beluga-0.3-20100830.tar.gz">Version 0.3 (30 Aug 2010)</a>
+    supports context reconstruction, coverage checking and writing absurd patterns (experimental)
+  </li>
+   <li>
+   <a href="beluga-0.3-20100707.tar.gz">Version 0.3 (7 Jul 2010)</a>
+    supports context reconstruction and coverage checking (experimental)
+  </li>
+  <li>
+   <a href="beluga-0.2-20100122.tar.gz">Version 0.2 (22 Jan 2010)</a>
+  </li>
+  <li>
+   <a href="beluga-0.1-20091215.tar.gz">Version 0.1 (15 Dec 2009)</a>
+     (compiles under OCaml 3.10 and 3.11; supports context subsumption)
+  </li>
+  <li>
+   <a href="beluga-0.1-20091016.tar.gz">Version 0.1 (16 Oct 2009)</a>
+  </li>
+  <li>
+   <a href="beluga-0.1-20090925.tar.gz">Version 0.1 (25 Sep 2009)</a>
+  </li>
+ </ul>
+
+<h2>Tutorial</h2> 
+<!--
+<p>The <a href="tutorial.php">tutorial</a> discusses five case studies done in Beluga.
+ All of them revolve around the simply-typed lambda-calculus, and demonstrate the
+ differences from other systems supporting HOAS. 
+</p>
+--!>
+<p>The <a href="tutorial.php">tutorial</a> offers a taste of what programming in Beluga is like, starting gently and working all the way up to proving type preservation for the simply typed lambda calculus. Here are the embedded code snippets as separate files, for easy loading into Beluga:
+<ul>
+<li><a href="tutorial/nat.bel">nat.bel:</a> naturals (Section 2);</li>
+<li><a href="tutorial/yn.bel">yn.bel</a> yes and no (Section 2);</li>
+<li><a href="tutorial/listnat.bel">listnat.bel:</a> Lists of naturals (Section 2);</li>
+<li><a href="tutorial/dtlist.bel">dtlist.bel:</a> length indexed lists (Section 3);</li>
+<li><a href="tutorial/typesterms2.bel">typesterms2.bel:</a> list filtering (Section 3);</li>
+<li><a href="tutorial/typesterms3.bel">typesterms3.bel:</a> list filtering (Section 3);</li>
+<li><a href="tutorial/typesterms.bel">typesterms.bel:</a> evaluation is deterministic (Section 4);</li>
+<li><a href="tutorial/lambda.bel">lambda.bel:</a> lambda-calculus and proof of presevertation (Section 5).</li>
+</ul>
+</p>
+
+<h2>Benchmarks</h2> 
+<p>Amy Felty and Brigitte Pientka proposed several <a href="benchmarks/index.php">benchmark problems</a> which illustrate the differences and trade-offs in systems supporting programming and reasoning about higher-order abstract syntax encodings.In particular, we compare the development of these examples in the Twelf system, Beluga and Two-level Hybrid. See also <a href="submitted/worlds.pdf">Reasoning with Higher-Order Abstract Syntax and Contexts: A Comparison</a> (draft).
+</p>
+
+<h2>People</h2>
+<ul>
+<li><a href="http://www.cs.mcgill.ca/~bpientka">Brigitte Pientka</a></li>
+<li><a href="http://www.iro.umontreal.ca/~monnier/">Stefan Monnier</a></li>
+<li><a href="http://www.cs.mcgill.ca/~acave1/">Andrew Cave</a> (PhD student)</li>
+<li><a href="http://www.cs.mcgill.ca/~fferre8/">Francisco Ferreira</a> (PhD student)</li>
+<li><a href="http://www.cs.mcgill.ca/~osavary">Olivier Savary</a> (MSc student)</li>
+          <li><a href="http://www.cs.mcgill.ca/~dthibo1/">David Thibodeau</a> (MSc student)</li>
+</ul>
+
+</div>
+<div id="footer">
+   <?php echoFile("../footer.html"); ?>
+</div>
+
+</div>
+
+<!-- Start of StatCounter Code -->
+<script type="text/javascript">
+var sc_project=5164105; 
+var sc_invisible=1; 
+var sc_partition=49; 
+var sc_click_stat=1; 
+var sc_security="70de7a64"; 
+</script>
+
+<script type="text/javascript"
+src="http://www.statcounter.com/counter/counter.js"></script><noscript><div
+class="statcounter"><a title="profile counter"
+href="http://www.statcounter.com/free_profile_counter.html"
+target="_blank"><img class="statcounter"
+src="http://c.statcounter.com/5164105/0/70de7a64/1/"
+alt="profile counter" ></a></div></noscript>
+<!-- End of StatCounter Code -->
+
+</body>
+</html>

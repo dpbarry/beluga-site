@@ -1,0 +1,67 @@
+
+
+% Types
+tp: type.
+bool: tp.
+nat : tp.
+
+% Values
+value: tp -> type.
+v_zero: value nat.
+v_succ: value nat -> value nat.
+v_true: value bool.
+v_false: value bool.
+
+
+% Typed expressions
+term: tp -> type.
+
+true  : term bool.
+false : term bool.
+switch: term bool -> term T -> term T
+     -> term T.
+z     : term nat.
+succ  : term nat -> term nat.
+pred  : term nat -> term nat.
+iszero: term nat -> term bool.
+
+
+rec eval : [ |- term T ] -> [ |- value T ] = fn m => case m of
+| [ |- true ] => [ |- v_true ]
+| [ |- false ] => [ |- v_false ]
+| [ |- switch T1 T2 T3 ] => (case eval [ |- T1 ] of
+    | [ |- v_true ]   => eval [ |- T2 ]
+    | [ |- v_false ]   => eval [ |- T3 ]
+  )
+| [ |- z ]      => [ |- v_zero ]
+| [ |- succ N ] => let [ |- V ] = eval [ |- N ] in [ |- v_succ V ]
+| [ |- pred N ] => (case eval [ |- N ] of
+   | [ |- v_zero   ]     => [ |- v_zero ]
+   | [ |- v_succ V ]     => [ |- V ]
+  )
+;
+
+
+list : term nat -> type.
+nil  : list z.
+cons : tp -> list N -> list (succ N).
+
+
+
+exists_smaller_or_equal_list: type.
+smaller_or_equal_list : list N
+                     -> exists_smaller_or_equal_list.
+yes_or_no  : type.
+yes  : yes_or_no.
+no   : yes_or_no.
+rec filter : [ |- list N ] -> ([ |- tp ] -> [ |- yes_or_no ])
+             -> [ |- exists_smaller_or_equal_list ] =
+fn l => fn f => case l of
+| [ |- nil ]      => [ |- smaller_or_equal_list  nil ]
+| [ |- cons H T ] => let [ |- smaller_or_equal_list T' ] = filter [ |- T ] f in
+                   (case f [ |- H ] of
+                    | [ |- yes ] => [ |- smaller_or_equal_list (cons H T') ]
+                    | [ |- no  ] => [ |- smaller_or_equal_list T' ]
+                   )
+;
+

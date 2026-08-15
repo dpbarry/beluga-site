@@ -1,0 +1,140 @@
+<!DOCTYPE html> <html lang="en">
+<head>
+  <!-- Le styles -->
+  <link href="../../../css/bootstrap.css" rel="stylesheet">
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
+  <script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+  <div>
+    <iframe width="1250px" height="50px" scrolling="no" frameBorder="0" src="../../../header.html"></iframe> 
+  </div>
+
+  <div class="row">
+    <div class="col-sm-2">
+      <div class="well">
+        <div>
+          <ul class="nav nav-list">
+            <li>
+                <a href="../../../0Beginner.html">
+                  Beginner                </a>
+              <ul class="nav nav-list tree">
+              </ul>
+            </li>
+            <li>
+                <a href="../../../1Intermediate.html">
+                  Intermediate
+                </a>
+              <ul class="nav nav-list tree">
+              </ul>
+            </li>
+            <li>
+                <a href="../../../2Advanced.html">
+                  Advanced
+                </a>
+              <ul class="nav nav-list tree">
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div> <!-- end div col-sm-2 -->
+    <div class="container theme-showcase" role="main">
+      <div class="col-sm-10">
+
+
+
+<p></p><p>
+<h1> Type Preservation for Parallel Reduction for the Simply-typed Lambda-calculus </h1>
+We discuss the notion of parallel reduction, a standard relation relevant to many other important case studies, like the Church-Rosser Theorem.
+This case study is part of <a href="https://github.com/pientka/ORBI">ORBI</a>, the Open challenge problem Repository for systems reasoning with BInders.  For a detailed description of the proof and a discussion regarding other systems see <a href="../../../orbi-jar.pdf" target="_blank">(Felty et al, 2014)</a>.
+<br>
+The mechanization highlights several aspects:
+</p><p>
+<ul><li> Context exchange via substitution</li>
+<li> Free substitution property for parametric and hypothetical derivations</li>
+<li> Type reconstruction via inference </li></ul>
+</p><p>
+<h2> Syntax</h2>
+We encode the simply-typed lambda-calculus in the logical framework LF using Twelf-style syntax.<br>
+</p><p></p><br><pre><code><span class="typ" id="tp">tp</span> : <keyword>type</keyword>.
+<br><keyword>--name</keyword> tp T. 
+<br><span class="constructor" id="arr">arr</span> : <a href="#tp">tp</a> &#x2192 <a href="#tp">tp</a> &#x2192 <a href="#tp">tp</a>.
+<br><span class="constructor" id="nat">nat</span> : <a href="#tp">tp</a>.
+<br><span class="typ" id="tm">tm</span> : <keyword>type</keyword>.
+<br><keyword>--name</keyword> tm M x.
+<br><span class="constructor" id="app">app</span> : <a href="#tm">tm</a> &#x2192 <a href="#tm">tm</a> &#x2192 <a href="#tm">tm</a>.
+<br><span class="constructor" id="lam">lam</span> : (<a href="#tm">tm</a> &#x2192 <a href="#tm">tm</a>) &#x2192 <a href="#tm">tm</a>.
+</code></pre>
+<p></p><p>
+<h2> Judgements and Rules</h2>
+We describe parallel reduction and typing judgement for the simply-typed lambda-calculus using axioms and inference rules. The Beluga code is a straightforward HOAS encoding of the associated rules.
+</p><p>
+<h3> Parallel reduction</h3>
+The predicate <code>pr</code> of type <code>tm &#x2192 tm &#x2192 type</code> defines parallel reduction, that M may reduce to M' or <code>M &#x2192 M'</code>. &beta;-reduction <code>pr_b</code> and its congruence rules <code>pr_l</code> and <code>pr_a</code> comprise the set of inference rules.
+</p><p></p><br><pre><code><span class="typ" id="pr">pr</span> : <a href="#tm">tm</a> &#x2192 <a href="#tm">tm</a> &#x2192 <keyword>type</keyword>.
+<br><span class="constructor" id="pr_l">pr_l</span> : ({x : <a href="#tm">tm</a>} (<a href="#pr">pr</a> x x &#x2192 <a href="#pr">pr</a> (M x) (N x))) &#x2192 <a href="#pr">pr</a> (<a href="#lam">lam</a> M) (<a href="#lam">lam</a> N).
+<br><span class="constructor" id="pr_b">pr_b</span> : ({x : <a href="#tm">tm</a>} (<a href="#pr">pr</a> x x &#x2192 <a href="#pr">pr</a> (M x) (M' x))) &#x2192 <a href="#pr">pr</a> N N' &#x2192 <a href="#pr">pr</a> (<a href="#app">app</a> (<a href="#lam">lam</a> M) N) (M' N').
+<br><span class="constructor" id="pr_a">pr_a</span> : <a href="#pr">pr</a> M M' &#x2192 <a href="#pr">pr</a> N N' &#x2192 <a href="#pr">pr</a> (<a href="#app">app</a> M N) (<a href="#app">app</a> M' N').
+</code></pre>
+<p></p><p>
+<h3> Typing judgement</h3>
+Following the judgements-as-types principle, we define the type family <code>oft</code> which is indexed by terms <code>tm</code> and types <code>tp</code>. Constructors <code>of_app</code> and <code>of_lam</code> encode the typing rules for application and abstraction, respectively.
+</p><p></p><br><pre><code><span class="typ" id="oft">oft</span> : <a href="#tm">tm</a> &#x2192 <a href="#tp">tp</a> &#x2192 <keyword>type</keyword>.
+<br><keyword>--name</keyword> oft H. 
+<br><span class="constructor" id="of_app">of_app</span> : <a href="#oft">oft</a> M1 (<a href="#arr">arr</a> T2 T) &#x2192 <a href="#oft">oft</a> M2 T2 &#x2192 <a href="#oft">oft</a> (<a href="#app">app</a> M1 M2) T.
+<br><span class="constructor" id="of_lam">of_lam</span> : ({x : <a href="#tm">tm</a>} (<a href="#oft">oft</a> x T1 &#x2192 <a href="#oft">oft</a> (M x) T2)) &#x2192 <a href="#oft">oft</a> (<a href="#lam">lam</a> M) (<a href="#arr">arr</a> T1 T2).
+</code></pre>
+<p></p><p>
+<h2> Context declarations</h2>
+Just as types classify expressions, contexts are classified by context schemas. </p><br><pre><code><keyword>schema</keyword> <span class="schema" id="rCtx">rCtx</span> = <keyword>block</keyword> (x:<a href="#tm">tm</a>, pr_v:<a href="#pr">pr</a> x x);
+<br><keyword>schema</keyword> <span class="schema" id="tCtx">tCtx</span> = <keyword>some</keyword> [t : <a href="#tp">tp</a>] <keyword>block</keyword> (x:<a href="#tm">tm</a>, of_v:<a href="#oft">oft</a> x t);
+<br><keyword>schema</keyword> <span class="schema" id="trCtx">trCtx</span> = <keyword>some</keyword> [t : <a href="#tp">tp</a>] <keyword>block</keyword> (x:<a href="#tm">tm</a>, of_v:<a href="#oft">oft</a> x t, pr_v:<a href="#pr">pr</a> x x);
+</code></pre>
+<p></p><p>
+<h2> Substitution Lemma</h2>
+Beluga enjoys the usual substitution property for parametric and hypothetical derivations for free since substitutivity is just a by-product of
+hypothetical-parametric judgements. Strictly speaking, the substitution lemma does not need to be stated explicitly in order to prove type preservation for parallel reduction but we've encoded it regardless. While this is usually proved by induction on the first derivation, we show it as a corollary of the substitution principles. In stating the substitution lemma we explicitly state that the types <code>S</code> and <code>T</code> cannot depend on the context <code>g</code>, i.e. they are closed.</p><br><pre><code><keyword>rec</keyword> <span class="function" id="subst">subst</span> : (g:<a href="#tCtx">tCtx</a>) [g, b : <keyword>block</keyword> (x:<a href="#tm">tm</a>, of_v:<a href="#oft">oft</a> x T[]) &#x22A2 <a href="#oft">oft</a> M[&hellip;, b.1] S[]] &#x2192 [g &#x22A2 <a href="#oft">oft</a> N T[]] &#x2192 [g &#x22A2 <a href="#oft">oft</a> M[&hellip;, N] S[]]  =
+<keyword>fn</keyword> d1 &#x21D2 <keyword>fn</keyword> d2 &#x21D2 <keyword>let</keyword>  [g, b : <keyword>block</keyword> (x:<a href="#tm">tm</a>, of_v:<a href="#oft">oft</a> x T) &#x22A2 D1[&hellip;, b.1, b.2]] =
+                                                                  d1 <keyword>in</keyword> 
+  <keyword>let</keyword>  [g &#x22A2 D2] = d2 <keyword>in</keyword> [g &#x22A2 D1[&hellip;, _, D2]];
+</code></pre>
+<p></p><p>
+<h2> Type Preservation for Parallel Reductions</h2>
+We prove type preservation for parallel reduction: when <code>M</code> steps to <code>N</code> and <code>M</code> has type <code>A</code> then <code>N</code> has the same type <code>A</code>. expressions to depend on the context since we may step terms containing variables. Substitution property for parametric and hypothetical derivations is free. We do not enforce here that the type <code>A</code> is closed. Although this is possible by writing <code>A[]</code> the statement looks simpler if we do not enforce this extra invariant.</p><br><pre><code><keyword>rec</keyword> <span class="function" id="tps">tps</span> : (g:<a href="#trCtx">trCtx</a>) [g &#x22A2 <a href="#pr">pr</a> M N] &#x2192 [g &#x22A2 <a href="#oft">oft</a> M A] &#x2192 [g &#x22A2 <a href="#oft">oft</a> N A]  =
+<keyword>fn</keyword> r &#x21D2 <keyword>fn</keyword> d &#x21D2 <keyword>case</keyword> r <keyword>of</keyword> 
+  | [g &#x22A2 #p.3] &#x21D2 d
+  | [g &#x22A2 <a href="#pr_b">pr_b</a> (&lambda;x. &lambda;pr_v. R1) R2] &#x21D2
+    <keyword>let</keyword>  [g &#x22A2 <a href="#of_app">of_app</a> (<a href="#of_lam">of_lam</a> (&lambda;x. &lambda;of_v. D1)) D2] = d <keyword>in</keyword> 
+    <keyword>let</keyword>  [g, b : <keyword>block</keyword> (x:<a href="#tm">tm</a>, of_v:<a href="#oft">oft</a> x T, pr_v:<a href="#pr">pr</a> x x) &#x22A2 F1[&hellip;, b.1, b.2]] =
+    <a href="#tps">tps</a> [g, b : <keyword>block</keyword> (x:<a href="#tm">tm</a>, of_v:<a href="#oft">oft</a> x _, pr_v:<a href="#pr">pr</a> x x) &#x22A2 R1[&hellip;, b.1, b.3]] [g, b &#x22A2 D1[&hellip;, b.1, b.2]] <keyword>in</keyword>
+    <keyword>let</keyword>  [g &#x22A2 F2] = <a href="#tps">tps</a> [g &#x22A2 R2] [g &#x22A2 D2] <keyword>in</keyword> [g &#x22A2 F1[&hellip;, _, F2]]
+  | [g &#x22A2 <a href="#pr_l">pr_l</a> (&lambda;x. &lambda;pr_v. R)] &#x21D2
+    <keyword>let</keyword>  [g &#x22A2 <a href="#of_lam">of_lam</a> (&lambda;x. &lambda;of_v. D)] = d <keyword>in</keyword> 
+    <keyword>let</keyword>  [g, b : <keyword>block</keyword> (x:<a href="#tm">tm</a>, of_v:<a href="#oft">oft</a> x T, pr_v:<a href="#pr">pr</a> x x) &#x22A2 F[&hellip;, b.1, b.2]] =
+    <a href="#tps">tps</a> [g, b : <keyword>block</keyword> (x:<a href="#tm">tm</a>, of_v:<a href="#oft">oft</a> x _, pr_v:<a href="#pr">pr</a> x x) &#x22A2 R[&hellip;, b.1, b.3]] [g, b &#x22A2 D[&hellip;, b.1, b.2]] <keyword>in</keyword>
+    [g &#x22A2 <a href="#of_lam">of_lam</a> (&lambda;x. &lambda;of_v. F)]
+  | [g &#x22A2 <a href="#pr_a">pr_a</a> R1 R2] &#x21D2
+    <keyword>let</keyword>  [g &#x22A2 <a href="#of_app">of_app</a> D1 D2] = d <keyword>in</keyword> 
+    <keyword>let</keyword>  [g &#x22A2 F1] = <a href="#tps">tps</a> [g &#x22A2 R1] [g &#x22A2 D1] <keyword>in</keyword> 
+    <keyword>let</keyword>  [g &#x22A2 F2] = <a href="#tps">tps</a> [g &#x22A2 R2] [g &#x22A2 D2] <keyword>in</keyword> [g &#x22A2 <a href="#of_app">of_app</a> F1 F2];
+</code></pre>
+<p></p><p>
+The &beta;-reduction case is perhaps the most note-worthy. We know by assumption that <code>d:[g &#8866; oft (app (lam A (&lambda;x. M x)) N)) (arr A B)</code> and by inversion that <code>d:[g &#8866; of_a (of_l &lambda;x. &lambda;u. D1 x u)(D2) ]</code> where <code>D1</code> stands for <code>oft (M x) B</code> in the extended context <code>g, x:tm , u:oft x A</code>. Furthermore, <code>D2</code> describes a derivation <code>oft N A</code>. A recursive call on <code>D2</code> yields <code>F2:oft N' A</code>. Likewise, y the i.h. on <code>D1</code>, we obtain a derivation <code/>F1:oft M' B</code> in <code>g, b:block (x:tm , of_x:oft x A)</code>. We now want to substitute for <code>x</code> the term <code>N'</code>, and for the derivation <code>oft x A</code> the derivation <code>F2</code>. This is achieved by applying to <code>F1</code> the substitution <code>&hellip;, _ F2)</code>. Since in the program above we do not have the name <code>N</code> available, we write an underscore and let Beluga's type reconstruction algorithm infer the appropriate name.
+</p><p></p>
+<br><br><h3>To download the code: <a href="Parallel_Reduction.bel" target="_blank">Parallel_Reduction.bel</a></h3>
+     </div>
+   </div>
+   <div id="footer">
+     <iframe width="100%" height="100px" scrolling="no" frameBorder="0" src="../../../footer.html"></iframe> 
+   </div>
+
+   <script>
+   $('iframe').iframeAutoHeight({minHeight: 50);
+    </script>
+  </div>
+</body>
+</html>
+
+

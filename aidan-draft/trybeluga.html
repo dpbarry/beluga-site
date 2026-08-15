@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Le styles -->
+<meta charset="utf-8">
+<link href="css/bootstrap.css" rel="stylesheet">
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<script type="text/javascript">
+  $.support.cors = true;
+  
+  function submit(){
+    data = $("#textarea").val();
+    $.ajax({
+      url:'http://complogic.cs.mcgill.ca/beluga/aidan-draft/live.cgi',
+      data:data,
+      type: 'POST',
+      crossDomain: true,
+      success: function(output){
+	t = $("#decl");
+	// Regex to replace empty lines and "## ... ##"
+        t.val(output.replace(/^\s*[\r\n]/gm, "").replace(/\s*##.*##[\r\n]/gm, ""));
+      }
+    });}
+</script>
+<link href="css/beli-styles.css" rel="stylesheet">
+<title>Try Beluga!</title>
+</head>
+
+<body>
+
+	<iframe width="100%" height="50px" scrolling="no" frameBorder="0" src="header.html"></iframe> 
+
+<div class="container theme-showcase" role="main">
+<h2>Try Beluga Online!</h2>
+<div class="row">  
+<div class="col-lg-6">
+    <textarea rows="12" cols="85" id="textarea" name="user_input" placeholder="Enter Beluga code here. When you're ready, click Type-check and view the output below. Take a look at some simple examples or try your own code!"></textarea>
+	 <button class="btn btn-lg btn-primary" onclick="submit()">Type-check!</button>
+	</div>
+
+    
+	<div class="col-lg-6">
+    <textarea rows="12" cols="85" id="decl"></textarea>
+	</div>
+
+</div>
+</div>
+
+<div id="footer">
+	<iframe width="100%" height="100px" scrolling="no" frameBorder="0" src="footer.html"></iframe> 
+</div>
+
+<script>
+  $('iframe').iframeAutoHeight({minHeight: 50});
+</script>
+
+
+</body>
+</html>

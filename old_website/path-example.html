@@ -1,0 +1,306 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Beluga: Functional Programming with Higher-Order Abstract Syntax</title>
+   <link rel="stylesheet" type="text/css" href="../tutorial-style.css" />
+</head>
+
+<body>
+
+<div id="wrapper">
+  <iframe width="780" scrolling="no" frameBorder="0" src="header.html"></iframe> 
+  <div id="menu">
+   </div>
+<div id="main">
+
+<h1><a href="tutorial.html">Tutorial</a></h1>
+<h2>Proofs about the simply-typed lambda-calculus</h2>
+<h3><a href="uniqueness-example.html">1. Type uniqueness</a></h3>
+<h3>2. Reasoning about paths in lambda-terms</h3>
+
+<p>This example illustrates the expressive power of Beluga. In particular, the theorem we discuss here requires nested impliciations and quantification, in particular negative occurrences of these connectives. For a much simpler theorem, also illustrating the need for handling negative occurrences of implications and quantifiers, see example 
+<a href="struct-smaller.html">5. Reasoning about smaller relation on lambda-terms</a>. 
+</p>
+<p>
+If you'd like to run this example using Beluga, please download
+ <a href="beluga-solutions/path.bel">path.bel</a>, which contains all the 
+type definitions and the implementation of the proof as a recursive function. 
+</p>
+
+<p>
+We interpret lambda-terms essentially as a tree-structure and paths describe how to traverse it. We begin by defining paths to describe a path through a given lambda-term.
+</p>
+<pre class="code">
+<keyword>datatype</keyword> path :  <keyword>type</keyword> =                              
+| bind  : tp &rarr; (path &rarr; path) &rarr; path
+| left  : path &rarr; path
+| right : path &rarr; path
+| done  : path
+; 
+<keyword>%name</keyword> path P.
+</pre>
+
+<p>We can either go <codeinline>left</codeinline> or <codeinline>right</codeinline> when we encounter an application. When we see an abstraction, we memoize the type of the input argument as well as the binder. We again use higher-order abstract syntax encoding for the constructor <codeinline>bind</codeinline> which describes the path going underneath an abstraction. Finally, we allow partial paths, i.e., paths to sub-expressions, using the constructor <codeinline>done</codeinline>.
+</p>
+
+<p>Next, we define the inference rules for the traversal of a lambda-term.</p>
+
+<pre class="code">
+<keyword>datatype</keyword> is_path : path &rarr; exp &rarr; <keyword>type</keyword> =
+| p_lam: is_path (bind T P) (lam T E)
+       &larr; ({x:exp}{q:path}is_path q x &rarr; is_path (P q) (E x))
+| p_left: is_path (left P) (app M N)
+       &larr; is_path P M
+| p_right: is_path (right P) (app M N)
+       &larr; is_path P N
+| p_done: is_path done M
+;
+%name is_path I.
+</pre>
+
+<p>We want to prove the following theorem:
+</p>
+
+<p>
+<strong>Theorem:</strong>For all <codeinline>M</codeinline>, <codeinline>N</codeinline>,
+if for all paths <codeinline>P</codeinline>,  &#x22A2; <codeinline>is_path P M</codeinline>  implies  &#x22A2; <codeinline>is_path P N</codeinline>
+then   &#x22A2; <codeinline>equal M N</codeinline>. 
+</p>
+
+<p>Since during the proof we will introduce assumptions about variables and the context will not remain empty, we will prove a more general version of the theorem first, and then derive the theorem as a corollary. The generalized version is next: 
+</p>
+<p>
+<strong>Lemma:</strong>For all <codeinline>M</codeinline>, <codeinline>N</codeinline>,
+if for all paths <codeinline>P</codeinline>, &Gamma; &#x22A2; <codeinline>is_path P M</codeinline>  implies &Gamma; &#x22A2; <codeinline>is_path P N</codeinline>
+then  &Gamma; &#x22A2; <codeinline>equal M N</codeinline>. 
+</p>
+
+<p>The statement of the lemma and theorem are good examples to illustrate the expressive power of Beluga. Because the statements require nested quantification and implication, it is not possible to state these theorems directly in some systems for example the Twelf system.
+</p>
+
+<p>The context &Gamma; contains assumptions <codeinline>x:exp</codeinline>, <codeinline>q:path</codeinline>, and <codeinline>is_path q x</codeinline>. We pair all these assumptions together to ensure that whenever we have a variable <codeinline>x</codeinline> we also have a path variable <codeinline>q</codeinline> which leads to it and we know the type of it. This is achieved using the following schema declaration which defines the shape of the context &Gamma;
+</p>
+
+<pre class="code">
+schema ctx =  block x:exp, p:path , is_path p x ; 
+</pre>
+
+<p>Formally, we are using a dependent product type or &Sigma;-type to define the schema. So our concrete syntax of <codeinline>block x:exp, p:path , is_path p x</codeinline> corresponds more formally to <codeinline>&Sigma; x:exp , &Sigma; p:path , is_path p x</codeinline>.
+</p>
+
+
+<h3>On paper proof:</h3>
+
+<p>
+The proof for the stated lemma can be implemented as a recursive function <codeinline> </codeinline>which has the following type:
+</p>
+
+<pre class="code">
+{g:ctx}{M:[g |- exp]}{N:[g |- exp]}
+          ({P:[g |- path]} [g |- is_path (P <i>..</i>) (M <i>..</i>)] &rarr; [g |- is_path (P <i>..</i>) (N <i>..</i>)])
+      &rarr; [g |- eq (M <i>..</i>) (N <i>..</i>)]  
+</pre>
+
+<p>
+The type corresponds directly to the specified lemma where <codeinline>{g:ctx}</codeinline> introduces quantification over the context variable <codeinline>g</codeinline> which has schema <codeinline>ctx</codeinline>. 
+The context schema name is annotated with <codeinline>*</codeinline> to denote that declarations of the specified schema may be repeated and that we pass the context explicitely to the function.
+Meta-variables written with curly braces such as <codeinline>{M::[g |- exp]}</codeinline>,<codeinline>{N::[g |- exp]}</codeinline>, and 
+<codeinline>{P::[g |- exp]}</codeinline> correspond to universal quantification over the variables <codeinline>M</codeinline>, <codeinline>N</codeinline>, and <codeinline>P</codeinline>. 
+</p>
+
+<p>The overall type can be read as follows: For all contexts <codeinline>g</codeinline> and for all <codeinline>M</codeinline> and <codeinline>N</codeinline>, if given a proof that for all paths <codeinline>P</codeinline> where <codeinline>is_path (P <i>..</i>) (M <i>..</i>)</codeinline> in the context <codeinline>g</codeinline>, we know <codeinline>is_path (P <i>..</i>) (N <i>..</i>)</codeinline> in the same context <codeinline>g</codeinline>, then we know that <codeinline>M</codeinline> and <codeinline>N</codeinline> are equal (in  <codeinline>g</codeinline>). 
+</p>
+
+<p>We first show one case of the proof how it is written on paper.
+</p>
+
+<p> <strong>Case:</strong> <codeinline>M = lam T \x. M' <i>..</i> x</codeinline>
+</p>
+
+<table border="0" cellspacing="0" cellpadding="1">
+<tr><td>1</td><td colspan="2">for all <codeinline>P.[g |- is_path (P <i>..</i>) (lam T \x.M' <i>..</i> x)] &rarr; [g |- is_path (P <i>..</i>) (N <i>..</i>)]</codeinline></td> 
+</tr>
+<tr><td></td><td></td>
+    <td align="right"> by assumption </td>
+</tr>
+<tr><td>2</td><td colspan="2"><codeinline>[g |- is_path (bind T \q.done) (lam T \x.M' <i>..</i> x)] </codeinline> </td>
+</tr>
+<tr>
+<td></td>
+<td>
+<codeinline>&rarr; [g |- is_path (bind T \q.done) (N <i>..</i>)]</codeinline></td>
+    <td align="right">using <codeinline>bind T \q.done</codeinline> for <codeinline>P</codeinline>  </td>
+</tr>
+<tr><td>3</td><td colspan="2"><codeinline>[g, b:block x:exp,q:path,u:type_of x T.v:is_path q x |- is_path done (M' <i>..</i> b.1)]</codeinline> </td>
+</tr>
+<tr><td>&nbsp;</td><td>&nbsp;</td>
+    <td align="right"> by rule <codeinline>p_done</codeinline> </td>
+</tr>
+<tr>
+<td>4</td><td><codeinline>[g |- is_path (bind T \q.done) (lam T \x.M' <i>..</i> x)]</codeinline></td>
+<td align="right">by rule <codeinline>p_bind</codeinline></td>
+</tr>
+<tr>
+<td>5</td><td><codeinline>[g |- is_path (bind T \q.done) (N <i>..</i>)]</codeinline></td>
+          <td align="right">using line 2 and line 4</td>
+</tr>
+<tr>
+<td>6</td><td colspan="2"><codeinline>[g, block x:exp,q:path,u:type_of x T.v:is_path q x |- is_path done (N' <i>..</i> b.1)]</codeinline></td>
+</tr>
+<tr>
+<td>&nbsp;</td><td>where <codeinline>N = lam T \x.N' <i>..</i> x</codeinline></td>
+               <td align="right"> using rule <codeinline>p_bind</codeinline>  </td>
+</tr>
+<tr>
+<td>7</td><td colspan="2"><codeinline>[g, block x:exp,q:path,u:type_of x T.v:is_path q x |- is_path done (N' <i>..</i> b.1)]</codeinline></td>
+</tr>
+<tr>
+<td>&nbsp;</td><td>&nbsp;</td>
+<td align="right">using rule <codeinline>p_done</codeinline></td>
+</tr>
+<tr>
+<td>&nbsp;</td><td colspan="2">Let <codeinline>g' = g, b:block x:exp,q:path,u:type_of x T.v:is_path q x </codeinline></td>
+</tr>
+<tr>
+<td>&nbsp;</td><td colspan="2">We need to establish: for all <codeinline>P.[g' |- is_path P (M' <i>..</i> b.1)] &rarr; [g' |- is_path P (N' <i>..</i> b.1]</codeinline></td>
+</tr>
+<tr>
+<td>8</td><td colspan="2">assume <codeinline>P:path</codeinline> and <codeinline>D:[g' |- is_path P (M' <i>..</i> b.1))] </codeinline></td>
+<td></td>
+</tr>
+<tr><td></td><td colspan="2">Recall that assumption 1 is now: </td>
+</tr>
+<tr><td></td><td colspan="2">
+for all <codeinline>Q.[g |- is_path (Q <i>..</i>) (lam T \x.M' <i>..</i> x)] </codeinline></td>
+</tr>
+<tr><td></td><td colspan="2">
+<codeinline> &rarr; [g |- is_path (Q <i>..</i>) (lam T \x.N' <i>..</i> x)]</codeinline></td>
+</tr>
+<tr>
+<td>9</td><td colspan="2"><codeinline>[g |- is_path (bind T (\x.\q. P <i>..</i> x q) (lam T \x.M' <i>..</i> x)] </codeinline></td>
+</tr>
+<tr>
+<td> </td><td colspan="2"><codeinline> &rarr; [g |- is_path (bind T (\x.\q. P <i>..</i> x q)) (lam T \x.N' <i>..</i> x)]</codeinline></td>
+</tr>
+<tr>
+<td></td><td align="right" colspan="2">
+ using <codeinline>bind T (\x.\q. P <i>..</i> x q)</codeinline> for <codeinline>Q</codeinline></td>
+</tr>
+<tr>
+<td>10</td><td colspan="2"><codeinline>[g |- is_path (bind T (\x.\q. P <i>..</i> x q) (lam T \x.N' <i>..</i> x)]</codeinline></td>
+</tr>
+<tr>
+<td></td>
+<td colspan="2" align="right">using  <codeinline>p_lam</codeinline> and assumption <codeinline>D</codeinline> from line 8 </td>
+</tr>
+<tr><td></td>
+</tr>
+<tr><td>11</td><td><codeinline>[g' |- is_path (P <i>..</i> b.1 b.2) (N' <i>..</i> b.1)]</codeinline></td>
+<td align="right">by inversion using <codeinline>p_lam</codeinline></td>
+</tr>
+<tr><td></td><td colspan="2">Hence, we have established a proof for: </td>
+</tr>
+<tr>
+<td></td><td colspan="2">for all <codeinline>P.[g' |- is_path P (M' <i>..</i> b.1)] &rarr; [g' |- is_path P (N' <i>..</i> b.1]</codeinline></td>
+</tr>
+<tr>
+<td>12</td><td><codeinline>[g' |- equal (M' <i>..</i> b.1) (N' <i>..</i> b.1)]</codeinline></td>
+          <td align="right">by i.h. on <codeinline>M'</codeinline>, <codeinline>N'</codeinline> and the previous line</td>
+</tr>
+<tr>
+<td>10</td><td><codeinline>M' = N'</codeinline></td><td align="right">by rule <codeinline>e_ref</codeinline> </td>
+</tr>
+<tr>
+<td>11</td><td><codeinline>[g |- equal (lam T \x. M' <i>..</i> x) (lam T \x.N' <i>..</i> x)]</codeinline></td>
+          <td align="right">by rule <codeinline>e_ref</codeinline> and line 10</td>
+</tr>
+</table>
+
+
+<p> The inductive proof can be implemented as a recursive function in Beluga following
+closely the more informal development given earlier. We treat computation-level expressions
+which correspond to quantifier introduction and elimination differently from the expressions
+corresponding to implication introduction and elimination. To introduce a universally
+quantified meta-variable <codeinline>P</codeinline>, we write
+<codeinline><keyword>mlam</keyword> P &rArr; ...</codeinline>. To eliminate a universal
+quantifier, we write <codeinline>e &lt;g.M&gt;</codeinline>  where <codeinline>e</codeinline>
+has type <codeinline>{M:[g |- A]}.tau</codeinline> and <codeinline>g.M</codeinline>
+describes the data-level object used to instantiate the universal quantifier and has
+type <codeinline>A</codeinline> in the context <codeinline>g</codeinline>. For implication
+introduction, we write <codeinline><keyword>fn</keyword> x &rArr; ...</codeinline>
+</p>
+<pre class="code">
+<keyword>rec</keyword> eqPath : {g:ctx}{M:[g |- exp]}{N:[g |- exp]}
+             ({P:[g |- path]} [g |- is_path (P <i>..</i>) (M <i>..</i>)] &rarr; [g |- is_path (P <i>..</i>) (N <i>..</i>)])
+	    &rarr; (eq (M <i>..</i>) (N <i>..</i>))[g] = 
+<keyword>mlam</keyword> g &rArr; <keyword>mlam</keyword> M &rArr; <keyword>mlam</keyword> N &rArr; <keyword>fn</keyword> f &rArr; <keyword>case</keyword> [g |- M <i>..</i>] <keyword>of</keyword>
+ | [g |- app (M1 <i>..</i>) (M2 <i>..</i>)]  &rArr; 
+    <keyword>let</keyword> [g |- p_left p_done] : [g |- is_path (left done) (app (N1 <i>..</i>) (N2 <i>..</i>))] 
+       = f [g |- left done] [g |- p_left p_done] <keyword>in</keyword> 
+
+   <keyword>let</keyword> [g |- e_ref] = 
+     eqPath [g] [g |- M2 <i>..</i>] [g |- N2 <i>..</i>] 
+     (<keyword>mlam</keyword> Q &rArr; <keyword>fn</keyword> iq &rArr; <keyword>let</keyword> [g |- D <i>..</i>] = iq <keyword>in</keyword> 
+      <keyword>let</keyword> [g |- p_right (D' <i>..</i>)] : [g |- is_path (right (Q' <i>..</i> )) (app (N1 <i>..</i>) (N2 <i>..</i>))] =
+        f  [g |- right (Q <i>..</i>)] [g |- p_right (D <i>..</i>]) 
+       <keyword>in</keyword> [g |- D' <i>..</i>]  <keyword>in</keyword>
+
+   <keyword>let</keyword> [g |- e_ref]  = 
+      eqPath [g] [g |- M1 <i>..</i>] [g |- (N1 <i>..</i>)]
+      (<keyword>mlam</keyword> Q &rArr; <keyword>fn</keyword> iq &rArr; 
+       <keyword>let</keyword> [g |- D <i>..</i>] = iq <keyword>in</keyword> 
+       <keyword>let</keyword> [g |- p_left (D' <i>..</i>)] : [g |- is_path (left (Q' <i>..</i> )) (app (N1 <i>..</i>) (N2 <i>..</i>))] =
+         f [g |- left (Q <i>..</i>)] [g |- p_left (D <i>..</i> )] 
+       <keyword>in</keyword> [g |- D' <i>..</i>]   )                           
+    <keyword>in</keyword>  		 
+     [g |- e_ref]
+
+| [g |- #p.1 <i>..</i>] &rArr; 
+  <keyword>let</keyword> [g |- #q.3 <i>..</i>] = f [g |- #p.2 <i>..</i> ] [g |- #p.3 <i>..</i>] <keyword>in</keyword> 
+    [g |- e_ref]
+
+
+| [g |- lam T (\x. M' <i>..</i> x)] &rArr; 
+  <keyword>let</keyword>  [g |- p_lam (\x.\p. \i. p_done)]  : 
+       [g |- is_path (bind T' (\p.done)) (lam _ (\x. N' <i>..</i> x))]  = 
+       f [g |- bind T (\p.done)] [g |- p_lam (\x.\p.\i. p_done)] <keyword>in</keyword> 
+
+  <keyword>let</keyword> [g,b:block x:exp, q:path . is_path q x. e_ref] = 
+     eqPath [g, b:block x:exp, q:path, is_path q x] 
+     [g,b |- M' <i>..</i> b.1] [g,b |- N' <i>..</i> b.1]
+     (<keyword>mlam</keyword> Q &rArr; <keyword>fn</keyword> ip &rArr;
+      <keyword>let</keyword> [g,b:block x:exp, q:path, is_path q x |- Qs <i>..</i> b.2] = 
+          [g,b:block x:exp, q:path, is_path q x |- Q <i>..</i> b] <keyword>in</keyword>           <comment>% strengthening </comment>
+      <keyword>let</keyword> [g,b:block x:exp, q:path, is_path q x |- D <i>..</i> b] = ip <keyword>in</keyword> 
+      <keyword>let</keyword> [g |- p_lam (\x.\q.\iq. D' <i>..</i> x q iq)] : 
+          [g |- is_path (bind _ (\q. Q' <i>..</i> q)) (lam _ (\x. N' <i>..</i> x))] =  
+           f [g |- bind T (\q. Qs <i>..</i> q)]  [g |- p_lam (\x.\q.\iq. D <i>..</i> x,q,iq) ]  
+      <keyword>in</keyword>
+         [g,b |- D' <i>..</i> b.1 b.2 b.3]
+       )
+  <keyword>in</keyword> 
+    [g |- e_ref]
+;
+
+<keyword>rec</keyword> path_thm : {M:[ |- exp]}{N:[ |- exp]}
+               ({P:[ |- path ]}([ |- is_path P M] &rarr; [ |- is_path P N])
+	     &rarr; [ |- eq M N] = 
+<keyword>mlam</keyword> M &rArr; <keyword>mlam</keyword> N &rArr; <keyword>fn</keyword> f &rArr; eqPath [ ] [ |- M] [ |- N]  f ;
+</pre>
+
+<h3><a href="tps-example.html">3. Subject reduction</a></h3>
+<h3><a href="eq-example.html">4. Equality reasoning</a></h3>
+<h3><a href="struct-smaller.html">5. Reasoning about smaller relation on lambda-terms</a></h3>
+<p>
+</p>
+</div>
+<div id="footer">
+   <?php echoFile("../footer.html"); ?>
+</div>
+
+</div>
+ 
+
+</body>
+</html>

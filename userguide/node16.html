@@ -1,0 +1,136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Meta-variables and Parameter Variables</TITLE>
+<META NAME="description" CONTENT="Meta-variables and Parameter Variables">
+<META NAME="keywords" CONTENT="userguide">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="userguide.css">
+
+<LINK REL="next" HREF="node17.html">
+<LINK REL="previous" HREF="node15.html">
+<LINK REL="up" HREF="node11.html">
+<LINK REL="next" HREF="node17.html">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html217"
+  HREF="node17.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next"
+ SRC="../icons/next.png"></A> 
+<A NAME="tex2html215"
+  HREF="node11.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up"
+ SRC="../icons/up.png"></A> 
+<A NAME="tex2html209"
+  HREF="node15.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous"
+ SRC="../icons/prev.png"></A>   
+<BR>
+<B> Next:</B> <A NAME="tex2html218"
+  HREF="node17.html">Substitution Variables</A>
+<B> Up:</B> <A NAME="tex2html216"
+  HREF="node11.html">Syntax</A>
+<B> Previous:</B> <A NAME="tex2html210"
+  HREF="node15.html">Contextual Objects and Types</A>
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H2><A NAME="SECTION00035000000000000000">
+Meta-variables and Parameter Variables</A>
+</H2>
+Contextual objects may contain bound variables and meta-variables representing open terms. If a binding is explicit in the context, the bound variable is called with its identifier. A bound variable implicit to a context variable is retrieved from the schema with a <SPAN  CLASS="textit"><SPAN  CLASS="textbf">parameter variable</SPAN></SPAN> <TT>#p</TT>, which always takes a lower-case identifier preceded by the the tag <TT>#</TT> . A <SPAN  CLASS="textit"><SPAN  CLASS="textbf">concrete parameter</SPAN></SPAN>, likewise lower-case, calls a binding from a block using the block's identifier. If the block or schema contains more than one element, a particular component is referenced with a <SPAN  CLASS="textbf"><SPAN  CLASS="textit">projection</SPAN></SPAN>. The element is specified either by name or an integer indexing its relative position in the block. 
+
+<P>
+A <SPAN  CLASS="textit"><SPAN  CLASS="textbf">meta-variable</SPAN></SPAN> <TT>M</TT> stands for an LF term. Note that meta-variables are always upper-case. Seeing as variables may occur with that term, the meta-variable is associated with a delayed substitution applied when the appropriate mapping is determined from the context. Likewise, a projection also take a delayed substitution if the element to which it refers contains variables. The substitution is specified directly after the meta-variable, seperated by whitespace. A space-separated list of substitution tokens denotes a union of their domains. Beluga encodes substitutions as follows: 
+<BR>
+<P>
+<TABLE CELLPADDING=3 BORDER="1">
+<TR><TD ALIGN="LEFT"><TT>..</TT></TD>
+<TD ALIGN="LEFT">the identity substitution with respects to the context variable</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>^</TT></TD>
+<TD ALIGN="LEFT">the empty substitution</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>id</TT></TD>
+<TD ALIGN="LEFT">a bound variable</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>id.[id,int]</TT></TD>
+<TD ALIGN="LEFT">a projection of a block declaration</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>#id.[id,int]</TT></TD>
+<TD ALIGN="LEFT">a projection of a schema parameter</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>#ID[sub]</TT></TD>
+<TD ALIGN="LEFT">a substitution variable</TD>
+</TR>
+</TABLE>
+<BR>
+
+<BR>
+<P>
+<SPAN  CLASS="textbf">Example:</SPAN> Given a schema <TT>eCtx = block x : exp, e:eq x x</TT>, a context variable <TT>g:eCtx</TT>, and a block <TT>b:block x':tp, e':eqt x' x'</TT>, a substitution may be defined as:
+
+<P>
+<TABLE CELLPADDING=3 BORDER="1">
+<TR><TD ALIGN="LEFT"><TT>[g |- M ..]</TT></TD>
+<TD ALIGN="LEFT"><TT>M</TT> is bound by assumptions in <TT>g</TT></TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>[g |- #p.e .. ]</TT></TD>
+<TD ALIGN="LEFT"><TT>e:eq x x</TT> is bound by assumptions in <TT>g</TT></TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>[g, x:tp |- M .. x]</TT></TD>
+<TD ALIGN="LEFT"><TT>M</TT> is bound by <TT>x:tp</TT> or assumptions in <TT>g</TT></TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>[g, b |- M .. b.1 ]</TT></TD>
+<TD ALIGN="LEFT"><TT>M</TT> is bound by <TT>x':tp</TT> or assumptions in <TT>g</TT></TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>[g, b |- M b.1 b.2 ]</TT></TD>
+<TD ALIGN="LEFT"><TT>M</TT> is bound by assumptions in <TT>b</TT></TD>
+</TR>
+</TABLE>
+
+<P>
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html217"
+  HREF="node17.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next"
+ SRC="../icons/next.png"></A> 
+<A NAME="tex2html215"
+  HREF="node11.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up"
+ SRC="../icons/up.png"></A> 
+<A NAME="tex2html209"
+  HREF="node15.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous"
+ SRC="../icons/prev.png"></A>   
+<BR>
+<B> Next:</B> <A NAME="tex2html218"
+  HREF="node17.html">Substitution Variables</A>
+<B> Up:</B> <A NAME="tex2html216"
+  HREF="node11.html">Syntax</A>
+<B> Previous:</B> <A NAME="tex2html210"
+  HREF="node15.html">Contextual Objects and Types</A></DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+Research Group COMPLOGIC
+2015-01-27
+</ADDRESS>
+</BODY>
+</HTML>

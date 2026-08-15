@@ -1,0 +1,197 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<style type="text/css">
+		body {
+			padding: 2em 1em 2em 1em;
+			margin: 0;
+			font-family: sans-serif;
+			color: black;
+			background: white;}
+		a{text-decoration:none;}
+		a:link { color: #00C; background: transparent }
+		a:visited { color: #00C; background: transparent }
+		a:active { color: #C00; background: transparent }
+		keyword { color: #3333cc ; background: transparent }
+		pre {
+			border: 1px dashed maroon;  display:block;
+			padding:8px; background-color: #dddddd;}
+		code {
+			background-color: #dddddd;
+			color: black; font-family: "courier";margin:0;
+			white-space: pre-wrap; }
+		.typ {color: #660000; font-weight:bold}
+		.constructor {color: #335C85; font-weight:bold}
+		.function {color: #660033; font-weight:bold}
+		.schema {color: #6600CC; font-weight:bold}
+	</style>
+</head>
+<body>
+
+<p></p><p>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</p><p>
+<h1> Transitivity of Algorithmic Subtyping</h1>
+This example follows the proof in the proof pearl description which appeared at TPHOLs2007 
+<a href="http://www.cs.mcgill.ca/~bpientka/papers/pearl.pdf"> [Pientka 2007]</a>. It shows a solution of  <a href="http://www.seas.upenn.edu/~plclub/poplmark/">POPLMARK Challenge</a>,  part 1A : Transitivity of Subtyping. <br>
+</p><p>
+This implementation not only uses higher-order abstract syntax in specifying the types, but we will exploit extensively the power of parametric and hypothetical judgment. As a benefit we do not need to implement a narrowing lemma separately, but get it "for free". 
+</p><p>
+First, we define or type <code>tp</code> with higher-order abstract syntax in LF as follows:
+</p><p></p><br><pre><code><keyword>LF</keyword> <span class="typ" id="tp">tp</span> : <keyword>type</keyword> = 
+| <span class="constructor" id="top">top</span> : <a href="#tp">tp</a>
+| <span class="constructor" id="arr">arr</span> : <a href="#tp">tp</a> &#x2192 <a href="#tp">tp</a> &#x2192 <a href="#tp">tp</a>
+| <span class="constructor" id="forall">forall</span> : <a href="#tp">tp</a> &#x2192 (<a href="#tp">tp</a> &#x2192 <a href="#tp">tp</a>) &#x2192 <a href="#tp">tp</a>;
+<br><keyword>--name</keyword> tp T 
+</code></pre>
+<p></p><p>
+<h2> Algorithmic subtyping</h2>
+</p><p>
+We do not give a general reflexivity and transitivity rule
+for type variables, but instead we provide for each type variable
+its own reflexivity and transitivity version. In other words, our rule for polymor&phi;c types implements the following: 
+$$\frac{\Gamma \vdash T_1 <: S_1 \qquad \Gamma,tr:a <: U \rightarrow U <: T \rightarrow a <: T, w:a <: T, ref : a <: a \vdash S_2 <: T_2 }{\Gamma \vdash \forall a:S_1.S_2(a) <: \forall a:T_1.T_2(a)}$$
+</p><p>
+We use (<:) to denote algorithmic subtyping.
+</p><p>
+</p><p></p><br><pre><code><keyword>LF</keyword> <span class="typ" id="sub">sub</span> : <a href="#tp">tp</a> &#x2192 <a href="#tp">tp</a> &#x2192 <keyword>type</keyword> = 
+| <span class="constructor" id="sa_top">sa_top</span> : <a href="#sub">sub</a> S <a href="#top">top</a>
+| <span class="constructor" id="sa_arr">sa_arr</span> : <a href="#sub">sub</a> T1 S1 &#x2192 <a href="#sub">sub</a> S2 T2 &#x2192 <a href="#sub">sub</a> (<a href="#arr">arr</a> S1 S2) (<a href="#arr">arr</a> T1 T2)
+| <span class="constructor" id="sa_all">sa_all</span> : <a href="#sub">sub</a> T1 S1 &#x2192 ({a : <a href="#tp">tp</a>} (({U : <a href="#tp">tp</a>} ({T : <a href="#tp">tp</a>} (<a href="#sub">sub</a> a U &#x2192 <a href="#sub">sub</a> U T &#x2192 <a href="#sub">sub</a> a T))) &#x2192 <a href="#sub">sub</a> a T1 &#x2192 <a href="#sub">sub</a> a a &#x2192 <a href="#sub">sub</a> (S2 a) (T2 a))) &#x2192 <a href="#sub">sub</a> (<a href="#forall">forall</a> S1 S2) (<a href="#forall">forall</a> T1 T2);
+</code></pre>
+<p></p><p>
+We specify the structure of the context using context schema <code>s_ctx</code> as follows:
+</p><p></p><br><pre><code><keyword>schema</keyword> <span class="schema" id="s_ctx">s_ctx</span> = <keyword>some</keyword> [u : <a href="#tp">tp</a>] <keyword>block</keyword> (a:<a href="#tp">tp</a>, tr:{U : <a href="#tp">tp</a>} {T : <a href="#tp">tp</a>} (<a href="#sub">sub</a> a U &#x2192 <a href="#sub">sub</a> U T &#x2192 <a href="#sub">sub</a> a T), w:<a href="#sub">sub</a> a u, ref:<a href="#sub">sub</a> a a);
+</code></pre>
+<p></p><p>
+<h3> Reflexivity</h3>
+<b>Theorem</b> :  For every $\Gamma$ and $T$,  $\Gamma\vdash T <: T$. <br>
+</p><p>
+The reflexivity Theorem is simply described as <code>{g:s_ctx} {T: [g &#8866; tp]} [g &#8866; sub T T]</code> in computational-level in Beluga. Context variable <code>g</code> and term <code>T</code> are written explicitly using curly brackets <code>{g:s_ctx}</code> and  <code>{T: [g &#8866; tp]}</code>.  We do case analysis on the term <code>T</code> of type <code>[g &#8866; tp]</code>, which is written as <code>[g &#8866; T]</code>. 
+</p><p></p><br><pre><code><keyword>rec</keyword> <span class="function" id="refl">refl</span> : {g : <a href="#s_ctx">s_ctx</a>} {T : [g &#x22A2 <a href="#tp">tp</a>]} [g &#x22A2 <a href="#sub">sub</a> T T]  =
+<keyword>mlam</keyword> g &#x21D2 <keyword>mlam</keyword> T &#x21D2 <keyword>case</keyword> [g &#x22A2 T] <keyword>of</keyword> 
+  | [g &#x22A2 #p.1] &#x21D2 [g &#x22A2 #p.4]
+  | [g &#x22A2 <a href="#top">top</a>] &#x21D2 [g &#x22A2 <a href="#sa_top">sa_top</a>]
+  | [g &#x22A2 <a href="#arr">arr</a> T1 T2] &#x21D2
+    <keyword>let</keyword>  [g &#x22A2 S1] = <a href="#refl">refl</a> [g] [g &#x22A2 T1] <keyword>in</keyword> 
+    <keyword>let</keyword>  [g &#x22A2 S2] = <a href="#refl">refl</a> [g] [g &#x22A2 T2] <keyword>in</keyword> [g &#x22A2 <a href="#sa_arr">sa_arr</a> S1 S2]
+  | [g &#x22A2 <a href="#forall">forall</a> T1 (&lambda;a. T2)] &#x21D2
+    <keyword>let</keyword>  [g &#x22A2 S1] = <a href="#refl">refl</a> [g] [g &#x22A2 T1] <keyword>in</keyword> 
+    <keyword>let</keyword>  [g, b : <keyword>block</keyword> (a:<a href="#tp">tp</a>, tr:{u' : <a href="#tp">tp</a>} {t' : <a href="#tp">tp</a>} (<a href="#sub">sub</a> a u' &#x2192 <a href="#sub">sub</a> u' t' &#x2192 <a href="#sub">sub</a> a t'), w:<a href="#sub">sub</a> a T1[&hellip;], ref:<a href="#sub">sub</a> a a) &#x22A2 S2[&hellip;, b.1, b.2, b.3, b.4]] =
+    <a href="#refl">refl</a> [g, b : <keyword>block</keyword> (a:<a href="#tp">tp</a>, tr:{u' : <a href="#tp">tp</a>} {t' : <a href="#tp">tp</a>} (<a href="#sub">sub</a> a u' &#x2192 <a href="#sub">sub</a> u' t' &#x2192 <a href="#sub">sub</a> a t'), w:<a href="#sub">sub</a> a T1[&hellip;], ref:<a href="#sub">sub</a> a a)] [g, b &#x22A2 T2[&hellip;, b.1]] <keyword>in</keyword>
+    [g &#x22A2 <a href="#sa_all">sa_all</a> S1 (&lambda;a. &lambda;tr. &lambda;w. &lambda;ref. S2)];
+</code></pre>
+<p></p><p>
+<h3> Transitivity</h3>
+<b>Theorem</b> :  For every $\Gamma$, $S$, $Q$ and $T$,  if $\Gamma\vdash S <: Q$ and  $\Gamma\vdash Q <: T$, then  $\Gamma\vdash S <: T$. <br>
+</p><p>
+The transitivity Theorem is described  as <code>(g:s_ctx){Q:[g &#8866; tp]}[g &#8866; sub S Q] &#x2192 [g &#8866; sub Q T] &#x2192 [g &#8866; sub S T]</code>. The context variable is written implicitly in round bracket as <code>(g:s_ctx)</code>.  We do case analysis on the derivation of type <code>[g &#8866; sub S Q]</code>. In some cases we need to provide extral type annotation for the branch. For example, in the case <code>[g &#8866; sa_arr D1 D2 ]</code>, which uses <code>sa_arr</code> rule for the last step of derivation <code>d1</code>, we add type annotation <code>[g &#8866; sub (arr S1 S2) (arr Q1 Q2) ]</code> to obtain terms <code>Q1</code> and <code>Q2</code>, which are later used as arguments. We use the same technique in the branch of <code>sa_all</code>.  We also need to specify the type of some variables when we don't have enough information on them. For example, in the case <code>[g &#8866; #p.2 U' T' D1 D2]</code>, we need to specify the type of parameter variable <code>#p</code> and the type of <code>D1</code>.
+</p><p></p><br><pre><code><keyword>rec</keyword> <span class="function" id="trans">trans</span> : (g:<a href="#s_ctx">s_ctx</a>) {Q : [g &#x22A2 <a href="#tp">tp</a>]} [g &#x22A2 <a href="#sub">sub</a> S Q] &#x2192 [g &#x22A2 <a href="#sub">sub</a> Q T] &#x2192 [g &#x22A2 <a href="#sub">sub</a> S T]  =
+<keyword>mlam</keyword> Q &#x21D2 <keyword>fn</keyword> d1 &#x21D2 <keyword>fn</keyword> d2 &#x21D2 <keyword>case</keyword> d1 <keyword>of</keyword> 
+  | [g &#x22A2 #p.3] &#x21D2 <keyword>let</keyword>  [g &#x22A2 D2] = d2 <keyword>in</keyword> [g &#x22A2 #p.2 Q _ #p.3 D2]
+  | [g &#x22A2 #p.4] &#x21D2 d2
+  | {#p : [g &#x22A2 <keyword>block</keyword> (a:<a href="#tp">tp</a>, tr:{u' : <a href="#tp">tp</a>} {t' : <a href="#tp">tp</a>} (<a href="#sub">sub</a> a u' &#x2192 <a href="#sub">sub</a> u' t' &#x2192 <a href="#sub">sub</a> a t'), w:<a href="#sub">sub</a> a U'[&hellip;], ref:<a href="#sub">sub</a> a a)]}
+    {D1 : [g &#x22A2 <a href="#sub">sub</a> #p.1 U']} [g &#x22A2 #p.2 U' T' D1 D2] &#x21D2
+    <keyword>let</keyword>  [g &#x22A2 F1] = <a href="#trans">trans</a> [g &#x22A2 T'] [g &#x22A2 D2] d2 <keyword>in</keyword> <a href="#trans">trans</a> [g &#x22A2 U'] [g &#x22A2 D1] [g &#x22A2 F1]
+  | [g &#x22A2 <a href="#sa_top">sa_top</a>] &#x21D2 <keyword>let</keyword>  [g &#x22A2 <a href="#sa_top">sa_top</a>] = d2 <keyword>in</keyword> [g &#x22A2 <a href="#sa_top">sa_top</a>]
+  | [g &#x22A2 <a href="#sa_arr">sa_arr</a> D1 D2] : [g &#x22A2 <a href="#sub">sub</a> (<a href="#arr">arr</a> S1 S2) (<a href="#arr">arr</a> Q1 Q2)] &#x21D2
+    <keyword>case</keyword> d2 <keyword>of</keyword> 
+    | [g &#x22A2 <a href="#sa_arr">sa_arr</a> E1 E2] &#x21D2
+      <keyword>let</keyword>  [g &#x22A2 F1] = <a href="#trans">trans</a> [g &#x22A2 Q1] [g &#x22A2 E1] [g &#x22A2 D1] <keyword>in</keyword> 
+      <keyword>let</keyword>  [g &#x22A2 F2] = <a href="#trans">trans</a> [g &#x22A2 Q2] [g &#x22A2 D2] [g &#x22A2 E2] <keyword>in</keyword> [g &#x22A2 <a href="#sa_arr">sa_arr</a> F1 F2]
+    | [g &#x22A2 <a href="#sa_top">sa_top</a>] &#x21D2 [g &#x22A2 <a href="#sa_top">sa_top</a>]
+  | [g &#x22A2 <a href="#sa_all">sa_all</a> D1 (&lambda;a. &lambda;tr. &lambda;w. &lambda;ref. D2)] : [g &#x22A2 <a href="#sub">sub</a> (<a href="#forall">forall</a> S1 (&lambda;a. S2)) (<a href="#forall">forall</a> Q1 (&lambda;a. Q2))] &#x21D2
+    <keyword>case</keyword> d2 <keyword>of</keyword> 
+    | [g &#x22A2 <a href="#sa_top">sa_top</a>] &#x21D2 [g &#x22A2 <a href="#sa_top">sa_top</a>]
+    | [g &#x22A2 <a href="#sa_all">sa_all</a> E1 (&lambda;a. &lambda;tr. &lambda;w. &lambda;ref. E2)] : [g &#x22A2 <a href="#sub">sub</a> (<a href="#forall">forall</a> Q1 (&lambda;a. Q2)) (<a href="#forall">forall</a> T1 (&lambda;a. T2))] &#x21D2
+      <keyword>let</keyword>  [g &#x22A2 F1] = <a href="#trans">trans</a> [g &#x22A2 Q1] [g &#x22A2 E1] [g &#x22A2 D1] <keyword>in</keyword> 
+      <keyword>let</keyword>  [g, b : <keyword>block</keyword> (a:<a href="#tp">tp</a>, tr:{u' : <a href="#tp">tp</a>} {t' : <a href="#tp">tp</a>} (<a href="#sub">sub</a> a u' &#x2192 <a href="#sub">sub</a> u' t' &#x2192 <a href="#sub">sub</a> a t'), w:<a href="#sub">sub</a> a T1[&hellip;], ref:<a href="#sub">sub</a> a a) &#x22A2 F2[&hellip;, b.1, b.2, b.3, b.4]] =
+      <a href="#trans">trans</a> [g, b : <keyword>block</keyword> (a:<a href="#tp">tp</a>, tr:{u' : <a href="#tp">tp</a>} {t' : <a href="#tp">tp</a>} (<a href="#sub">sub</a> a u' &#x2192 <a href="#sub">sub</a> u' t' &#x2192 <a href="#sub">sub</a> a t'), w:<a href="#sub">sub</a> a T1[&hellip;], ref:<a href="#sub">sub</a> a a) &#x22A2 Q2[&hellip;, b.1]] [g, b &#x22A2 D2[&hellip;, b.1, b.2, (b.2 T1[&hellip;] Q1[&hellip;] b.3 E1[&hellip;]), b.4]] [g, b &#x22A2 E2[&hellip;, b.1, b.2, b.3, b.4]] <keyword>in</keyword>
+      [g &#x22A2 <a href="#sa_all">sa_all</a> F1 (&lambda;a. &lambda;tr. &lambda;w. &lambda;ref. F2)];
+</code></pre>
+<p></p><p>
+We only mark out this special case: <br>
+if &emsp;&emsp;&emsp;&emsp;&emsp;&nbsp;<code>d1 : [g &#8866; sub (forall S1 (&lambda;a.S2)) (forall Q1 (&lambda;a.Q2))]</code>  <br>
+and &emsp;<code>d2 : [g &#8866; sub (forall Q1 (&lambda;a.Q2)) (forall T1 (&lambda;a.T2))]</code><br>
+ then  <code>f  : [g &#8866; sub (forall S1 (&lambda;a.S2) (forall T1 (&lambda;a.T2))]</code>.
+</p><p>
+By inversion on <code>d1</code>, we have: <br>
+<code>D1 : [g &#8866; sub Q1 S1]</code> <br>
+<code>D2 : [g, b : block (a:tp, tr:{u':tp}{t':tp} sub a u' &#x2192 sub u' t' &#x2192 sub a t', w: sub a Q1[&hellip;], ref: sub a a )  &#8866; sub S2[&hellip; b.1] Q2[&hellip;,b.1]]</code>
+</p><p>
+By inversion on E: <br>
+<code>E1 : [g &#8866; sub T1 Q1]</code> <br>
+<code>E2 : [g, b : block (a:tp, tr:{u':tp}{t':tp} sub a u' &#x2192 sub u' t' &#x2192 sub a t', w: sub a T1, ref: sub a a )  &#8866; sub (Q2 b.1) (T2 b.1)]</code>
+</p><p>
+</p><p>
+By i.h. on E1 and D1 we can obtain a derivation <code>F1 : [g &#8866; sub T1 S1]</code>.
+</p><p>
+We would like to obtain another derivation <code>F2 : [g, b : block (a:tp, tr:{u':tp}{t':tp} sub a u' &#x2192 sub u' t' &#x2192 sub a t', w: sub a T1[…], ref: sub a a )  ⊢ sub S2[… ,b.1] T2[ … ,b.1]]</code>. However, applying the induction hypothesis on <code>D2</code> and <code>E2</code> will not work
+because <code>D2</code> depends on the assumption <code>w: sub a Q1</code> while <code>E2</code> depends
+on the assumption <code>w: sub a T1</code>. We need to first create a derivation D2'
+which depends on <code>w: sub a T1[&hellip;]</code>. Recall <code>D2</code> is a parametric and hypothetical derivation which can be viewed as a function which expects as inputs <code>tr: sub a u' &#x2192 sub u' t' &#x2192 sub a t', ref: sub a a</code>, and an object of type <code>sub a Q1[&hellip;]</code>. In other words, we need to turn a function which expects <code>sub a Q1</code> into a function which expects an object of type <code>sub a T1</code>. We use <code>b.2 T1[&hellip;] Q1[&hellip;]  b.3 E1[&hellip;]</code> to achieve this transformation.
+</p><p>
+</p><p></p>
+<p></p><p>
+<h2> Declarative subtyping</h2>
+We can also define declarative subtyping in Beluga and prove the equivalence between algoritmic and declarative subtyping through soundness and completeness proofs. We use (<) to denote declarative subtyping.
+</p><p></p><br><pre><code><keyword>LF</keyword> <span class="typ" id="subtype">subtype</span> : <a href="#tp">tp</a> &#x2192 <a href="#tp">tp</a> &#x2192 <keyword>type</keyword> = 
+| <span class="constructor" id="subtype_top">subtype_top</span> : <a href="#subtype">subtype</a> T <a href="#top">top</a>
+| <span class="constructor" id="subtype_refl">subtype_refl</span> : <a href="#subtype">subtype</a> T T
+| <span class="constructor" id="subtype_trans">subtype_trans</span> : <a href="#subtype">subtype</a> T1 T2 &#x2192 <a href="#subtype">subtype</a> T2 T3 &#x2192 <a href="#subtype">subtype</a> T1 T3
+| <span class="constructor" id="subtype_arrow">subtype_arrow</span> : <a href="#subtype">subtype</a> T1 S1 &#x2192 <a href="#subtype">subtype</a> S2 T2 &#x2192 <a href="#subtype">subtype</a> (<a href="#arr">arr</a> S1 S2) (<a href="#arr">arr</a> T1 T2)
+| <span class="constructor" id="subtype_forall">subtype_forall</span> : <a href="#subtype">subtype</a> T1 S1 &#x2192 ({x : <a href="#tp">tp</a>} (<a href="#subtype">subtype</a> x T1 &#x2192 <a href="#subtype">subtype</a> (S2 x) (T2 x))) &#x2192 <a href="#subtype">subtype</a> (<a href="#forall">forall</a> S1 S2) (<a href="#forall">forall</a> T1 T2);
+</code></pre>
+<p></p><p>
+In order to prove soundness and completeness, we define a new context which includes both algorithmic subtyping and declarative subtyping.
+</p><p></p><br><pre><code><keyword>schema</keyword> <span class="schema" id="ss_ctx">ss_ctx</span> = <keyword>some</keyword> [u : <a href="#tp">tp</a>] <keyword>block</keyword> (a:<a href="#tp">tp</a>, tr:{U : <a href="#tp">tp</a>} {T : <a href="#tp">tp</a>} (<a href="#sub">sub</a> a U &#x2192 <a href="#sub">sub</a> U T &#x2192 <a href="#sub">sub</a> a T), w:<a href="#sub">sub</a> a u, ref:<a href="#sub">sub</a> a a, w':<a href="#subtype">subtype</a> a u);
+</code></pre>
+<p></p><p>
+<h3> Soundness</h3>
+<b>Theorem</b> :  For every $\Gamma$, $T$ and $S$, if $\Gamma\vdash T<:S$, then $\Gamma\vdash T < S$ .
+</p><p></p><br><pre><code><keyword>rec</keyword> <span class="function" id="sound">sound</span> : (g:<a href="#ss_ctx">ss_ctx</a>) [g &#x22A2 <a href="#sub">sub</a> T S] &#x2192 [g &#x22A2 <a href="#subtype">subtype</a> T S]  =
+<keyword>fn</keyword> d &#x21D2 <keyword>case</keyword> d <keyword>of</keyword> 
+  | [g &#x22A2 <a href="#sa_top">sa_top</a>] &#x21D2 [g &#x22A2 <a href="#subtype_top">subtype_top</a>]
+  | [g &#x22A2 <a href="#sa_arr">sa_arr</a> D1 D2] &#x21D2
+    <keyword>let</keyword>  [g &#x22A2 E1] = <a href="#sound">sound</a> [g &#x22A2 D1] <keyword>in</keyword> 
+    <keyword>let</keyword>  [g &#x22A2 E2] = <a href="#sound">sound</a> [g &#x22A2 D2] <keyword>in</keyword> [g &#x22A2 <a href="#subtype_arrow">subtype_arrow</a> E1 E2]
+  | [g &#x22A2 <a href="#sa_all">sa_all</a> D1 (&lambda;a. &lambda;tr. &lambda;w. &lambda;ref. D2)] : [g &#x22A2 <a href="#sub">sub</a> (<a href="#forall">forall</a> S1 (&lambda;a. S2)) (<a href="#forall">forall</a> T1 (&lambda;a. T2))] &#x21D2
+    <keyword>let</keyword>  [g &#x22A2 E1] = <a href="#sound">sound</a> [g &#x22A2 D1] <keyword>in</keyword> 
+    <keyword>let</keyword>  [g, b : <keyword>block</keyword> (a:<a href="#tp">tp</a>, tr:{u' : <a href="#tp">tp</a>} {t' : <a href="#tp">tp</a>} (<a href="#sub">sub</a> a u' &#x2192 <a href="#sub">sub</a> u' t' &#x2192 <a href="#sub">sub</a> a t'), w:<a href="#sub">sub</a> a T1[&hellip;], ref:<a href="#sub">sub</a> a a, w':<a href="#subtype">subtype</a> a T1[&hellip;]) &#x22A2 E2[&hellip;, b.1, b.5]] =
+    <a href="#sound">sound</a> [g, b : <keyword>block</keyword> (a:<a href="#tp">tp</a>, tr:{u' : <a href="#tp">tp</a>} {t' : <a href="#tp">tp</a>} (<a href="#sub">sub</a> a u' &#x2192 <a href="#sub">sub</a> u' t' &#x2192 <a href="#sub">sub</a> a t'), w:<a href="#sub">sub</a> a T1[&hellip;], ref:<a href="#sub">sub</a> a a, w':<a href="#subtype">subtype</a> a T1[&hellip;]) &#x22A2 D2[&hellip;, b.1, b.2, b.3, b.4]] <keyword>in</keyword>
+    [g &#x22A2 <a href="#subtype_forall">subtype_forall</a> E1 (&lambda;a. &lambda;w. E2)]
+  | [g &#x22A2 #p.3] &#x21D2 [g &#x22A2 #p.5]
+  | [g &#x22A2 #p.4] &#x21D2 [g &#x22A2 <a href="#subtype_refl">subtype_refl</a>]
+  | {#p : [g &#x22A2 <keyword>block</keyword> (a:<a href="#tp">tp</a>, tr:{u' : <a href="#tp">tp</a>} {t' : <a href="#tp">tp</a>} (<a href="#sub">sub</a> a u' &#x2192 <a href="#sub">sub</a> u' t' &#x2192 <a href="#sub">sub</a> a t'), w:<a href="#sub">sub</a> a U'[&hellip;], ref:<a href="#sub">sub</a> a a, w':<a href="#subtype">subtype</a> a U'[&hellip;])]}
+    {D1 : [g &#x22A2 <a href="#sub">sub</a> #p.1 U']} [g &#x22A2 #p.2 U' T' D1 D2] &#x21D2
+    <keyword>let</keyword>  [g &#x22A2 E1] = <a href="#sound">sound</a> [g &#x22A2 D1] <keyword>in</keyword> 
+    <keyword>let</keyword>  [g &#x22A2 E2] = <a href="#sound">sound</a> [g &#x22A2 D2] <keyword>in</keyword> [g &#x22A2 <a href="#subtype_trans">subtype_trans</a> E1 E2];
+</code></pre>
+<p></p><p>
+<h3> Completeness</h3>
+<b>Theorem</b> :  For every $\Gamma$, $T$ and $S$, if $\Gamma\vdash T < S$,  then $\Gamma\vdash T <: S$ .<br>
+</p><p></p><br><pre><code><keyword>rec</keyword> <span class="function" id="complete">complete</span> : (g:<a href="#ss_ctx">ss_ctx</a>) [g &#x22A2 <a href="#subtype">subtype</a> T S] &#x2192 [g &#x22A2 <a href="#sub">sub</a> T S]  =
+<keyword>fn</keyword> d &#x21D2 <keyword>case</keyword> d <keyword>of</keyword> 
+  | [g &#x22A2 #p.5] &#x21D2 [g &#x22A2 #p.3]
+  | [g &#x22A2 <a href="#subtype_top">subtype_top</a>] &#x21D2 [g &#x22A2 <a href="#sa_top">sa_top</a>]
+  | [g &#x22A2 <a href="#subtype_refl">subtype_refl</a>] &#x21D2 <a href="#refl">refl</a> [g] [g &#x22A2 _]
+  | [g &#x22A2 <a href="#subtype_trans">subtype_trans</a> E1 E2] &#x21D2
+    <keyword>let</keyword>  [g &#x22A2 D1] = <a href="#complete">complete</a> [g &#x22A2 E1] <keyword>in</keyword> 
+    <keyword>let</keyword>  [g &#x22A2 D2] = <a href="#complete">complete</a> [g &#x22A2 E2] <keyword>in</keyword> <a href="#trans">trans</a> [g &#x22A2 _] [g &#x22A2 D1] [g &#x22A2 D2]
+  | [g &#x22A2 <a href="#subtype_arrow">subtype_arrow</a> E1 E2] &#x21D2
+    <keyword>let</keyword>  [g &#x22A2 D1] = <a href="#complete">complete</a> [g &#x22A2 E1] <keyword>in</keyword> 
+    <keyword>let</keyword>  [g &#x22A2 D2] = <a href="#complete">complete</a> [g &#x22A2 E2] <keyword>in</keyword> [g &#x22A2 <a href="#sa_arr">sa_arr</a> D1 D2]
+  | [g &#x22A2 <a href="#subtype_forall">subtype_forall</a> E1 (&lambda;x. &lambda;y. E2)] : [g &#x22A2 <a href="#subtype">subtype</a> (<a href="#forall">forall</a> S1 (&lambda;a. S2)) (<a href="#forall">forall</a> T1 (&lambda;a. T2))] &#x21D2
+    <keyword>let</keyword>  [g &#x22A2 D1] = <a href="#complete">complete</a> [g &#x22A2 E1] <keyword>in</keyword> 
+    <keyword>let</keyword>  [g, b : <keyword>block</keyword> (a:<a href="#tp">tp</a>, tr:{u' : <a href="#tp">tp</a>} {t' : <a href="#tp">tp</a>} (<a href="#sub">sub</a> a u' &#x2192 <a href="#sub">sub</a> u' t' &#x2192 <a href="#sub">sub</a> a t'), w:<a href="#sub">sub</a> a T1[&hellip;], ref:<a href="#sub">sub</a> a a, w':<a href="#subtype">subtype</a> a T1[&hellip;]) &#x22A2 D2[&hellip;, b.1, b.2, b.3, b.4]] =
+    <a href="#complete">complete</a> [g, b : <keyword>block</keyword> (a:<a href="#tp">tp</a>, tr:{u' : <a href="#tp">tp</a>} {t' : <a href="#tp">tp</a>} (<a href="#sub">sub</a> a u' &#x2192 <a href="#sub">sub</a> u' t' &#x2192 <a href="#sub">sub</a> a t'), w:<a href="#sub">sub</a> a T1[&hellip;], ref:<a href="#sub">sub</a> a a, w':<a href="#subtype">subtype</a> a T1[&hellip;]) &#x22A2 E2[&hellip;, b.1, b.5]] <keyword>in</keyword>
+    [g &#x22A2 <a href="#sa_all">sa_all</a> D1 (&lambda;a. &lambda;tr. &lambda;w. &lambda;ref. D2)];
+</code></pre><br><br><h3>To download the code: <a href="Poplmark.bel" target="_blank">Poplmark.bel</a></h3>
+
+</body>
+</html>

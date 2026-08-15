@@ -1,0 +1,143 @@
+
+% Types
+tp: type.
+bool: tp.
+nat : tp.
+
+% Values
+value: tp -> type.
+v_zero: value nat.
+v_succ: value nat -> value nat.
+v_true: value bool.
+v_false: value bool.
+
+
+% Typed expressions
+term: tp -> type.
+
+true  : term bool.
+false : term bool.
+switch: term bool -> term T -> term T
+     -> term T.
+z     : term nat.
+succ  : term nat -> term nat.
+pred  : term nat -> term nat.
+iszero: term nat -> term bool.
+
+
+rec eval : [ |- term T ] -> [ |- value T ] = fn m => case m of
+| [ |- true ] => [ |- v_true ]
+| [ |- false ] => [ |- v_false ]
+| [ |- switch T1 T2 T3 ] => (case eval [ |- T1 ] of
+    | [ |- v_true ]   => eval [ |- T2 ]
+    | [ |- v_false ]   => eval [ |- T3 ]
+  )
+| [ |- z ]      => [ |- v_zero ]
+| [ |- succ N ] => let [ |- V ] = eval [ |- N ] in [ |- v_succ V ]
+| [ |- pred N ] => (case eval [ |- N ] of
+   | [ |- v_zero   ]     => [ |- v_zero ]
+   | [ |- v_succ V ]     => [ |- V ]
+  )
+;
+
+
+list : term nat -> type.
+nil  : list z.
+cons : tp -> list N -> list (succ N).
+
+
+exists_smaller_or_equal_list: type.
+
+smaller_or_equal_list : list M
+                     -> exists_smaller_or_equal_list.
+
+
+yes_or_no  : type.
+yes  : yes_or_no.
+no   : yes_or_no.
+
+
+rec filter: [ |- list N ] -> ([ |- tp ] -> [ |- yes_or_no ])
+          -> [ |- exists_smaller_or_equal_list ] =
+fn l => fn f => case l of
+| [ |- nil ]      => [ |- smaller_or_equal_list nil ]
+| [ |- cons H T ] => let [ |- smaller_or_equal_list T' ] = filter [ |- T ] f  in
+                  (case f ([ |- H ]) of
+                  | [ |- yes ] => [ |- smaller_or_equal_list (cons H T') ]
+                  | [ |- no  ] => [ |- smaller_or_equal_list T' ]
+                 )
+;
+
+
+leq: term nat -> term nat -> type.
+le_z : leq z N.
+le_s : leq N M -> leq (succ N) (succ M).
+
+
+rec lemma_leq : [ |- leq M N ] -> [ |- leq M (succ N) ] = fn d => case d of
+| [ |- le_z ]   => [ |- le_z ]
+| [ |- le_s D ] => let [ |- E ] = lemma_leq [ |- D ] in [ |- le_s E ]
+;
+
+
+eval          : term T -> value T -> type.
+ev_true       : eval true v_true.
+ev_false      : eval false v_false.
+ev_switch_true: eval M v_true -> eval M1 V
+              -> eval (switch M M1 M2) V.
+ev_switch_false: eval M v_false -> eval M2 V
+               -> eval (switch M M1 M2) V.
+
+
+cert_eval: term T -> type.
+cert_val: {V : value T} eval M V -> cert_eval M.
+
+
+rec cert_eval : {M:[ |- term T ]} [ |- cert_eval M ] =
+mlam M => case ([ |- M ]) of
+| [ |- true ]           => [ |- cert_val v_true  ev_true  ]
+| [ |- false ]           => [ |- cert_val v_false ev_false ]
+| [ |- switch T1 T2 T3 ] => (case cert_eval < . T1> of
+  | [ |- cert_val v_true  C ] =>
+    let [ |- cert_val V C2 ] =  cert_eval < . T2 > in
+      [ |- cert_val V (ev_switch_true C C2) ]
+  | [ |- cert_val v_false C ] =>
+    let [ |- cert_val V C3 ] = cert_eval < . T3>  in
+      [ |- cert_val V (ev_switch_false C C3) ]
+  )
+;
+
+
+step: term T1 -> term T2 -> type.
+
+e_switch_true : step (switch true T2 T3)    T2.
+
+e_switch_false: step (switch false T2 T3)   T3.
+
+e_switch      : step T1 T1'
+             -> step (switch T1 T2 T3)      (switch T1' T2 T3).
+
+
+eq: term T1 -> term T2 -> type.
+ref: eq T T.
+
+
+rec det : [ |- step T T1 ] -> [ |- step T T2 ] -> [ |- eq T1 T2 ] =
+fn s1 => fn s2 => case s1 of
+| [ |- e_switch_true ] =>
+    (case s2 of [ |- e_switch_true ] =>  [ |- ref ]
+	      | [ |- e_switch S1'  ] =>  impossible [ |- S1' ] in [ ]
+    )
+
+| [ |- e_switch_false ] =>
+  (case  s2 of [ |- e_switch_false ] =>  [ |- ref ]
+	     | [ |- e_switch S2'   ] => impossible [ |- S2' ] in [ ]
+  )
+
+| [ |- e_switch S1' ] =>
+  (case s2 of
+   | [ |- e_switch S2'   ] =>  let [ |- ref ] = det [ |- S1' ] [ |- S2' ] in  [ |- ref ]
+   | [ |- e_switch_false ] => impossible [ |- S1' ] in [ ]
+   | [ |- e_switch_true  ] => impossible [ |- S1' ] in [ ])
+;
+

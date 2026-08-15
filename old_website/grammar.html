@@ -1,0 +1,397 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Beluga: Functional Programming with Higher-Order Abstract Syntax</title>
+   <link rel="stylesheet" type="text/css" href="../tutorial-style.css" />
+</head>
+
+<body>
+<script type="text/javascript" language="javascript">
+<!--
+function rule(name, top, bottom) {
+    var top = top.join(" &nbsp; &nbsp; ");
+    document.write(
+        "<p><table cellpadding=0>" +
+        "<tr>" +
+            "<td align=center>\n" + top + "<\/td>" +
+            "<td><\/td>" +
+        "<\/tr>" +
+        "<tr style='line-height:0.1'>" +
+            "<td align=center'>" +
+                "<div style='border-bottom: solid 1px #000'><\/div>" +
+            "<\/td>" +
+            "<td> " +
+                // position:relative is necessary to prevent IE from
+                // clipping off the top and bottom of the name
+                "<span style='position:relative'><tt>"+name+"<\/tt><\/span>"+
+                "<\/td>" +
+        "<\/tr>\n" +
+        "<tr>" +
+            "<td align=center>\n" + bottom + "<\/td>" +
+            "<td><\/td>" +
+        "<\/tr>" +
+        "<\/table><\/p>"
+    )
+}
+// -->
+</script>
+
+<div id="wrapper">
+
+<!-- header -->
+<div id="header">
+<!--
+<p style="float:right;padding:20pt 20pt 20pt 20pt">
+ <a href="http://validator.w3.org/check?uri=referer">
+    <img src="images/valid-xhtml10.png"
+         alt="Valid XHTML 1.0 Strict" height="31" width="88" />
+	</a>
+</p>
+-->
+
+<p style="float:right;padding:15pt 12pt 12pt 12pt">
+  <a href="../images/beluga-med.png">
+    <img src="../images/beluga-sm.png"
+         alt="Beluga logo" />
+      </a>
+</p>
+
+<h1><a href="http://complogic.cs.mcgill.ca/beluga/">Beluga</a></h1>
+<h2><a href="http://complogic.cs.mcgill.ca/">Computation and Logic
+	  Group</a><br />
+    <a href="http://www.cs.mcgill.ca/">School of Computer Science</a><br />
+    <a href="http://www.mcgill.ca/">McGill University</a><br /><br /></h2>
+</div>
+<!-- header end -->
+  <div id="menu">
+   </div>
+<div id="main">
+
+<h1>Beluga Syntax</h1>
+
+<p>Beluga is a two-level system:
+
+<ol>
+  <li>the first level is the LF logical framework supporting
+  specification of formal systems;</li>
+  <li> the computation-level supports programming with LF specifications.</li>
+</ol>
+<p>Hence, Beluga programs consist of two kinds of declarations: LF
+constant declarations and computation-level declarations. We will use
+<a href="http://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_Form">EBNF</a>
+metasyntax. In particular, <code>{a}</code> means repeat
+production <code>a</code> zero or more times, <code>[a]</code> means
+optionally apply production <code>a</code> and comments in the grammar
+are enclosed between <code>(*</code> and <code>*)</code>.
+
+<pre class="grammar">
+sig ::= { lf_decl         <comment>(* LF constant declaraction *)</comment>
+        | c_decl }        <comment>(* Computation-level declaration *)</comment>
+</pre>
+<p>
+Comments in Beluga files start with <code>%</code> and extend to the end of the line.
+
+<p>
+<strong>Warning:</strong>
+<ul>
+<li>
+Beluga is a protype and work in progress. As such, some of the subtleties in the syntax may still change over time. While we try to ensure backwards compatibility, this may not always be possible. </li>
+<li>This description of the source-level syntax for Beluga below is not exhaustive. It tries to provide a high-level description and intuition for Belgua programs. </li>
+</ul>
+</p>
+
+
+<h2>LF declarations</h2>
+<p>
+There are two ways of making LF declarations. The first follows
+closely the syntax used in
+the <a href="http://twelf.plparty.org/wiki/Main_Page">Twelf
+system</a>. There are however a few differences which we will mention
+below. The second uses a style akin to Standard ML datatype
+declarations.
+
+<p>In the following, <code>id</code> refers to identifiers
+starting with a lower case letter and <code>ID</code> identifiers
+starting with an upper case letter.
+
+<pre class="grammar">
+lf_decl ::= lf_datatype_decl    <comment>(* new syntax for LF signatures *)</comment>
+          | id ":" lf_type "."	<comment>(* Twelf style LF signatures *)</comment>
+          | id ":" lf_kind "."	<comment>(* Twelf style LF signatures *)</comment>
+          | <keyword>%name</keyword> id ID "."    <comment>(* name preference pragma *)</comment>
+
+op_arrow ::= "->" | "<-"        <comment>(* A <- B same as B -> A *)</comment>
+
+lf_kind ::= <keyword>type</keyword>
+          | lf_type op_arrow lf_kind
+          | "{" id ":" lf_type "}" lf_kind
+
+lf_type ::= id {term}                       <comment>(* A M1 ... M2 *)</comment>
+          | lf_type op_arrow lf_type
+          | "{" id ":" lf_type "}" lf_type  <comment>(* Pi x:A. K  or  Pi x:A. B *)</comment>
+
+lf_datatype_decl ::= <keyword>datatype</keyword> id ":" lf_kind "=" [lf_con_decl] {"|" lf_con_decl} ";"
+
+lf_con_decl ::= id ":" lf_type
+
+term ::= (id | ID)		  <comment>(* variable x or constant a or c *)</comment>
+       | "\" id "." term	  <comment>(* lambda x. M *)</comment>
+       | term term		  <comment>(* M N *)</comment>
+       | _                        <comment>(* hole, to be filled by term reconstruction *)</comment>
+
+</pre>
+<p>The constructs <code>{x:U} V</code> and <code>\x. V</code> bind the identifier <code>x</code> in <code>V</code>, which may shadow other constants or bound variables. As usual in type theory, <code>U -> V</code> is treated as an abbreviation for <code>{x:U} V</code> where <code>x</code> does not appear in <code>V</code>. </p>
+
+<p>In the order of precedence, we disambiguate the syntax and impose restrictions as follows:
+<ul>
+  <li>Juxtaposition (application) is left associative and has highest precedence.</li>
+  <li><code>-></code> is right and <code><-</code> left associative with equal precedence.</li>
+  <li><code>:</code> is left associative.</li>
+  <li><code>{}</code> and <code>\</code> are weak prefix operators. </li>
+  <li>Bound variables and constants must be written with lower-case letters.</li>
+  <li>Free variables can be written with upper-case letters or lower case letters; but we use the convention to write them with upper-case letters.</li>
+  <li>All terms need to be written in beta-normal form, i.e. no redices can occur in terms. However, variables do not need to be eta-expanded.</li>
+</ul>
+</p>
+
+<p> Next, we give a few simple examples illustrating what terms Beluga parses
+and which ones it does not. For example, the following are parsed identically
+using the old style LF syntax:
+
+<pre class="code">
+d : a <- b <- {x:term} c x -> p x.
+d : ({x:term} c x -> p x) -> b -> a.
+d : ((a <- b) <- ({x: term} ((c x) -> (p x)))).
+</pre>
+</p>
+<p>
+The following declarations using old-style LF syntax parses:
+<pre class="code">
+d : p x <- a <- b <-  c x.  <comment>% against our convention but parses</comment>
+d : p X <- a <- b <-  c X.  <comment>% Better code: uses convention</comment>
+
+P:term -> type              <comment>% Parse error</comment>
+</pre>
+</p>
+<p>
+The following in the old-style LF syntax will not parse:
+<pre class="code">
+d: p ((\x.x) a) .    <comment>% this will give an error since there is a redex</comment>
+d: p a.              <comment>% this will parse.</comment>
+</pre>
+</p>
+
+<p>We advocate using a new style for LF declarations based on datatypes.
+
+<pre class="code">
+datatype foo: {x:A} p x -> type =
+  | d : a -> b -> foo c
+  | f : d -> e -> foo k
+;
+</pre>
+</p>
+
+
+<p><strong>More differences with Twelf syntax:</strong> We summarize a few more differences here. These restrictions may be addressed in the future:
+
+<ul>
+<li>Lambda-abstractions cannot be annotated with the type of the input. Writing <code>\x:nat.x</code> is illegal in Beluga.</li>
+<li>Omitting the type in a Pi-type is illegal in Beluga. One cannot simply write <code>({x}foo x T) -> foo E T'.</code>. One must give the type of the variable <code>x</code>.</li>
+</ul>
+</p>
+
+<h2>Computation-level declarations</h2>
+<p>
+In addition to LF declarations, we support three additional kinds of
+declarations: schema declarations, which describe the structure of
+contexts, declarations of recursive functions (including mutually
+recursive functions), and non-recursive declarations.
+
+
+<pre class="grammar">
+c_decl ::= ctx_schema_decl      <comment>(* schema declaration *)</comment>
+         | c_datatype_decl      <comment>(* see "Computation-level datatypes" below *)</comment>
+         | c_typedef            <comment>(* type abbreviation *)</comment>
+         | c_rec_prog           <comment>(* recursive programs *)</comment>
+         | c_let_prog           <comment>(* non-recursive programs *)</comment>
+         | exp ";"              <comment>(* computation-level expression *)</comment>
+
+c_typedef ::= <keyword>typedef</keyword> id ":" c_kind "=" c_type ";"
+
+c_rec_prog ::= <keyword>rec</keyword> id ":" c_type "=" exp {<keyword>and</keyword> id ":" c_type "=" exp} ";"
+
+c_let_prog ::= <keyword>let</keyword> id [":" c_type] "=" exp ";"
+
+</pre>
+</p>
+<p>
+To embed LF terms into computations, we extend the LF term and type
+language to support contextual variables and projections on bound
+variables and contextual variables. These extensions cannot be used
+when declaring an LF signature, but only when we use LF objects within
+computation-level programs and declarations.
+
+<pre class="grammar">
+term, lf_type ::= cvar sigma           <comment>(* contextual variable *)</comment>
+                | id "." int           <comment>(* k-th projection of a bound variable x *)</comment>
+                | block                <comment>(* Sigma x:A.B *)</comment>
+
+<comment>(* Contextual variable *)</comment>
+cvar ::= id                <comment>(* context variable *)</comment>
+       | ID                <comment>(* meta-variable *)</comment>
+       | "#" id            <comment>(* parameter variable *)</comment>
+       | "#" id "." k      <comment>(* k-th projection *)</comment>
+
+block ::= <keyword>block</keyword> id ":" lf_type {"," id ":" lf_type}
+
+<comment>(* Substitutions  *)</comment>
+sigma ::=                     <comment>(* Nothing denotes the empty substitution *)</comment>
+        | ..                  <comment>(* Identity substitution *)</comment>
+        | sigma term          <comment>(* substitution sigma , M *)</comment>
+</pre>
+</p>
+
+<p>We impose the following restrictions:
+<ul>
+  <li>Context variables always occur on their own (i.e. sigma is always empty).</li>
+</ul>
+</p>
+
+<h2>Computation-level datatype declarations</h2>
+<p>
+A computational-level datatype were introduced in [Cave and Pientka,
+POPL12]. They support indexing a datatype with contextual objects.
+</p>
+<pre class="grammar">
+c_datatype_decl ::=
+         <keyword>datatype</keyword> id ":" c_kind "=" [ID : c_type] {"|" ID : c_type}
+         {<keyword>and</keyword> id ":" c_kind "=" [ID : c_type] {"|" ID : c_type}} ";"
+</pre>
+
+<h2>Schemas and Contexts</h2>
+<p>
+Schemas classify context. We allow contexts to be built up not only by single declarations, but also by Sigma-types, i.e. dependent tuples. Logically, this means we can have not only atoms in our context, but also conjunctions of atoms (where the conjunction corresponds to the Sigma-type type-theoretically).
+
+<pre class="grammar">
+<comment>% Schema</comment>
+ctx_schema_decl ::= <keyword>schema</keyword> [<keyword>some</keyword> "[" ctx "]"] block
+                  | <keyword>schema</keyword> lf_type
+
+hyp         ::= id ":" lf_type | block
+
+<comment>% Context</comment>
+ctx         ::= [hyp {"," hyp}]
+              | id ["," hyp {"," hyp}]  <comment>(* Context variable *)</comment>
+
+ctx_hat     ::= [id {"," id}]           <comment>(* A context with the types erased. *)</comment>
+</pre>
+
+<h2>Computation-level Types</h2>
+
+<pre class="grammar">
+index_obj ::= "[" ctx "]"               <comment>(* A context index *)</comment>
+            | "[" ctx "|-" term "]"      <comment>(* A contextual object *)</comment>
+
+quantif ::= "{" id ":" "[" ctx "|-" term "]" "}"      <comment>(* Dependent function type *)</comment>
+	  | "{" "#" id ":" "[" ctx "|-" term "]" "}"  <comment>(* Dependent function type *)</comment>
+	  | "{" id ":" ctx_schema "}"		     <comment>(* Explicit context *)</comment>
+	  | "(" id ":" ctx_schema ")"		     <comment>(* Implicit context *)</comment>
+
+c_kind ::= <keyword>ctype</keyword>
+         | c_type "->" c_kind
+         | quantif c_kind
+
+c_type ::= "[" ctx "|-" lf_type "]"   <comment>(* Contextual type [Psi |- A] *)</comment>
+         | ID {index_obj}            <comment>(* Computational-level datatype *)</comment>
+         | c_type "*" c_type           <comment>(* Tuples *)</comment>
+         | c_type "->" c_type        <comment>(* The type of functions *)</comment>
+         | quantif c_type	     <comment>(* Dependent function *)</comment>
+</pre>
+
+<p>In the order of precedence, we disambiguate the syntax:
+<ul>
+  <li><code>-></code> is right associative.</li>
+  <li><code>:</code> is left associative.</li>
+  <li><code>{}<code> and <code>\ </code> are weak prefix operators.</li>
+  <li>Bound LF variables and constants must be written with lower-case letters.</li>
+  <li>Free meta-variables must be written with upper-case letters.</li>
+  <li>Context variables are written with lower-case letter.</li>
+  <li>All LF terms need to be written in beta-normal form, i.e. no redeces can occur in terms.
+<-- LF terms occurring as part of a contextual object must be written in
+  eta-expanded form. For example, one must write <code>[g |- lam \x.E
+  .. x]</code> and writing <code>[g |- lam E]</code> is
+  currently rejected. -->
+</li>
+   <li>In the contextual type <code>[Psi |- A]</code>, the type <code>A</code> must be a base type. This can always be achieved by translating a type <code>[Psi |- (B -> A)]</code> to <code>[Psi,x:B |- A]</code>. By applying this translation, any function type can be lowered. </li>
+</ul>
+</p>
+
+<h2>Computation-level Expressions</h2>
+<p>
+<pre class="grammar">
+exp    ::= "[" ctx_hat "|-" term "]"      <comment>(* Contextual object *)</comment>
+         | "[" ctx "|-" term "]"          <comment>(* Type annotated contextual object *)</comment>
+         | "(" exp "," exp ")"           <comment>(* Tuple *)</comment>
+         | id                            <comment>(* Variable *)</comment>
+         | ID                            <comment>(* Compution-level constructor *)</comment>
+         | <keyword>fn</keyword> id "=>" exp                <comment>(* Computation-level functions *)</comment>
+         | <keyword>mlam</keyword> ID "=>" exp              <comment>(* Abstraction on dependent type index *)</comment>
+         | <keyword>mlam</keyword> id "=>" exp              <comment>(* Context abstraction *)</comment>
+         | exp exp                       <comment>(* Application *)</comment>
+         | exp "[" ctx "]"               <comment>(* Context application *)</comment>
+         | <keyword>case</keyword> exp <keyword>of</keyword> branch {branch}  <comment>(* Case analysis *)</comment>
+         | <keyword>case</keyword> exp <keyword>of</keyword> "{" "}"          <comment>(* Case analysis at uninhabited type *)</comment>
+         | <keyword>let</keyword> patt = exp <keyword>in</keyword> exp        <comment>(* Case expression with a single branch *)</comment>
+
+branch ::= {quantif} patt "=>" exp
+
+<comment>(* Patterns *)</comment>
+patt ::= "[" ctx_hat "|-" term "]"        <comment>(* Contextual object *)</comment>
+       | "[" ctx "|-" term "]"            <comment>(* Type annotated contextual object *)</comment>
+       | "(" patt  "," patt ")"          <comment>(* Tuple *)</comment>
+       | id                              <comment>(* Pattern variable *)</comment>
+       | ID {index_obj}                  <comment>(* Computation-level constructor *)</comment>
+       | patt ":" c_type                 <comment>(* Type annotation in pattern *)</comment>
+</pre>
+</p>
+<p>
+The constructs <code>{X:[Psi |- A]} tau</code> the identifier <code>X</code> must be an upper-case
+letter. It may overshadow other contextual variables in <code>tau</code>. Note that
+<code>[Psi |- A] -> tau</code> is NOT just an abbreviation for <code>{X:[Psi |- A]} tau </code>.
+where <code>X</code> does not appear in <code>tau</code>. On the computation-level we retain the
+difference between quantification and implication. It is however worth
+noting that there is a simple translation between programs of these
+two types which involves lifting universally quantified elements to
+become proper stand-alone computation-level expressions.
+</p>
+
+
+<p>In the order of precedence, we disambiguate the syntax and impose restrictions as follows:
+<ul>
+  <li>Juxtaposition (application) is left associative and has highest precedence.</li>
+  <li>Bound variables and constants must be written with lower-case letters.</li>
+  <li>Free meta-variables must be written with upper-case letters.</li>
+  <li>All LF terms need to be written in beta-normal form, i.e. no redeces can occur in terms. LF terms occurring as part of a contextual object must be written in eta-expanded form. For example, one must write <code>[g |- lam \x.E .. x]</code> and writing <code>[g |- lam E]</code> is currently rejected.</li>
+</ul>
+</p>
+
+
+<h2>Emacs mode</h2>
+<p>There is an emacs mode for Beluga, which is distributed with the Beluga code and example base. This will display the the source-syntax in a nicer format.
+</p>
+
+</div>
+<div id="footer">
+
+<!-- footer -->
+&copy;2007&ndash;2012 Computation and Logic Group | design inspired by woody01 by <a href="http://coldfootdesign.com/">Brandon Wood</a>
+<!-- footer end -->
+
+</div>
+
+</div>
+
+
+</body>
+</html>

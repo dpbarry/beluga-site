@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Beluga: Functional Programming with Higher-Order Abstract Syntax</title>
+   <link rel="stylesheet" type="text/css" href="../tutorial-style.css" />
+</head>
+
+<body>
+<?php include "../functions.php"; ?>
+<div id="wrapper">
+   <?php echoFile("header.html"); ?>
+  <div id="menu">
+   </div>
+<div id="main">
+
+   <h1><a href="tutorial.php">Tutorial</a></h1>
+
+<h2>Proofs about the simply-typed lambda-calculus</h2>
+<h3><a href="uniqueness-example.php">1. Type uniqueness</a></h3> 
+<h3><a href="path-example.php">2. Reasoning about paths in lambda-terms</a></h3>
+<h3><a href="tps-example.php">3. Subject reduction</a></h3>
+
+<p>
+We first define a small step semantics for the simply-typed lambda-calculus using the familiar LF methodology.  We define first the type family <codeinline>notLam</codeinline> which allows us to check whether we encounter an expression which is not a lambda-abstraction. In addition we define the main reduction judgment as the type family <codeinline>step</codeinline>.
+</p>
+
+<pre class="code">
+notLam: exp &rarr; type.
+n_app: notLam (app M N).
+
+step: exp &rarr; exp &rarr; type.
+
+s_lam: ({x:exp}step x x &rarr; notLam x &rarr; step (M x) (N x))
+      &rarr; step (lam T M) (lam T N).
+
+s_app1: step (M' N) R &rarr;  step M (lam T M')
+	&rarr; step (app M N) R.
+
+s_app2: step N N' &rarr; notLam M' &rarr; step M M'
+     &rarr; step (app M N) (app M' N').
+</pre>
+
+<p>To implement the subject reduction theorem, we typically state it as follows:
+</p>
+<p>
+<strong>Theorem (Attempt 1):</strong> If &Gamma; &#x22A2 <codeinline>type_of M T</codeinline>  and &Psi; &#x22A2 <codeinline>step M N</codeinline> then &Gamma; &#x22A2 <codeinline>type_of N T</codeinline>.
+</p>
+<p>
+We note however that the context &Gamma; and the context &Psi; are different; for the proof to go through we need some relationship between the typing assumptions in the context &Gamma; and the assumptions <codeinline>step x x </codeinline> in the context &Psi;. A simple way to achieve this is to generalize the theorem and state it with a generalized context which contains both, the typing assumptions about <codeinline>x</codeinline> and the assumption <codeinline>step x x</codeinline>, i.e, the variable <codeinline>x</codeinline> reduces to itself.  In addition, we keep track of the assumption that <codeinline>x</codeinline> is not a lambda-abstraction.
+</p>
+<p>
+We therefore define first a context &Phi; which contains both these assumptions. 
+
+<table border=0 cellspacing=0 cellpadding=1>
+<TR>
+<TD> &Phi; </TD><TD> ::= </TD> <TD> . | &Phi;, type_of x T,  step x x, notLam x  | &Phi;, &alpha;
+</TR>
+</table>
+</p>
+
+<p>We now restate the subject reduction theorem with the generalized context &Phi;. 
+</p>
+<p>
+<strong>Theorem:</strong> If &Phi; &#x22A2 <codeinline>type_of M T</codeinline>  and &Phi; &#x22A2 <codeinline>step M N</codeinline> then &Phi; &#x22A2 <codeinline>type_of N T</codeinline>.
+</p>
+
+<p>In Beluga, we specify the structure of the context using context schema as follows:
+
+<pre class="code">
+<keyword>schema</keyword> ctx = some [t:tp] block x:exp,u:type_of x t, v:step x x . notLam x;
+</pre>
+</p>
+
+
+<p>The theorem is represented as a computation-level type in Beluga:
+
+<pre class="code">
+{g:(ctx)*}(type_of (M &hellip;) T)[g] &rarr; (step (M &hellip;) (N &hellip;))[g]
+         &rarr; (type_of (N &hellip;) T)[g] =					
+</pre>
+</p>
+<p>We make explicit the fact that the terms <codeinline>M</codeinline> and <codeinline>N</codeinline> can depend on the context &Phi; by associating both meta-variables with <codeinline>&hellip;</codeinline> which denotes the identity substitution on the context <codeinline>g</codeinline>. The type <codeinline>T</codeinline> on the other hand cannot depend on the context and hence it is not associated with anything. We read the type as follows: for all contexts <codeinline>g</codeinline> of schema <codeinline>ctx</codeinline>, if <codeinline>(type_of (M &hellip;) T)[g]</codeinline> and <codeinline>(step (M &hellip;) (N &hellip;))[g]</codeinline> then <codeinline>(type_of (N &hellip;) T)[g]</codeinline>.  The contextual type <codeinline>(type_of (M &hellip) T)[g]</codeinline> directly describes the hypothetical derivation &Phi; &#x22A2 <codeinline>type_of M T</codeinline> where we make explicit whether an object can depen on declarations in the context or not.
+</p>
+
+<p>
+The proof of the subject reduction theorem is then implemented as a recursive program. Case analysis and inversion in the informal proof are modelled via case analysis and let-expressions in the Beluga implementation. Appeals to the induction hypothesis correspond to recursive calls.
+</p>
+
+
+<pre class="code">
+<keyword>rec</keyword> tps: {g:(ctx)*}(type_of (M &hellip;) T)[g] &rarr; (step (M &hellip;) (N &hellip;))[g]
+         &rarr; (type_of (N &hellip;) T)[g] =							      
+<keyword>&Lambda;</keyword> g &rArr; <keyword>fn</keyword> d &rArr; <keyword>fn</keyword> s &rArr; <keyword>case</keyword> s </keyword>of</keyword> 
+| [g] s_lam \x.\v. \n. S &hellip; x v n &rArr; 
+  <keyword>let</keyword> [g] tof_lam \x.\u. D &hellip; x u = d <keyword>in</keyword> 
+  <keyword>let</keyword> {F::(type_of (M &hellip; x) T)[g, x:exp, u:type_of x T]}
+      [g, b: block x:exp, u:type_of x T, v:step x x. notLam x] F &hellip; b.1 b.2 = 
+      tps [g,b:block x:exp,u:type_of x _ ,v:step x x. notLam x]
+	  ([g,b] (D &hellip; b.1 b.2)) ([g,b] S &hellip; b.1 b.3 b.4) <keyword>in</keyword> 
+  [g] tof_lam \x.\u. F &hellip; x u
+
+| [g] s_app1 (S2 &hellip;) (S1 &hellip;) &rArr; 
+  <keyword>let</keyword> [g] tof_app (D2 &hellip;) (D1 &hellip;) = d <keyword>in</keyword> 
+  <keyword>let</keyword> [g] tof_lam \x.\u. F &hellip; x u = tps [g] ([g] D1 &hellip;) ([g] S1 &hellip;) <keyword>in</keyword> 
+     tps [g] ([g] F &hellip; _ (D2 &hellip;)) ([g] S2 &hellip;)
+
+| [g] s_app2 (S2 &hellip;) _ (S1 &hellip;) &rArr;
+  <keyword>let</keyword> [g] tof_app (D2 &hellip;) (D1 &hellip;) = d <keyword>in</keyword> 
+  <keyword>let</keyword> [g] F1 &hellip; = tps [g] ([g] D1 &hellip;) ([g] S1 &hellip;) <keyword>in</keyword> 
+  <keyword>let</keyword> [g] F2 &hellip; = tps [g] ([g] D2 &hellip;) ([g] S2 &hellip;) <keyword>in</keyword> 
+    [g] tof_app (F2 &hellip;) (F1 &hellip;)
+
+| [g] #p.3 &hellip; &rArr;              % s : step (#p.1 &hellip;)  (N &hellip;)          
+  <keyword>let</keyword> [g] #q.2 &hellip; = d <keyword>in</keyword>     % q : block x:exp,u:type_of x t, v:step x x . notLam x
+                            % since step #q.1 #q.1 = step #p.1 (N &hellip;) 
+                            % N = #q.1  and #q = #p 
+  [g] #q.2 &hellip;
+   
+;
+</pre>
+
+
+<p>One may wonder why we need to give a typing annotation to <codeinline>F</codeinline> in the case for lambda-abstraction. The reason is that we want to restrict <codeinline>F</codeinline> so it cannot depend on the assumption <codeinline>step x x</codeinline> and <codeinline>notLam x</codeinline>. Restricting what the derivation represented by <codeinline>F</codeinline> depends on corresponds to strengthening in the informal proof. 
+</p>
+
+<p>Otherwise the implementation of the proof mirrors closely the on-paper proof.
+</p>
+
+
+<h3><a href="eq-example.php">4. Equality reasoning</a></h3>
+<p>
+</p>
+</div>
+<div id="footer">
+   <?php echoFile("../footer.html"); ?>
+</div>
+
+</div>
+ 
+
+</body>
+</html>

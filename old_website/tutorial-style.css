@@ -1,0 +1,305 @@
+* {
+    font-family: "Trebuchet MS", Tahoma, sans-serif;
+    margin: 0px;
+    padding: 0px;    
+}
+
+body {
+    background: #214181;
+/*    text-align: center; */
+}
+
+img {
+ border: 0;
+}
+
+/*
+a {
+    color: #0056B0;
+}
+*/
+
+#wrapper {
+  background: #ffffff;
+  margin: 8px auto;
+  text-align: left;
+  width: 780px;
+}
+
+/* HEADER */
+#header {
+  background: #112141;
+}
+
+#header h1 {
+  color: #ffffff;
+  font-size: 24pt;
+  padding-left: 10pt;
+  padding-top: 10pt;
+}
+
+#header h1 a {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+#header h2 {
+  color: #ffffff;
+  font-size: 14pt;
+  padding-left: 15pt;
+  padding-top: 9pt;
+}
+
+#header h2 a {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+
+/* MENU */ 
+#menu {
+  background: #112141;
+  float: right;
+  width: 100%;
+}
+
+#menu ul {
+  list-style-type: none;
+  float: right;
+}    
+
+#menu ul li {
+  float: left;
+}
+
+#menu ul li a {
+  color: #ffffff;
+  display: block;
+  font-size: 10pt;
+  font-weight: bold;
+  margin-right: 4px;
+  padding: 9px;
+  text-decoration: none;
+}
+
+#menu ul li a:hover {
+  background: #ffffff;
+  color: #112141;
+}
+
+#menu ul li a.current {
+  background: #ffffff;
+  color: #112141;
+}    
+    
+/* MAIN */
+#main {
+  margin: 50px 30px 30px 30px;
+}
+
+#main h1 {
+  font-size: 14pt;
+  color: #112141;
+  margin-bottom: 12pt;
+}
+
+#main h2 {
+  font-size: 12pt;
+  color: #112141;
+  margin-bottom: 12pt;
+  margin-left:4pt;
+}
+
+#main h3 {
+  font-size: 10pt;
+  color: #112141;
+  margin-bottom: 12pt;
+  margin-left:8pt;
+}
+
+#main p {
+  font-size: 10pt;
+  line-height: 16pt;
+  text-align: justify;
+  margin-bottom: 12pt;
+  margin-left:12pt;
+  margin-right:12pt;
+}
+
+#main ol {
+  font-size: 10pt;
+  line-height: 16pt;
+  text-align: justify;
+  margin-bottom: 12pt;
+  margin-left:12pt;
+  margin-right:12pt;
+}
+
+#main p.centre {
+/*  font-size: 10pt;
+  line-height: 16pt; */
+  text-align: center;
+/*  margin-bottom: 12pt;
+  margin-left:12pt;
+  margin-right:12pt; */
+}
+
+#main table {
+  font-size: 10pt;
+  line-height: 16pt;
+  margin-bottom: 12pt;
+  margin-left:12pt;
+  margin-right:12pt;
+}
+
+#main table td {
+  font-size: 12pt;
+  line-height: 16pt;
+  padding: 3px;
+}
+
+#main table tr.gray * {
+  color: #bbbbbb;
+}
+
+#main table p {
+  font-size: 10pt;
+  line-height: 14pt;
+  text-align: justify;
+  margin: 10pt 10pt 10pt 10pt;
+}
+
+#main ul {
+  font-size: 10pt;
+  line-height: 16pt;
+  text-align: justify;
+  margin-bottom: 12pt;
+  margin-left:28pt;
+}
+
+/* FOOTER */
+#footer {
+  background: #112141;
+  color: #fff;
+  font-size: 8pt;
+  font-weight: bold;
+  padding: 5px 5px;
+  text-align: center;
+}
+    
+#footer a {
+  background: #112141;
+  color: #fff;
+  text-decoration: none;
+}
+
+
+/* Body (from A. Gacek) */
+
+body {
+    margin: 0;
+    background-color: white;
+    color: #222;
+}
+
+a {
+    color: #00A;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+ul {
+    list-style: square;
+}
+
+li {
+    padding: 0px 3px;
+    margin: 5px 0px;
+}
+
+#logo {
+    padding: 30px 0px 0px 60px;
+}
+
+#logo img {
+    border: 0;
+}
+
+#logo-small {
+    padding: 5px 10px;
+}
+
+#logo-small img {
+    border: 0;
+}
+
+.section {
+    padding: 0.25em 1em;
+    margin: 1em;
+    width: 80%;
+}
+
+.section .section {
+    width: 100%;
+}
+
+.section .title {
+    font: bold 14pt Arial, Verdana, sans-serif;
+    color: maroon;
+    margin: 0;
+}
+
+.section .section .title {
+    font-size: 11pt;
+}
+
+.section #main {
+    font-size: 24pt;
+}
+
+.section p {
+    text-align: justify;
+    margin: 5px 0 0 0;
+}
+
+pre {
+    text-align: justify;
+    margin: 20px 0 20px 20px;
+    padding: 5px;
+    background-color: khaki;
+    border: 1px dashed maroon;
+}
+
+.folded {
+    display: none;
+}
+
+a.fold-link {
+    color: grey;
+    font-size: small;
+}
+
+a.import-link {
+    color: grey;
+    font-size: small;
+}
+
+.tactic {
+    color: grey;
+}
+
+.command {
+    color: black;
+}
+
+.comment {
+    color: maroon;
+}
+
+.view {
+    color: grey;
+    font-size: small;
+}

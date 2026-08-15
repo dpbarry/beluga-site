@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Context Subsumption</TITLE>
+<META NAME="description" CONTENT="Context Subsumption">
+<META NAME="keywords" CONTENT="userguide">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="userguide.css">
+
+<LINK REL="next" HREF="node25.html">
+<LINK REL="previous" HREF="node23.html">
+<LINK REL="up" HREF="node21.html">
+<LINK REL="next" HREF="node25.html">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html303"
+  HREF="node25.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next"
+ SRC="../icons/next.png"></A> 
+<A NAME="tex2html301"
+  HREF="node21.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up"
+ SRC="../icons/up.png"></A> 
+<A NAME="tex2html295"
+  HREF="node23.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous"
+ SRC="../icons/prev.png"></A>   
+<BR>
+<B> Next:</B> <A NAME="tex2html304"
+  HREF="node25.html">Meta-variable Strengthening</A>
+<B> Up:</B> <A NAME="tex2html302"
+  HREF="node21.html">Type Reconstruction</A>
+<B> Previous:</B> <A NAME="tex2html296"
+  HREF="node23.html">Functions</A>
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H2><A NAME="SECTION00043000000000000000">
+Context Subsumption</A>
+</H2>
+Beluga automatically detects weakening relationships. A contextual object in the context <TT>g</TT> can be provided in place of a contextual object in the context <TT>h</TT> if <TT>g</TT> can be obtained by weakening <TT>h</TT>. 
+<BR>
+<P>
+<SPAN  CLASS="textbf">Example:</SPAN> Consider the following code segment.
+<PRE>
+schema eqCtx = block x:exp, eq x x;
+schema eCtx = block x:exp, u:eq x x, equal x x;
+
+rec ref : {h : eqCtx} {M : [g |- exp]} [g |- eq (M ..) (M ..)] = ...
+</PRE>
+The recursive function <TT>ref</TT> expects a context <TT>h</TT> satisfying the schema <TT>eqCtx</TT>. Beluga would allow passing some context <TT>g:eCtx</TT> to <TT>ref</TT> since <TT>g:eqCtx</TT> can be obtained by adding <TT>equal x x</TT> from <TT>h</TT>.
+
+<P>
+<BR><HR>
+<ADDRESS>
+Research Group COMPLOGIC
+2015-01-27
+</ADDRESS>
+</BODY>
+</HTML>

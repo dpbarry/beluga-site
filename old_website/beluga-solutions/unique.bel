@@ -1,0 +1,134 @@
+% Type uniqueness proof
+% Author: Brigitte Pientka
+%
+% Note: if you'd like to display the code as it is shown on the webpage,
+%       please use the beluga-mode for emacs written by Stefan Monnier.
+%
+
+% Definition of types and expressions
+datatype tp: type =
+| arr : tp -> tp -> tp
+| nat : tp
+;
+%name tp T.
+
+datatype exp: type =
+| lam : tp -> (exp -> exp) -> exp
+| app : exp -> exp -> exp
+;
+%name exp E.
+
+% -------------------------------------------------------------------------
+% Typing judgment
+datatype type_of: exp -> tp -> type =
+| t_lam : ({x:exp}type_of x T1 -> type_of (E x) T2)
+	-> type_of (lam T1 E) (arr T1 T2)
+
+| t_app : type_of E1 (arr T2 T) -> type_of E2 T2
+      -> type_of (app E1 E2) T
+;
+%name type_of H.
+
+% Equality predicate
+datatype equal : tp -> tp -> type =
+| e_ref: equal T T
+;
+
+% -------------------------------------------------------------------------
+% Uniqueness of typing
+%{
+ Theorem:
+ If  G |- type_of E T  and G |- type_of E T'
+ then  equal T T'.
+
+Proof by induction on E.
+}%
+
+
+schema tctx =  some [t:tp] block x:exp, _t:type_of x t;
+
+rec unique : (g:tctx)[g |- (type_of (E ..) T)] -> [g |- (type_of (E ..) T')]
+	     ->  [ |- (equal T T') ] =
+fn d => fn f => case d of
+| [g |- t_app (D1 ..) (D2 ..)] =>
+ let [g |- t_app (F1 ..) (F2 ..)] = f in
+ let [ |- e_ref]  = unique ([g |- D1 ..]) ([g |- F1 ..]) in
+   [ |- e_ref]
+
+| [g |- t_lam (\x.(\u. D .. x u))] =>
+ let [g |- t_lam (\x.(\u. F .. x u))] = f in
+ let [ |- e_ref] = unique ([g,b: block x:exp, _t:type_of x _   |-  D .. b.1 b.2]) ([g,b  |-  F .. b.1 b.2]) in
+  [ |- e_ref]
+
+| [g |- #q.2 ..] =>           % d : type_of #p.1 T
+ let [g |- #r.2 ..] = f  in  % f : type_of #p.1 T'
+   [ |- e_ref]
+;
+
+
+% -------------------------------------------------------------------------
+% 2. Solution
+
+% -------------------------------------------------------------------------
+% Typing judgment
+% We redefine the typing rules here, making the argument T1 explicit
+% in the definition for t_lam'.
+% The information about T1 is necessary in the unique' proof below.
+% There are several ways to provide this information when proving unique'
+% and passing an extra argument to t_lam' is only one way.
+%
+datatype type_of': exp -> tp -> type =
+| t_lam': {T1:tp}({x:exp}type_of' x T1 -> type_of' (E x) T2)
+	-> type_of' (lam T1 E) (arr T1 T2)
+| t_app': type_of' E1 (arr T2 T) -> type_of' E2 T2
+      -> type_of' (app E1 E2) T
+;
+%name type_of H.
+
+% Equality predicate
+
+datatype eq: tp -> tp -> type =
+| e_arr:  eq T1 S1 -> eq T2 S2
+	-> eq (arr T1 T2) (arr S1 S2)
+| e_nat: eq nat nat
+;
+
+
+% Reflexivity is admissible:
+% Theorem: For all types T:tp, eq T T.
+rec refl : {T:[ |- tp]}[ |- eq T T] =
+mlam T => case [ |- T] of
+| [ |- nat] => [ |- e_nat]
+| [ |- arr T1 T2] =>
+  let [ |- D1] = refl [ |- T1 ] in
+  let [ |- D2] = refl [ |- T2 ] in
+    [ |- e_arr D1 D2]
+;
+
+schema tctx' =  some [t:tp] block x:exp, _t:type_of' x t;
+
+rec unique' : (g:tctx') [g |- type_of' (E ..) T] -> [g |- type_of' (E ..) T']
+	     ->  [ |- eq T T'] =
+fn d => fn f => case d of
+|[g |- t_app' (D1 ..) (D2 ..)] =>
+ let [g |- t_app' (F1 ..) (F2 ..)] = f in
+ let [ |- e_arr C1 C2] = unique' [g |- D1 ..] [g |- F1 ..] in
+   [ |- C2]
+
+| [g |- t_lam' T1 (\x.(\u. D .. x u))] =>
+ let [g |- t_lam' T1 (\x.(\u. F .. x u))] = f in
+ let [ |- C2] = unique' [g,b: block x:exp, _t:type_of' x T1 |-  D .. b.1 b.2] [g,b |- F .. b.1 b.2] in
+let [ |- C1] = refl [ |- T1 ] in
+  [ |- e_arr C1 C2]
+
+| [g |- #q.2 ..] =>            % d : type_of #p.1 T
+                         % #q : block y:exp. type_of y S
+                         % #q.2 : type_of (#q.1 ..) S  = d : type_of (#p.1 ..) T
+                         %  S = T  #q = #p, S = R
+ let [g |- #r.2 ..] = f  in  % f : type_of #p.1 T'
+                         % #r : block y:exp. type_of y S'
+                         % #r.2 : type_of (#r.1 ..) S'  = f : type_of (#p.1 ..) T'
+                         % S' = T' ,  #r=#p  , R = S'
+   refl [ |- _ ]
+
+;

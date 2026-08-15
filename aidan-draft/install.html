@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
+
+
+    <title>Beluga Installation and Configuration Guide</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="css/beli-styles.css" rel="stylesheet">
+	<script type="text/javascript" src="js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="js/iframe-auto-height.js"></script>
+
+
+    <!-- Just for debugging purposes. Don't actually copy this line! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body role="document">
+
+    <div align="center">
+	<iframe width="100%" height="50px" scrolling="no" frameBorder="0" src="header.html"></iframe> 
+	</div>
+
+<!-- the page is divided into 2 columns: l for navigation menu and r for text -->
+
+<div class="container theme-showcase" role="main">
+<div class="row">
+<!-- navigation menu -->
+<div class="col-lg-2">
+<ul id="tabs" class="nav nav-list">
+    <li class="nav-header" data-target="#inst"> <span>Contents</span>
+        <ul class="nav nav-list" id="inst">
+			<li><a href="#prereq">Prerequisite Packages</a></li>
+			<li><a href="#mac">MAC OS</a></li>
+			<li><a href="#debu">Linux</a></li>
+			<li><a href="#msdos">Microsoft Windows</a></li>
+			<li><a href="#buil">Compilation</a></li>
+			<li><a href="#trs">Troubleshooting</a></li>
+			<li><a href="#exec">Executing Programs</a></li>
+			<li><a href="#exec">Emacs Mode</a></li>
+        </ul>
+    </li>
+</ul>
+</div>
+
+<div class="col-lg-7">
+<h1>Installation and Configuration Guide</h1>
+
+<h2 id="prereq">Prerequisite Packages</h2>
+<p>Beluga requires the following packages, regardless of operating 
+system. We recommend installing lrwrap to improve performance in 
+Interactive mode.</p>
+
+<div class="list-group">
+            <a class="list-group-item active">
+            Prerequisite Packages
+            </a>
+  <a href="http://ocaml.org/" target="_blank" class="list-group-item">OCaml 3.12.2+</a>
+  <a href="http://opam.ocaml.org/packages/ocamlfind/ocamlfind.1.5.1/" target="_blank" class="list-group-item">ocamlfind</a>
+  <a href="https://opam.ocaml.org/packages/ulex/ulex.1.1/" target="_blank" class="list-group-item">ulex</a>
+  <a href="https://opam.ocaml.org/packages/extlib/extlib.1.6.1/" target="_blank" class="list-group-item">extlib</a>
+  <a href="http://opam.ocaml.org/packages/ounit/ounit.2.0.0/" target="_blank" class="list-group-item">ounit</a>
+  <a href="http://www.gnu.org/software/make/" target="_blank" class="list-group-item">make</a>
+  <a href="https://opam.ocaml.org/packages/camlp4/camlp4.4.02.0/" target="_blank" class="list-group-item">camlp4 (OCaml 4.02+ only)</a>
+  <a class="list-group-item active">   Optional Packages </a>
+  <a href="http://www.oracle-base.com/articles/linux/rlwrap.php" target="_blank" class="list-group-item">rlwrap</a>
+
+</div>
+
+<h2 id="mac">MAC OS</h2>
+<p>All of the prerequisite packages are available through OPAM for OCaml. Please visit their <a href="http://opam.ocaml.org/doc/Quick_Install.html">website</a> for the details.</p>
+
+<h2 id="debu">Linux</h2>
+<p>
+Under Debian Linux, all the necessary prerequisites can be installed with just the following command:
+</p><pre class="grammar"><code># apt-get install ocaml ocaml-findlib libextlib-ocaml-dev ocaml-ulex</code></pre><p></p>
+<p>The interactive mode is greatly improved if you have rlwrap installed,
+so you might also want to consider:
+</p><pre class="grammar"><code># apt-get install ocaml ocaml-findlib libextlib-ocaml-dev ocaml-ulex</code><br></pre><p></p>
+<p>These commands may work under other distributions. The packages are also available through <a href="http://opam.ocaml.org/doc/Quick_Install.html">OPAM for OCaml</a></p>
+
+<h2 id="msdos">Microsoft Windows</h2>
+<p>Beluga can be executed on Windows through Cygwin. The necessary prerequisites can be installed using an OCalm package manager called WODI.</p>
+<ol>
+  <li><a href="http://wodi.forge.ocamlcore.org/download.html">Download</a> the WODI graphical installer wodi32/64.exe</li>
+  <li>Run wodi32/64.exe and step through the installation wizard</li>
+  <li>From the start menu, select Wodi32/64 Package Manager. Don't be alarmed if WODI cannot read all PATH entries.</li>
+  <li>Search for each of the prerequisite packages: extlib, ulex, ounit, findlib. Check the box beside each of the packages and click "Apply". The checkbox will be greyed out if the package has already been installed.</li>
+</ol>
+
+<h2 id="buil">Building</h2>
+<p>
+Compile by running <TT>make</TT> from the Beluga directory:
+<pre class="grammar"><code>~/beluga# make</code></pre></p>
+
+
+<h3 id="compo">Compilation Options</h3>
+<p>Setting the following environment variables for <TT>make</TT> enables the following compilation option:</p>
+
+<div class="row">
+  <div class="col-md-2">
+    BYTE:
+  </div>
+  <div class="col-md-8">
+    sets byte-code compilation instead of native
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-2">
+    DEBUG:
+  </div>
+  <div class="col-md-8">
+    enables the -g option of ocamlc
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-2">
+    PROFILE:
+  </div>
+  <div class="col-md-8">
+    enables the -p option of ocamlc
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-2">
+    WARN_PATTERN:
+  </div>
+  <div class="col-md-8">
+    enables warning for non-exhaustive patterns
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-2">
+    VERBOSE:
+  </div>
+  <div class="col-md-8">
+    sets verbosity level of ocamlbuild
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-2">
+    PARALLEL:
+  </div>
+  <div class="col-md-8">
+    sets max number of parallel processes
+  </div>
+</div><br>
+
+<p>
+For instance, to enable byte-code compilation, run:
+<pre class="grammar"><code>~/beluga# make BYTE=true</code></pre></p>
+
+<h2 id="trs">Troubleshooting</h2>
+
+<p>Attempting to build Beluga before installing the prequisites may cause libraries to be only partially updated. You may receive a new error message once you've set up the prereq packages.
+<pre class="errmsg"><code>Error: The files [path/to/file]
+        and [path/to/file]
+        make inconsistent assumptions over interface [library name]</code><br></pre></p>
+
+<p>Try cleaning the Beluga directory.
+<pre class="grammar"><code>~/beluga# make clean all</code><br></pre></p>
+
+
+<h2 id="exec">Executing Programs</h2>
+<p>Once you've built the Beluga executables, you can now run Beluga programs with the <TT>./beluga/bin/beluga</TT>" executable.
+<pre class="grammar"><code>~/beluga# bin/beluga path/to/program.bel</code><br></pre></p>
+
+
+<h2 id="emacsm">Emacs Mode</h2>
+<p>Beluga includes a major mode for programming in Emacs. The elisp file saved as
+<TT>./beluga/tools/beluga-mode.el</TT> directory.</p>
+<ol>
+  <li>Update your ~/.emacs configuration file with the lines written below. XEmacs users must 
+update ~/.xemacs and ~/.xema.cs/init.el with the same text. Create any of these files if 
+they do not exist already.
+<pre>(add-to-list 'load-path "path/to/beluga/tools/")
+(load "beluga-mode.el")</pre></p></li>
+  <li>Restart Emacs</li>
+  </ol>
+  <p>Emacs will now launch in Beluga-mode automatically when you open a Beluga program.</p>
+
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<iframe width="100%" height="100px" scrolling="no" frameBorder="0" src="footer.html"></iframe> 
+</div>

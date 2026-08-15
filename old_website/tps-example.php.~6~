@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Beluga: Functional Programming with Higher-Order Abstract Syntax</title>
+   <link rel="stylesheet" type="text/css" href="../tutorial-style.css" />
+</head>
+
+<body>
+<?php include "../functions.php"; ?>
+<div id="wrapper">
+   <?php echoFile("header.html"); ?>
+  <div id="menu">
+   </div>
+<div id="main">
+
+<u>Public notice: the Beluga syntax used in this tutorial page is outdated. Please refer to the source file while we update this section of the website.</u>
+
+   <h1><a href="tutorial.php">Tutorial</a></h1>
+
+<h2>Proofs about the simply-typed lambda-calculus</h2>
+<h3><a href="uniqueness-example.php">1. Type uniqueness</a></h3> 
+<h3><a href="path-example.php">2. Reasoning about paths in lambda-terms</a></h3>
+<h3><a href="tps-example.php">3. Subject reduction</a></h3>
+
+<p>
+We explain here how to implement the subject reduction proof for the simply-typed lambda-calculus. If you'd like to run this example using Beluga, please download <a href="beluga-solutions/subject-red.bel">subject-red.bel</a>, which contains all the data-type definitions and the implementation of the proof as a recursive function.
+</p>
+
+<p>
+We first define a big step semantics for the simply-typed lambda-calculus using the familiar LF methodology.  We define first the type family <codeinline>notLam</codeinline> which allows us to check whether we encounter an expression which is not a lambda-abstraction. In addition we define the main reduction judgment as the type family <codeinline>step</codeinline>.
+</p>
+
+<pre class="code">
+notLam: exp &rarr; type.
+n_app: notLam (app M N).
+
+step: exp &rarr; exp &rarr; type.
+
+s_lam: ({x:exp}step x x &rarr; notLam x &rarr; step (M x) (N x))
+      &rarr; step (lam T M) (lam T N).
+
+s_app1: step (M' N) R &rarr;  step M (lam T M')
+	&rarr; step (app M N) R.
+
+s_app2: step N N' &rarr; notLam M' &rarr; step M M'
+     &rarr; step (app M N) (app M' N').
+</pre>
+
+<p>To implement the subject reduction theorem, we typically state it as follows:
+</p>
+<p>
+<strong>Theorem (Attempt 1):</strong> If &Gamma; &#x22A2; <codeinline>type_of M T</codeinline>  and &Psi; &#x22A2; <codeinline>step M N</codeinline> then &Gamma; &#x22A2; <codeinline>type_of N T</codeinline>.
+</p>
+<p>
+We note however that the context &Gamma; and the context &Psi; are different; for the proof to go through we need some relationship between the typing assumptions in the context &Gamma; and the assumptions <codeinline>step x x </codeinline> in the context &Psi;. A simple way to achieve this is to generalize the theorem and state it with a generalized context which contains both, the typing assumptions about <codeinline>x</codeinline> and the assumption <codeinline>step x x</codeinline>, i.e, the variable <codeinline>x</codeinline> reduces to itself.  In addition, we keep track of the assumption that <codeinline>x</codeinline> is not a lambda-abstraction.
+</p>
+<p>
+We therefore define first a context &Phi; which contains both these assumptions. 
+</p>
+
+<table border="0" cellspacing="0" cellpadding="1">
+<tr>
+<td> &Phi; </td><td> ::= </td> <td> . | &Phi;, type_of x T,  step x x, notLam x</td>
+</tr>
+</table>
+
+<p>We now restate the subject reduction theorem with the generalized context &Phi;. 
+</p>
+<p>
+<strong>Theorem:</strong> If &Phi; &#x22A2; <codeinline>type_of M T</codeinline>  and &Phi; &#x22A2; <codeinline>step M N</codeinline> then &Phi; &#x22A2; <codeinline>type_of N T</codeinline>.
+</p>
+
+<p>In Beluga, we specify the structure of the context using context schema as follows:
+</p>
+
+<pre class="code">
+<keyword>schema</keyword> ctx = some [t:tp] block x:exp,u:type_of x t, v:step x x . notLam x;
+</pre>
+
+
+<p>It specifies that the context of schema <codeinline>ctx</codeinline> contains declarations which are a quadruple of the variable declaration <codeinline>x:exp</codeinline>, the type declaration <codeinline>u:type_of x t</codeinline> for some type <codeinline>t</codeinline>, the reduction declaration <codeinline>v:step x x</codeinline> and the fact that variables are not lambda-abstractions as expressed by the declaration <codeinline>notLam x</codeinline>. The <codeinline>some</codeinline> keyword says that concrete declarations of the declared schema may instantiate the type <codeinline>t</codeinline>.
+</p>
+
+
+<p>The theorem is represented as a computation-level type in Beluga:
+</p>
+<pre class="code">
+{g:ctx}(type_of (M <i>..</i>) T)[g] &rarr; (step (M <i>..</i>) (N <i>..</i>))[g]
+         &rarr; (type_of (N <i>..</i>) T)[g] =					
+</pre>
+
+<p>
+Quantification over the context variable <codeinline>g</codeinline> is
+written using curly brackets in <codeinline>{g:ctx}</codeinline> indicating that the context variable will be implicit and we do not pass it around explicitely.  
+We make explicit the fact that the terms <codeinline>M</codeinline> and
+<codeinline>N</codeinline> can depend on the context &Phi; by associating both meta-variables
+with <codeinline><i>..</i></codeinline> which denotes the identity substitution
+on the context <codeinline>g</codeinline>. The type <codeinline>T</codeinline>
+on the other hand cannot depend on the context and hence it is not associated with
+anything. We read the type as follows: for all contexts <codeinline>g</codeinline>
+of schema <codeinline>ctx</codeinline>, if <codeinline>(type_of (M <i>..</i>) T)[g]</codeinline>
+and <codeinline>(step (M <i>..</i>) (N <i>..</i>))[g]</codeinline> then
+<codeinline>(type_of (N <i>..</i>) T)[g]</codeinline>.  The contextual type
+<codeinline>(type_of (M <i>..</i>) T)[g]</codeinline> directly describes the
+hypothetical derivation &Phi; &#x22A2; <codeinline>type_of M T</codeinline>
+where we make explicit whether an object can depend on declarations in the
+context or not.
+</p>
+
+<p>
+The proof of the subject reduction theorem is then implemented as a recursive program. Case analysis and inversion in the informal proof are modelled via case analysis and let-expressions in the Beluga implementation. Appeals to the induction hypothesis correspond to recursive calls.
+</p>
+
+<pre class="code">
+<keyword>rec</keyword> tps: {g:ctx}(type_of (M <i>..</i>) T)[g] &rarr; (step (M <i>..</i>) (N <i>..</i>))[g]
+         &rarr; (type_of (N <i>..</i>) T)[g] =							      
+<keyword>fn</keyword> d &rArr; <keyword>fn</keyword> s &rArr; <keyword>case</keyword> s <keyword>of</keyword> 
+| [g] s_lam \x.\v. \n. S <i>..</i> x v n &rArr; 
+  <keyword>let</keyword> [g] t_lam \x.\u. D <i>..</i> x u = d <keyword>in</keyword> 
+  <keyword>let</keyword> [g, b: block x:exp, u:type_of x T, v:step x x. notLam x] F <i>..</i> b.1 b.2 = 
+      tps ([g,b:block x:exp,u:type_of x _ ,v:step x x. notLam x] D <i>..</i> b.1 b.2)
+	  ([g,b] S <i>..</i> b.1 b.3 b.4) <keyword>in</keyword> 
+  [g] t_lam \x.\u. F <i>..</i> x u
+
+| [g] s_app1 (S2 <i>..</i>) (S1 <i>..</i>) &rArr; 
+  <keyword>let</keyword> [g] t_app (D2 <i>..</i>) (D1 <i>..</i>) = d <keyword>in</keyword> 
+  <keyword>let</keyword> [g] t_lam \x.\u. F <i>..</i> x u = tps ([g] D1 <i>..</i>) ([g] S1 <i>..</i>) <keyword>in</keyword> 
+     tps ([g] F <i>..</i> _ (D2 <i>..</i>)) ([g] S2 <i>..</i>)
+
+| [g] s_app2 (S2 <i>..</i>) _ (S1 <i>..</i>) &rArr;
+  <keyword>let</keyword> [g] t_app (D2 <i>..</i>) (D1 <i>..</i>) = d <keyword>in</keyword> 
+  <keyword>let</keyword> [g] F1 <i>..</i> = tps ([g] D1 <i>..</i>) ([g] S1 <i>..</i>) <keyword>in</keyword> 
+  <keyword>let</keyword> [g] F2 <i>..</i> = tps ([g] D2 <i>..</i>) ([g] S2 <i>..</i>) <keyword>in</keyword> 
+    [g] t_app (F2 <i>..</i>) (F1 <i>..</i>)
+
+| [g] #p.3 <i>..</i> &rArr;              % s : step (#p.1 <i>..</i>)  (N <i>..</i>)          
+  <keyword>let</keyword> [g] #q.2 <i>..</i> = d <keyword>in</keyword>     % q : block x:exp,u:type_of x t, v:step x x . notLam x
+                            % since step #q.1 #q.1 = step #p.1 (N <i>..</i>) 
+                            % N = #q.1  and #q = #p 
+  [g] #q.2 <i>..</i>
+   
+;
+</pre>
+
+
+<p>The implementation of the proof mirrors closely the on-paper proof.
+</p>
+
+
+<h3><a href="eq-example.php">4. Equality reasoning</a></h3>
+<h3><a href="struct-smaller.php">5. Reasoning about smaller relation on lambda-terms</a></h3>
+<p>
+</p>
+</div>
+<div id="footer">
+   <?php echoFile("../footer.html"); ?>
+</div>
+</div>
+
+
+</body>
+</html>

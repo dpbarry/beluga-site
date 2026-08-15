@@ -1,0 +1,26 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>Programming with proofs and explicit contexts</title>
+  </head>
+
+  <body>
+    <h1>Abstract</h1>
+
+<p>
+This paper explores a new point in the design space of functional
+programming: functional programming with dependently-typed
+higher-order data structures described in the logical framework LF.
+This allows us to program with proofs as higher-order data. 
+We present a decidable bidirectional type system that
+distinguishes between dependently-typed data and  
+computations. To support reasoning about open data, our
+foundation makes contexts explicit. This provides us with a concise
+characterization of open data, which is crucial to elegantly describe
+proofs. In addition, we present an operational semantics for
+this language based on higher-order pattern matching for dependently
+typed objects.  Based on this development, we prove progress and
+preservation.
+</p>
+  </body>
+</html>

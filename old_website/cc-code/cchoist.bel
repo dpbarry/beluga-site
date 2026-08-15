@@ -1,0 +1,316 @@
+% -*- mode: beluga; indent-tabs-mode: nil -*-
+% Type-preserving closure conversion and hoisting.
+% author: Olivier Savary-Belanger
+% date: 2012-2013
+
+%
+% Types T
+%
+datatype tp: type =
+| nat   : tp
+| arr   : tp -> tp -> tp
+| code  : tp -> tp -> tp
+| cross : tp -> tp -> tp
+| unit  : tp
+;
+
+
+%
+% Source language M,N
+%
+datatype source: tp -> type =
+| lam  : (source T -> source S) -> source (arr T S)
+| app  : source (arr T S) -> source T -> source S
+| letv : source T -> (source T -> source S) -> source S
+| z    : source nat
+| suc  : source nat -> source nat
+| nilv : source unit
+| fst  : source (cross T S) -> source T
+| rst  : source (cross T S) -> source S
+| cons : source T -> source S -> source (cross T S)
+;
+%name source M.
+
+%
+% Target language P,Q
+%
+datatype target: tp -> type =
+| cnil : target unit
+| ccons : target T -> target L -> target (cross T L)
+| cfst  : target (cross T L) -> target T
+| crst  : target (cross T L) -> target L
+
+| capp  : target (code T S) -> target T -> target S
+| clam  : (target T -> target S) -> target (code T S)
+| clet  : target T -> (target T -> target S) -> target S
+% We write E for the type of the environment
+| cpack : target  (code (cross T E) S) -> target E
+       -> target (arr T S)
+| copen : target (arr T S)
+       -> ({e:tp} target (code (cross T e) S) -> target e -> target S)
+       -> target S
+| cz    : target nat
+| csuc  : target nat -> target nat
+;
+%name target P.
+
+schema ctx = source T;
+schema tctx = target T;
+
+datatype Ctx: {g:ctx} ctype =
+| Ctx : {g:ctx} Ctx [g]
+;
+
+% Map Δ Γ ⇔ Δ ⊢ ρ : Γ
+datatype Map:{h:tctx}{g:ctx} ctype =
+| IdMap:{h:tctx} Map [h] []
+| DotMap: Map [h] [g] -> [h |- target S] -> Map [h] [g,x:source S]
+;
+
+rec extendMap': Map [h] [g] -> Map [h,x:target S] [g] =
+fn sigma => case sigma of
+| IdMap [h] => IdMap [h,x:target _]
+| DotMap sigma' [h |- M..] =>
+              let rho' = extendMap' sigma' in
+               DotMap rho' [h,x:target _ |-  (M..)]
+;
+
+
+rec extendMap: Map [h] [g] -> Map [h,x:target S] [g,x:source S] =
+fn sigma => case sigma of
+| IdMap [h]  => DotMap (IdMap [h,x:target _]) [h,x:target _ |-  x]
+| DotMap sigma' [h |- M..] =>
+         let rho' = extendMap' sigma' in
+         let rho = DotMap rho' [h,x:target _ |-  M..] in
+          DotMap rho [h,x:target _ |-  x]
+;
+
+
+rec pushMap: Map [x:target T] [g] -> Map [x:target (cross S T)] [g] =
+fn sigma => case sigma of
+| IdMap [x:target T] => IdMap [x:target _]
+| DotMap sigma' [x:target T |-  (M x)] =>
+             let rho' = pushMap sigma' in
+                DotMap rho' [x:target _  |-  (M (crst x))]
+;
+
+
+rec lookup: {g:ctx}{#p:[g |- source T]} Map [h] [g] -> [h |- target T] =
+mlam g => mlam #p => fn sigma => let (sigma : Map [h] [g]) = sigma in case [g |- #p..] of
+| [g',x:source T |-  x] =>
+ let DotMap sigma' [h |- (M..)] = sigma in
+  [h |- (M..)]
+| [g',x:source S |-  #q..] =>
+ let DotMap sigma' [h |- (M..)] = sigma in
+  lookup [g'] [g' |-  #q..] sigma'
+;
+
+
+datatype VarTup: {g:ctx} [ |- tp] -> ctype =
+| Emp : VarTup [] [ |- unit]
+| Nex : VarTup [g] [ |- L] -> VarTup [g,x:source T] [ |- cross T L]
+;
+
+% CtxAsTup Γ ⇔ ∃ ρ, (x1,...,xn):(t1 × ... × tn) ⊢ ρ : Γ where Γ = x1:t1,...,xn:tn
+datatype CtxAsTup: {g:ctx} ctype =
+| CTup: VarTup [g] [ |- G] -> Map [x:target G] [g] -> CtxAsTup [g]
+;
+
+rec reify : Ctx [g] ->  CtxAsTup [g] =
+fn g => case g of
+| Ctx [ ] =>  CTup  Emp (IdMap [x:target unit])
+| Ctx [g,x:source S] =>
+  let  CTup vt sigma = reify (Ctx [g]) in
+  let  rho' = pushMap sigma in
+  let rho = DotMap rho' [xenv:target (cross S _) |-  cfst xenv] in
+    CTup (Nex vt) rho
+;
+
+% SubCtx Γ' Γ ⇔ Γ' ⊆ Γ
+datatype SubCtx: {g':ctx} {g:ctx} ctype =
+| WInit: SubCtx [] []
+| WDrop: SubCtx [g'] [g] -> SubCtx [g'] [g,x:source T]
+| WKeep: SubCtx [g'] [g] -> SubCtx [g',x:source T] [g,x:source T]
+;
+
+datatype nat: type =
+| nz : nat
+| nsuc : nat -> nat
+;
+
+datatype wrap: tp -> nat -> type =
+| ainit: (source T) -> wrap T nz
+| add: (source S -> wrap T N) -> wrap (arr S T) (nsuc N)
+;
+
+
+% StrTerm [Γ] [ |- T] ⇔ ∃ Γ' M, Γ' ⊆ Γ ∧ and Γ' ⊢ M : T
+datatype StrTerm: {g:ctx} [ |- tp] -> [ |- nat]  -> ctype =
+| STm: [g' |-  wrap T N] -> SubCtx [g'] [g] -> StrTerm [g] [ |- T] [ |- N]
+;
+
+rec str: [g |- wrap T N] ->  StrTerm [g] [ |- T] [ |- N] =
+fn e => case e of
+| [ |- N] => STm [ |- N] WInit
+| [g,x:source T |-  (N..)] =>
+  let STm [h |- (N'..)] rel = str [g |- (N..)] in
+    STm [h |- (N'..)] (WDrop rel)
+| [g,x:source T |-  (N..x)] =>
+  let  STm [h |- add (\x.N'..x)] rel = str [g |- add (\x. N..x)] in
+    STm [h,x:source T |-  (N'..x)] (WKeep rel)
+;
+
+
+rec lookupTup: (g:ctx) VarTup [g'] [ |- G] -> SubCtx [g'] [g] -> Map [h] [g] -> [h |- target G] = fn vt => fn sub => fn sigma => let (sigma : Map [h] [g]) = sigma in case sub of
+| WInit =>
+  let Emp = vt in % g' = g = .
+    [h |- cnil]
+| WDrop sub' =>
+  let DotMap sigma' [h |- P..] = sigma in
+    lookupTup vt sub' sigma'
+| WKeep sub' =>
+  let (Nex vt')  = vt in
+  let (DotMap sigma' [h |- P..]) = sigma in
+  let [h |- M..] = lookupTup vt' sub' sigma' in
+    [h |- ccons (P..) (M..)]
+;
+
+% HoistReturn Δ T ⇔ ∃ P L, (Δ,l : L ⊢ M : T) ∧ (· ⊢ E : L)
+datatype Env : {Lf:[ |- tp]} [ |- target Lf] -> ctype =
+| EnvNil : Env [ |- unit] [ |- cnil]
+| EnvCons :   {P:[ |- target T]}
+      Env [ |- L] [ |- E]  -> Env [ |- cross T L] [ |- ccons P E];
+
+datatype HCCRet:{h:tctx} [ |- tp] -> ctype =
+| HRet : [h,l:target Lf |-  target T] -> Env [ |- Lf] [ |- E]
+         -> HCCRet [h] [ |- T]
+;
+
+datatype App: {T:[ |- tp]}{S:[ |- tp]}{TS:[ |- tp]} [ |- target T] -> [ |- target S] -> [ |- target TS] -> ctype =
+| AStart: Env [ |- S] [ |- Q] -> App [ |- unit] [ |- S] [ |- S] [ |- cnil] [ |- Q] [ |- Q]
+| ACons: App [ |- T] [ |- S] [ |- TS] [ |- P] [ |- Q] [ |- PQ] ->
+         App [ |- (cross T' T)] [ |- S] [ |- (cross T' TS)] [ |- (ccons P' P)] [ |- Q] [ |- (ccons P' PQ)];
+
+datatype ExApp: {T:[ |- tp]}{S:[ |- tp]} [ |- target T] -> [ |- target S] -> ctype =
+| AP : App [ |- L1] [ |- L2] [ |- L3] [ |- E1] [ |- E2] [ |- E3] -> Env [ |- L3] [ |- E3] -> ExApp [ |- L1] [ |- L2] [ |- E1] [ |- E2]
+;
+
+rec append: Env [ |- L1] [ |- E1] -> Env [ |- L2] [ |- E2] -> ExApp [ |- L1] [ |- L2] [ |- E1] [ |- E2] =
+fn m => fn n => case m of
+| EnvNil =>
+  AP (AStart n) n
+| EnvCons [ |- P] e =>
+  let AP p e' = append e n in
+   AP (ACons p) (EnvCons [ |- _] e')
+;
+
+
+datatype eqlt: tp -> tp -> type =
+| refllt : eqlt L L
+;
+
+rec appL1Unit: App [ |- L1] [ |- unit] [ |- L3] [ |- E1] [ |- cnil] [ |- E3] -> [ |- eqlt L1 L3] =
+fn a => case a of
+| AStart EnvNil => [ |- refllt]
+| ACons a' =>
+  let [ |- refllt] = appL1Unit a' in
+   [ |- refllt]
+;
+
+rec weakenEnv1:(g:tctx)  App [ |- L1] [ |- L2] [ |- L3] [ |- E1] [ |- E2] [ |- E3] -> [g, l:target L2 |-  target T] -> [g, l: target L3 |-  target T] =
+fn prf => fn m => case prf of
+| AStart e =>  m
+| ACons p =>
+  let [g,l: target L3'  |-  M'..l] = weakenEnv1 p m in
+    [g,l:target _  |-  M'..(crst l)]
+;
+
+rec weakenEnv2:(g:tctx) App [ |- L1] [ |- L2] [ |- L3] [ |- E1] [ |- E2] [ |- E3] -> [g, l:target L1 |-  target T] -> [g, l: target L3 |-  target T] =
+fn prf => fn n => case prf of
+| AStart e =>
+  let AP a e' = append e EnvNil in
+  let [ |- refllt] = appL1Unit a in
+   weakenEnv1 a n
+| ACons p =>
+  let [g,l:target (cross S L1') |-  N..l]  = n in
+  let [g,x:target S, l:target L3' |-  N'.. x l] = weakenEnv2 p [g,x:target S,l:target L1' |-   N..(ccons x l)] in
+    [g,l:target (cross S L3') |-  N'..(cfst l) (crst l)]
+;
+
+
+
+
+rec hcc': Map [h] [g] -> [g |- source T] -> HCCRet [h] [ |- T] =
+fn sigma => fn e => let (sigma : Map [h] [g]) = sigma in case e of
+| [g |- #p..] =>
+  let [h |- M..] = lookup [g] [g |- #p..] sigma in
+    HRet [h,l:target unit |-  M..] EnvNil
+
+| [g |- z] => HRet [h,l:target unit |-  cz] EnvNil
+
+| [g |- suc (M ..)] =>
+  let HRet r e  = hcc' sigma [g |- M..] in
+  let [h,l:target L |-  (P'..l)] = r in
+    HRet [h,l:target L |-  csuc (P'..l)] e
+
+| [g |- app (M..) (N..)] =>
+  let HRet r1 (e1 : Env [ |- L1] [ |- E]) = hcc' sigma [g |- M..] in
+  let {P:[h,l:target L1 |-  target (arr T S)]}[h,l:target L1 |-  (P..l)] = r1 in
+  let HRet r2 e2  = hcc' sigma [g |- N..] in
+  let AP a12 e12 = append e1 e2 in
+  let [h,l:target L2  |-  (Q..l)] = r2 in
+  let [h, l:target L |-  (P'..l)] = weakenEnv2 a12 [h, l:target L1 |-  (P..l)]  in
+  let [h, l:target L |-  (Q'..l)] = weakenEnv1 a12 [h, l:target L2 |-  (Q..l)] in
+    HRet [h, l:target L |-  copen (P'..l) \e.\xf.\xenv. capp xf (ccons  (Q'..l) xenv)] e12
+| [g |- letv (M..) (\x.(N..x))] =>
+  let HRet r1 e1 = hcc' sigma [g |- M..] in
+  let [h,l:target L1 |-  (P..l)] = r1 in
+  let HRet r2 e2 = hcc' (extendMap sigma)  [g,x |- N..x] in
+  let [h,x:target T1,l:target L2  |-  (Q..x l)] = r2 in
+  let AP a12 e12 = append e1 e2 in
+  let [h, l:target L |-  (P'..l)] = weakenEnv2 a12 [h, l:target L1 |-  (P..l)]  in
+  let [h,x:target T1, l:target L |-  (Q'.. x l)] = weakenEnv1 a12 [h,x:target _, l:target L2 |-  (Q..x l)] in
+    HRet [h, l:target L |-  clet (P'..l) (\x. Q'.. x l)] e12
+| [g |- lam (\x.M..x)] =>
+ let STm [g' |-  add (\x. ainit (M' .. x))] rel = str [g |- add (\x. ainit (M .. x))] in
+  let  CTup vt (rho:Map [xenv:target Lg] [g']) = reify (Ctx [g']) in
+  let [h |- C..] = lookupTup vt rel sigma in
+  let HRet r1 e = hcc' (extendMap rho) [g',x:source _ |-  M'..x] in
+  let {M'':[xenv:target Lg, x:target T, l:target L |-  target S]}
+       [xenv:target Lg,x:target T,l:target L |-  (M'' xenv x l)] = r1 in
+  let e' = EnvCons [ |- (clam \l. clam (\clo. clet (cfst clo) (\x. clet (crst clo) (\xenv. M'' xenv x l))))] e in
+    HRet  [h,l:target (cross (code L (code (cross T Lg) S)) L)  |-  cpack  (capp (cfst l) (crst l))   (C..)]  e'
+
+| [g |- cons (M..) (N..)] =>
+  let HRet r1 e1 = hcc' sigma [g |- (M..)] in
+  let [h, l:target L1 |-  (M'..l)] = r1 in
+  let HRet r2 e2 = hcc' sigma [g |- (N..)] in
+  let [h, l:target L2 |- (N'..l)] = r2 in
+  let AP a12 e12 = append e1 e2 in
+  let [h, l:target L |-  (M''..l)] = weakenEnv2 a12 [h, l:target L1 |-  (M'..l)]  in
+  let [h, l:target L |-  (N''..l)] = weakenEnv1 a12 [h, l:target L2 |-  (N'..l)] in
+    HRet [h, l:target L |-  ccons (M''..l) (N''..l)]  e12
+|[g |- fst (M..)] =>
+ let HRet r e = hcc' sigma [g |- (M..)] in
+ let [h, l:target L |-  (P..l)] = r in
+   HRet [h, l:target L |-  cfst (P..l)] e
+|[g |- rst (M..)] =>
+ let HRet r e = hcc' sigma [g |- (M..)] in
+ let [h, l:target L |-  (P..l)] = r in
+   HRet [h, l:target L |-  crst (P..l)] e
+|[g |- nilv] => HRet [h, l:target unit |-  cnil] EnvNil
+;
+
+
+rec hcc: [ |- source T] -> [ |- target T] =
+fn m =>
+ let HRet r (e : Env [ |- _ ] [ |- L]) = hcc' (IdMap []) m in
+ let [l:target S |-  M l] = r in
+   [ |- clet L (\l. M l)]
+;
+
+
+
+% Examples, run with -implicit flag
+let t0 = hcc [ |- app (lam (\x.x)) z ];
+let t1 = hcc  [ |- app (lam (\x.(app (lam (\y.y)) x))) z];

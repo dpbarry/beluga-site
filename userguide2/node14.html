@@ -1,0 +1,77 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Operators</TITLE>
+<META NAME="description" CONTENT="Operators">
+<META NAME="keywords" CONTENT="userguide">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="userguide.css">
+
+<LINK REL="next" HREF="node15.html">
+<LINK REL="previous" HREF="node13.html">
+<LINK REL="up" HREF="node12.html">
+<LINK REL="next" HREF="node15.html">
+</HEAD>
+
+<body><div align="center"><iframe width="100%" height="100px" scrolling="no" frameborder="0" src="../header.html"></iframe></div>
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html268"
+  HREF="node15.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next"
+ SRC="icons/next.png"></A> 
+<A NAME="tex2html264"
+  HREF="node12.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up"
+ SRC="icons/up.png"></A> 
+<A NAME="tex2html258"
+  HREF="node13.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous"
+ SRC="icons/prev.png"></A> 
+<A NAME="tex2html266"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents"
+ SRC="icons/contents.png"></A>  
+<BR>
+<a href="userguide.pdf">Download the PDF</a>
+
+<H2><A NAME="SECTION00042000000000000000">
+Operators</A>
+</H2>
+A type constructor which takes two arguments can be declared an infix operator using the <TT>%infix</TT> pragma. The <TT>%infix</TT> pragma is proceeded by the identifier of the operator which must match the identifier of the LF declaration to which it is applied. The associations is specified next to be left, right, or non-associative. Operator precedence is specified last as a natural number, delineated from largest to smallest such that the largest number takes the highest precedence.
+
+<P>
+The precedence of ordinary prefix operators can be adjusted using the <TT>%prefix</TT> pragma which takes all the same arguments as <TT>%infix</TT> except associativity. Prefix operators default to the low precedence of -1 if none is specified.
+
+<P>
+The operator is treated as non-associative by default if no associativity is stated explicitly. The default associativity can be altered with the <TT>%assoc</TT> pragma.
+
+<P>
+<SPAN  CLASS="textbf">Example:</SPAN> A user may wish to declare <TT>app</TT> and <TT>lam</TT> as infix operators while ensuring that <TT>red</TT> has higher precedence. Seeing as no associativity was listed, <TT>lam</TT> takes the default associativity, here defined as <TT>right</TT>.
+<PRE>
+%assoc right
+
+app: exp -&gt; exp -&gt; exp. %infix app 1 none.
+lam: (exp -&gt; exp) -&gt; exp. %infix lam 1.
+red: exp -&gt; exp %prefix red 2. 
+</PRE>
+
+<P>
+<BR><HR>
+<ADDRESS>
+Scott
+2014-08-26
+</ADDRESS>
+<div id="footer"><iframe width="100%" height="100px" scrolling="no" frameborder="0" src="../footer.html"></iframe> </div></body>
+</HTML>

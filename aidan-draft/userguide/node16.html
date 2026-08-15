@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Contextual Objects and Types</TITLE>
+<META NAME="description" CONTENT="Contextual Objects and Types">
+<META NAME="keywords" CONTENT="userguide">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="userguide.css">
+
+<LINK REL="next" HREF="node17.html">
+<LINK REL="previous" HREF="node15.html">
+<LINK REL="up" HREF="node12.html">
+<LINK REL="next" HREF="node17.html">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html292"
+  HREF="node17.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next"
+ SRC="/usr/share/latex2html/icons/next.png"></A> 
+<A NAME="tex2html288"
+  HREF="node12.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up"
+ SRC="/usr/share/latex2html/icons/up.png"></A> 
+<A NAME="tex2html282"
+  HREF="node15.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous"
+ SRC="/usr/share/latex2html/icons/prev.png"></A> 
+<A NAME="tex2html290"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents"
+ SRC="/usr/share/latex2html/icons/contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html293"
+  HREF="node17.html">Meta-variables and Parameter Variables</A>
+<B> Up:</B> <A NAME="tex2html289"
+  HREF="node12.html">Syntax</A>
+<B> Previous:</B> <A NAME="tex2html283"
+  HREF="node15.html">Schemas and Context Variables</A>
+ &nbsp; <B>  <A NAME="tex2html291"
+  HREF="node1.html">Contents</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H2><A NAME="SECTION00044000000000000000">
+Contextual Objects and Types</A>
+</H2>
+A <SPAN  CLASS="textit"><SPAN  CLASS="textbf">contextual object</SPAN></SPAN> relates that <TT>M</TT> is an open term in a context <TT>g</TT>, written <TT>g |- M</TT>. The context <TT>g</TT> provides bindings for the free variables, represented as a context variables bound to a particular schema, explicit blocks, or a context variable extended with a block. The turnstile <TT>|-</TT> separates the context of assumptions from the conclusion. Contextual objects appear within functions in <SPAN  CLASS="textit"><SPAN  CLASS="textbf">boxes</SPAN></SPAN>, enclosed between brackets <TT>[ ]</TT> to indicate that the data is closed. Note that boxing does not preclude meta-variables within the contextual object so long as they are associated with a delayed substitution to close the object as soon as the appropriate mapping is determined. 
+
+<P>
+<SPAN  CLASS="textit"><SPAN  CLASS="textbf">Contextual types</SPAN></SPAN> encapsulate assumptions about the type of an object depending on its <SPAN  CLASS="textit"><SPAN  CLASS="textbf">context</SPAN></SPAN>. A data-level object <TT>M</TT> has contextual type <TT>[g |- A]</TT> if <TT>M : A</TT> occurs in <TT>g</TT>.  Beluga takes contextual types as base types.
+
+<P>
+In Beluga, contextual objects are always embedded within functional programs. Likewise, contexts are classified at the computation level. Keeping with the two-level system approach in mind, it is important to realize that even when contexts and contextual objects are manipulated by computations, they occupy LF-space regardless. 
+
+<P>
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html292"
+  HREF="node17.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next"
+ SRC="/usr/share/latex2html/icons/next.png"></A> 
+<A NAME="tex2html288"
+  HREF="node12.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up"
+ SRC="/usr/share/latex2html/icons/up.png"></A> 
+<A NAME="tex2html282"
+  HREF="node15.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous"
+ SRC="/usr/share/latex2html/icons/prev.png"></A> 
+<A NAME="tex2html290"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents"
+ SRC="/usr/share/latex2html/icons/contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html293"
+  HREF="node17.html">Meta-variables and Parameter Variables</A>
+<B> Up:</B> <A NAME="tex2html289"
+  HREF="node12.html">Syntax</A>
+<B> Previous:</B> <A NAME="tex2html283"
+  HREF="node15.html">Schemas and Context Variables</A>
+ &nbsp; <B>  <A NAME="tex2html291"
+  HREF="node1.html">Contents</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+Research Group COMPLOGIC
+2014-11-12
+</ADDRESS>
+</BODY>
+</HTML>

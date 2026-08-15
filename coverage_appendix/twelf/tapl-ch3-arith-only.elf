@@ -1,0 +1,175 @@
+%{
+  CH 3:  Untyped arithmetic expressions
+  Author: Brigitte Pientka
+
+  SMALL-STEP EVALUATION RULES AND DETERMINACY
+
+  This Twelf proof highlights:
+
+   - Output coverage issues:
+     we prove several congruence lemmas about equality
+
+   - While coverage succeeds in proving that some "obvious"
+     cases are impossible, coverage cannot show that some other cases 
+     non-obvious cases to be impossible.
+
+     We need two lemmas. First we need to show that 
+     given a value taking a step is impossible.
+     Once we have impossible, it implies anything.
+
+   - Output freeness issue: this is a specific problem
+     related to the logic programming way of writing proofs
+     in Twelf. 
+
+     This issue arises due to the lemma 
+
+     impossible_implies_anything: impossible -> eq E E' -> type.
+     %mode impossible_implies_anything +I -D
+
+     Mode-analysis will automatically assign negative modes to E and
+     E'. This however means that E and E' are free in the output D.
+     This means impossible_implies anything does not constitute a
+     proper function whose output is determined.
+
+     This issue can be fixed by providing a long-mode declaration
+
+     %mode +{E:term} +{E':term} +{I:impossible} -{D : eq E E'} 
+           (impossible_implies_anything I D).
+
+     which explicitely states that E and E' are inputs and hence
+     uniquely determined.
+     
+}%
+
+% ---------------------------------------------------------- %
+%% Syntax
+
+term  : type.   %name term T x.
+
+z     : term.
+succ  : term -> term.
+pred  : term -> term.
+
+%% Values
+value     : term -> type. %name value V u.
+
+v_z   : value z.
+v_s   : value N -> value (succ N).
+
+% ---------------------------------------------------------- %
+%% Small-step operational semantics
+ 
+step       : term -> term -> type.  %name step S s.
+
+s_succ     : step T T' 
+          -> step (succ T) (succ T').
+
+s_pred_zero: step (pred z) z.
+
+s_pred_succ: value N 
+         -> step (pred (succ N)) N.
+
+s_pred     : step T T'  
+          -> step (pred T) (pred T').
+
+
+% ---------------------------------------------------------- %
+%{
+  Equality between terms 
+}%
+equal      : term -> term -> type.
+ref        : equal T T.
+
+% ---------------------------------------------------------- %
+% Small-step semantics is deterministic.
+%
+% Theorem: If step E E' and step E E'' then equal E' E''. 
+%
+% ---------------------------------------------------------- %
+% 
+% Values don't step 
+% 
+% Theorem: If step V V' and value V then impossible.
+
+impossible : type.
+
+values_dont_step: step M M' -> value M -> impossible -> type.
+%mode values_dont_step +S +V -I.
+nostep_suc : 
+   values_dont_step D V I
+-> values_dont_step (s_succ D) (v_s V) I.
+
+%worlds () (values_dont_step D V I).
+%total D (values_dont_step D V I).
+
+% ---------------------------------------------------------- %
+% 
+% Congruence lemmas
+%
+
+eq_pred: equal T T' -> equal (pred T) (pred T') -> type.
+%mode eq_pred +D -R.
+
+pred_ref: eq_pred ref ref.
+%worlds () (eq_pred _ _ ).
+%total {} (eq_pred _ _ ).
+ 
+eq_succ: equal T T' -> equal (succ T) (succ T') -> type.
+%mode eq_succ +D -R.
+
+succ_ref: eq_succ ref ref.
+%worlds () (eq_succ _ _ ).
+%total {} (eq_succ _ _ ).
+
+% ----------------------------------------------------------- %
+%
+% Theorem: For all expressions E, E', 
+%          if  impossible then equal E E'
+%
+% Comment: if we derived a contradiction, then anything goes.
+%
+
+impossible_implies_anything: impossible -> equal E E' -> type.
+% Long-mode declaration.
+%mode +{E:term} +{E':term} +{I:impossible} -{D : equal E E'} 
+      (impossible_implies_anything I D).
+
+%worlds () (impossible_implies_anything _ _).
+%terminates {} (impossible_implies_anything _ _).
+%total {} (impossible_implies_anything _ _).
+
+% ---------------------------------------------------------- %
+% 
+% MAIN THEOREM:  If step M N and step M N' then equal N N'.
+%
+%
+
+det: step M N -> step M N' -> equal N N' -> type.
+%mode det +D +E -R.
+
+d_succ     : det (s_succ D) (s_succ F) R'
+	      <- det D F R
+	      <- eq_succ R R'.
+
+d_pred_zero: det s_pred_zero s_pred_zero ref.
+
+d_pred_succ: det (s_pred_succ V) (s_pred_succ _ ) ref.
+
+d_pred     : det (s_pred D) (s_pred F) R'
+	      <- det D F R
+	      <- eq_pred R R'.
+      
+d_pred_succ_impossible_1:
+             det (s_pred (s_succ D)) (s_pred_succ Vnat) Eq
+ 
+  	     <- values_dont_step D Vnat I
+	     <- impossible_implies_anything I Eq.
+
+d_pred_succ_impossible_2:
+             det (s_pred_succ Vnat) (s_pred (s_succ D)) Eq
+             <- values_dont_step D Vnat I
+	     <- impossible_implies_anything I Eq.
+
+%worlds () (det _ _ _).
+%total D (det D _ _).
+

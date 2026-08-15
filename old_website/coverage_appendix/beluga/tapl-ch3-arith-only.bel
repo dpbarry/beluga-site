@@ -1,0 +1,119 @@
+%{ 
+  CH 3:  Untyped arithmetic expressions
+  Author: Brigitte Pientka
+
+  SMALL-STEP EVALUATION RULES AND DETERMINACY
+
+}%
+
+% ---------------------------------------------------------- %
+term  : type.
+z     : term.
+succ  : term -> term.
+pred  : term -> term.
+
+% Values
+value : term -> type.
+v_z   : value z.
+v_s   : value N -> value (succ N).
+
+% ---------------------------------------------------------- %
+% Small-step operational semantics
+
+step       : term -> term -> type.
+
+s_succ     : step T T' 
+          -> step (succ T) (succ T').
+
+s_pred_zero: step (pred z) z.
+
+s_pred_succ: value N 
+          -> step (pred (succ N)) N.
+
+s_pred     : step T T'
+          -> step (pred T) (pred T').
+
+% ---------------------------------------------------------- %
+%{
+  Equality between terms 
+}%
+equal      : term -> term -> type.
+ref        : equal T T.
+
+% ---------------------------------------------------------- %
+%{
+  Values don't step
+}%
+
+empty : type.
+rec values_dont_step : (step M M')[] -> (value M )[] -> empty []= 
+fn s => fn v => case v of 
+| [] v_z   => impossible s in []
+| [] v_s V => let [] s_succ D = s in values_dont_step ([] D) ([] V)
+;
+
+% ---------------------------------------------------------- %
+%{
+Determinacy of evaluation:
+
+Theorem: if step T T1 and step T T2 then equal T1 T2.
+
+Proof: Induction on the first derivation; case
+analysis on the first derivation, followed by
+case analysis on the second derivation
+}%
+
+rec det : (step T T1)[] -> (step T T2)[] -> (equal T1 T2)[] =
+fn s1 => fn s2 => case s1 of 
+| [] s_succ D         => let [] s_succ F = s2 in 
+                         let [] ref = det ([] D)  ([] F) in [] ref
+| [] s_pred_zero      => let [] s_pred_zero = s2 in [] ref
+| [] s_pred_succ V    => (case s2 of 
+  | [] s_pred_succ _  => [] ref
+  | [] s_pred D       => impossible values_dont_step ([] D) ([] v_s V) in []
+  ) 
+| [] s_pred D         => (case s2 of
+  | [] s_pred F       => let [] ref = det ([] D)  ([] F) in  [] ref
+  | [] s_pred_succ V  => impossible values_dont_step ([] D) ([] v_s V) in []
+  | [] s_pred_zero    => impossible ([] D) in [] 
+  ) 
+;
+
+
+% ---------------------------------------------------------- %
+%{
+Determinacy of evaluation:
+
+Theorem: if step T T1 and step T T2 then equal T1 T2.
+
+Proof: Induction on the first derivation; proof by
+simultanously matching on the first and second
+derivation
+
+}%
+
+steps_to_terms: term -> term -> term -> type.
+andalso: step T T1 -> step T T2 
+      -> steps_to_terms T T1 T2.
+
+
+rec det : (steps_to_terms T T1 T2)[] -> (equal T1 T2)[] =
+fn s => case s of 
+| [] andalso (s_succ D)          (s_succ F)          => 
+  let [] ref = det ([] andalso D F) in [] ref
+
+| [] andalso (s_pred_zero)       (s_pred_zero)       => [] ref
+| [] andalso (s_pred_succ _ )    (s_pred_succ _ )    => [] ref
+| [] andalso (s_pred D)          (s_pred F)          =>
+    let [] ref = det ([] andalso D F) in  [] ref
+
+% Empty cases for pred
+| [] andalso (s_pred D)          (s_pred_succ V )    =>
+   impossible values_dont_step ([] D) ([] v_s V) in []
+| [] andalso (s_pred_succ V )       (s_pred D)       =>
+   impossible values_dont_step ([] D) ([] v_s V) in [] 
+
+;
+
+
+

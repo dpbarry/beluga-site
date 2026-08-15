@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Beluga: Functional Programming with Higher-Order Abstract Syntax</title>
+   <link rel="stylesheet" type="text/css" href="../tutorial-style.css" />
+</head>
+
+<body>
+<?php include "../functions.php"; ?>
+<div id="wrapper">
+   <?php echoFile("header.html"); ?>
+  <div id="menu">
+   </div>
+<div id="main">
+
+   <h1><a href="tutorial.php">Tutorial</a></h1>
+
+<h2><a href="tutorial.php">Proofs about the simply-typed lambda-calculus</a></h2>
+<h3>1. Type unicity</h3> 
+<p>
+The simply-typed lambda-calculus as we have defined above has the property that every lambda-term has a unique type. This property is called type unicity and can be stated as follows: 
+</p>
+<p>
+<strong>Theorem:</strong> If &Gamma; &#x22A2 <codeinline>type_of E T</codeinline>  and &Gamma; &#x22A2 <codeinline>type_of E T'</codeinline> then &#x22A2 <codeinline>equal T T'</codeinline>.
+</p>
+
+<p>
+Equality reasoning is not built-in in the logical framework LF, but we can easily specify it. 
+</p>
+<pre class="code">
+equal: tp &rarr tp &rarr; type.
+e_ref: equal T T.
+</pre>
+
+<p>This statement of type unicity makes explicit the context &Gamma; containing 
+typing assumptions about variables.  Note that while terms <codeinline>E<codeinline> can depend on variables
+declared in &Gamma;, no variables can occur in the types <codeinline>T<codeinline> and <codeinline>T'</codeinline>,
+though this is not captured informally.
+</p>
+<p>
+The theorem corresponds to a type of a recursive function in
+Beluga. Before showing how to implement it, we describe more precisely
+the shape of contexts &Gamma;, using a context schema declaration:
+</p>
+
+<pre class="code">
+<keyword>schema</keyword> tctx =  <keyword>some</keyword> [t:tp] <keyword>block</keyword> x:exp. type_of x t;
+</pre>
+<p>
+The schema <codeinline>tctx</codeinline>
+describes a context containing assumptions <codeinline>x:exp</codeinline>, each
+associated with a typing assumption <codeinline>type_of x t</codeinline> for some type
+<codeinline>t</codeinline>.  Formally, we are using a dependent product type or &Sigma;-type to
+tie <codeinline>x</codeinline> to <codeinline>type_of x t</codeinline>. We thus do not need to
+establish separately that for every variable there is a
+unique typing assumption: this is inherent in the definition of 
+<codeinline>tctx</codeinlne>.
+</p> 
+
+<p>
+We can now state the Beluga type corresponding to the statement above:
+
+<pre class="code">
+  {g:(tctx)*} (oft (E &hellip;) T)[g] -> (oft (E &hellip;)  T')[g] -> (eq T T')[ ] 
+</pre>
+</p>
+<p>
+We can read it as follows: for all contexts <codeinline>g</codeinline> of schema 
+<codeinline>tctx</codeinline>,
+given derivations of 
+<codeinline>(type_of (E &hellip;) T)[g]</codeinline> and of
+<codeinline>(type_of (E &hellip;) T')[g]</codeinline> we can construct a derivation
+of <codeinline>(eq T T')[ ]</codeinline>.  The <codeinline>[ ]</codeinline> means the result is closed.
+As we remarked, only the term 
+<codeinline>E</codeinline> can contain variables; the type 
+<codeinline>T</codeinline>
+is closed. Although we did not state this dependency in the on-paper statement, Beluga
+distinguishes closed objects from objects depending on assumptions.  To
+describe the dependency of terms on the context, we write 
+<codeinline>(E &hellip;)</codeinline>
+associating &hellip; with the variable <codeinline>E</codeinline>.  (Technically, &hellip;
+is an identity substitution mapping variables from 
+<codeinline>g</codeinline> to themselves.) In
+contrast, <codeinline>T</codeinline> by itself denotes a closed 
+<codeinline>tp</codeinline> that cannot
+depend on hypotheses in <codeinline>g</codeinline>.
+</p>
+
+<h3>Implementation of the proof for type unicity as a recursive function</h3>
+<p>
+In Beluga, inductive proofs are written as recursive programs. Case analysis and inversion in the on-paper proof correspond to case-analysis and pattern matching in Beluga. Inversion is often represented using a let-expression in Beluga, and is treated as a special case of a case-expression, i.e., a case-expression with only one branch.
+</p>
+
+<p></p>
+<pre class="code">
+<keyword>rec</keyword> unique:{g:(tctx)*}(type_of (E &hellip;) T)[g]  &rarr; (type_of (E &hellip;) T')[g] 
+	     &rarr; (equal T T')[ ] = 
+<keyword>&Lambda</keyword> g &rArr;  <keyword>fn</keyword> d &rArr; <keyword>fn</keyword> f &rArr; <keyword>case</keyword> d <keyword>of</keyword>
+| [g] t_app (D1 &hellip;) (D2 &hellip;) &rArr;                      <comment>% Application Case </comment>
+  <keyword>let</keyword> [g] t_app (F1 &hellip;) (F2 &hellip;) = f <keyword>in</keyword> 
+  <keyword>let</keyword> [ ] e_ref  = unique3 [g] ([g] D1 &hellip;) ([g] F1 &hellip;) <keyword>in</keyword>    
+    [ ] e_ref   						 
+
+| [g] t_lam (\x.(\u. D &hellip; x u)) &rArr;                 <comment>% Abstraction Case</comment>
+  <keyword>let</keyword> [g] t_lam (\x.(\u. F &hellip; x u)) = f <keyword>in</keyword> 
+  <keyword>let</keyword> [ ] e_ref = unique3 [g,b: block x:exp. type_of x _ ] 
+		       ([g,b] D &hellip; b.1 b.2) ([g,b] F &hellip; b.1 b.2) <keyword>in</keyword> 
+   [ ] e_ref  
+
+| [g] #q.2 &hellip; &rArr;           <comment>% d : type_of #p.1 T    % Variable Case </comment>
+  <keyword>let</keyword> [g] #r.2 &hellip; = f <keyword>in</keyword>  <comment>% f : type_of #p.1 T'</comment>
+    [ ] e_ref 			  
+;
+</pre>
+
+
+
+
+<p> <strong>Application case:</strong> If <codeinline>d</codeinline> concludes with <codeinline>t_app</codeinline>, it matches
+ the pattern <codeinline>[g] t_app (D1 &hellip;) (D2 &hellip;)</codeinline>, and is
+ a contextual object of type 
+ <codeinline>type_of (app (E1 &hellip;) (E2 &hellip;)) T</codeinline> in the
+ context <codeinline>g</codeinline>.  We therefore know that
+ <codeinline>E &hellip;</codeinline> = <codeinline>app (E1 &hellip;) (E2 &hellip;)</codeinline>. 
+</p>
+<p>
+ Pattern matching also serves to invert the second argument, the derivation <codeinline>f</codeinline> which
+ must have type <codeinline>(type_of (app (E1 &hellip;) (E2 &hellip;)) T')[g]</codeinline>.  This is achieved
+ through a let-binding.
+ The appeal to the induction hypothesis using <codeinline>D1</codeinline> and <codeinline>F1</codeinline> in a paper proof
+ corresponds to the recursive call 
+</p>
+<p>
+<center>
+<codeinline>unique [g] ([g] D1 &hellip;) ([g] F1 &hellip;)</codeinline>.
+</center>
+</p>
+<p></p>
+<p>
+ Note that we pass three arguments: the context <codeinline>g</codeinline> and contextual objects
+ <codeinline>([g] D1 &hellip;)</codeinline> and
+ <codeinline>([g] F1 &hellip;)</codeinline> describing the derivations of
+ <codeinline>(type_of (E1 &hellip;) (arr T2 T))[g]</codeinline> and
+ <codeinline>(type_of (E1 &hellip;) (arr T2' T'))[g]</codeinline>. The result is a contextual object of type 
+ <codeinline>(eq (arr T2 T) (arr T2' T'))[ ]</codeinline>. The only rule that
+ could derive such an object is <codeinline>e\_ref</codeinline>, and pattern matching
+ establishes that <codeinline>arr T2 T</codeinline> = <codeinline>arr T2' T'</codeinline>. Since we know
+ that <codeinline>T</codeinline> = <codeinline>T'</codeinline>, there is a proof of <codeinline>[ ] eq T T'</codeinline>.
+</p>
+
+<p><strong>Abstraction case:</strong>
+ If the first derivation <codeinline>d</codeinline> concludes with <codeinline>t_lam</codeinline>, it matches
+the pattern <codeinline>[g] t_lam (\x.\u. D &hellip; x u)</codeinline>, and is
+a contextual object in the context <codeinline>g</codeinline> of type 
+<codeinline>type_of (lam T1 (\x. E0 &hellip; x)) (arr T1 T2)</codeinline>.
+Thus, <codeinline>E &hellip;</codeinline> = <codeinline>lam T1 (\x. E0 &hellip; x)</codeinline>
+and <codeinline>T</codeinline> = <codeinline>arr T1 T2</codeinline>.
+Pattern matching---through a let-binding---serves to invert the second derivation <codeinline>f</codeinline>, which
+must have been by <codeinline>t_lam</codeinline> with a subderivation
+<codeinline>F1 &hellip; x u</codeinline> of <codeinline>type_of (E0 &hellip; x) T2'</codeinline> that 
+can use <codeinline>x</codeinline>,
+<codeinline>u:type_of x T1</codeinline>, and assumptions from <codeinline>g</codeinline>.
+Hence, after pattern matching on <codeinline>d</codeinline> and <codeinline>f</codeinline>, we have
+<codeinline>E</codeinline> = <codeinline>lam T1 (\x. E0 &hellip; x</codeinline>) and 
+<codeinline>T</codeinline> = <codeinline>arr T1 T2</codeinline> and 
+<codeinline>T'</codeinline> = <codeinline>arr T1 T2'</codeinline>.
+</p>
+<p>
+The use of the induction hypothesis on <codeinline>D</codeinline> and <codeinline>F</codeinline> in a paper proof
+corresponds to the recursive call to <codeinline>unique</codeinline>.  To appeal to the
+induction hypothesis, we need to extend the context by pairing up <codeinline>x</codeinline> and
+its typing assumption: <codeinline>g,b:<keyword>block</keyword> x:exp.type_of x T1</codeinline>.  In the
+code, we wrote an underscore <codeinline>_</codeinline> instead of 
+<codeinline>T1</codeinline>, which tells Beluga to reconstruct it.
+To retrieve <codeinline>x</codeinline> we take the first projection <codeinline>b.1</codeinline>, and to retrieve
+its typing assumption we write <codeinline>b.2</codeinline>.
+</p>
+<p>
+Now we can appeal to the induction hypothesis using
+<codeinline>D1 &hellip; b.1 b.2</codeinline> and <codeinline>F1 &hellip; b.1 b.2</codeinline> in the context
+<codeinline>g,b:<keyword>block</keyword> x:exp. type_of x T1</codeinline>.  We pass three arguments: the
+context <codeinline>g</codeinline> and two contextual objects.  From the i.h. we get a
+contextual object, a closed derivation of
+<codeinline>(eq (arr T1 T2) (arr T1 T2'))[ ]</codeinline>. The only rule that could
+derive this is <codeinline>e_ref</codeinline>, and pattern matching establishes that <codeinline>T2</codeinline>
+must equal <codeinline>T2'</codeinline>, and hence <codeinline>arr T1 T2</codeinline> = <codeinline>arr T1 T2'</codeinline>,
+i.e. <codeinline>T = T'</codeinline>.  Hence, there is a proof of <codeinline>[ ] eq T T'</codeinline>,
+and we can finish the case with the reflexivity rule <codeinline>e_ref</codeinline>.
+</p>
+<p>
+<strong>Assumption case</strong> Here, we must have used an assumption from the
+context <codeinline>g</codeinline> to construct the derivation <codeinline>d</codeinline>.  Parameter variables
+<codeinline>#q</codeinline> allow a generic case that matches a declaration <codeinline><keyword>block</keyword>
+  x:exp.type_of x S</codeinline> for any <codeinline>S</codeinline> in <codeinline>g</codeinline>. Since our pattern match
+proceeds on typing derivations, we want the second component, written
+<codeinline>#q.2</codeinline>. The pattern match on <codeinline>d</codeinline> also establishes that 
+<codeinline>E = #q.1</codeinline>
+and <codeinline>S = T</codeinline>. Next, we pattern match on <codeinline>f</codeinline>, which has type
+<codeinline>type_of (#q.1 &hellip;) T'</codeinline> in the context <codeinline>g</codeinline>.  Clearly, the only
+possible way to derive <codeinline>f</codeinline> is by using an assumption from <codeinline>g</codeinline>. We call
+this assumption <codeinline>#r</codeinline>, standing for a declaration <codeinline><keyword>block</keyword>
+  y:exp.type_of y S'</codeinline>, so <codeinline>#r.2</codeinline> refers to the second component
+<codeinline>type_of (#r.1 &hellip;) S'</codeinline>. Pattern matching between <codeinline>#r.2</codeinline> and 
+<codeinline>f</codeinline> 
+also establishes that both types are equal and that <codeinline>S' = T'</codeinline> and
+<codeinline>#r.1 = #q.1</codeinline>.  Finally, we observe that <codeinline>#r.1 = #q.1</codeinline> only if
+<codeinline>#r</codeinline> is equal to <codeinline>#q</codeinline>.  Consequently, both parameters have equal
+types, and <codeinline>S = S' = T = T'</codeinline>.  (In general, unification in the presence
+of &Sigma;-types does not yield a unique unifier, but in Beluga only
+variables from the context and parameter variables can have &Sigma;-types,
+yielding a unique solution.)
+</p>
+
+
+<h3><a href="path-example.php">2. Reasoning about paths in lambda-terms</a></h3>
+<h3><a href="tps-example.php">3. Subject reduction</a></h3>
+<h3><a href="eq-example.php">4. Equality reasoning</a></h3>
+
+<p>
+</p>
+</div>
+<div id="footer">
+   <?php echoFile("../footer.html"); ?>
+</div>
+
+</div>
+ 
+
+</body>
+</html>

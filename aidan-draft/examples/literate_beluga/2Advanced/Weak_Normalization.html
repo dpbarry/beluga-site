@@ -1,0 +1,198 @@
+<!DOCTYPE html> <html lang="en">
+<head>
+  <!-- Le styles -->
+  <link href="../../../css/bootstrap.css" rel="stylesheet">
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
+  <script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+  <div align="center">
+    <iframe width="100%" height="50x" scrolling="no" frameBorder="0" src="../../../header.html"></iframe> 
+  </div>
+
+  <div class="row">
+    <div class="col-sm-2">
+      <div class="well">
+        <div>
+          <ul class="nav nav-list">
+            <li>
+                <a href="../../../0Beginner.html">
+                  Beginner                </a>
+              <ul class="nav nav-list tree">
+              </ul>
+            </li>
+            <li>
+                <a href="../../../1Intermediate.html">
+                  Intermediate
+                </a>
+              <ul class="nav nav-list tree">
+              </ul>
+            </li>
+            <li>
+                <a href="../../../2Advanced.html">
+                  Advanced
+                </a>
+              <ul class="nav nav-list tree">
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div> <!-- end div col-sm-2 -->
+    <div class="container theme-showcase" role="main">
+      <div class="col-sm-10">
+
+
+
+<p></p><p>
+</p><p>
+<h1> Weak head normalization for simply-typed lambda calculus</h1>
+</p><p>
+This example follows the proof presented in 
+<a href="http://www.cs.mcgill.ca/~bpientka/papers/lfmtp13.pdf">
+Cave and Pientka[2013]</a>.
+</p><p>
+First, let's define a simply typed &lambda;-calculus with one type:
+</p><p></p><br><pre><code><keyword>datatype</keyword> <span class="typ" id="tp">tp</span> : <keyword>type</keyword> = 
+| <span class="constructor" id="b">b</span> : <a href="#tp">tp</a>
+| <span class="constructor" id="arr">arr</span> : <a href="#tp">tp</a> &#x2192 <a href="#tp">tp</a> &#x2192 <a href="#tp">tp</a>;
+<br><keyword>%name</keyword> tp T 
+<br><span class="typ" id="tm">tm</span> : <a href="#tp">tp</a> &#x2192 <keyword>type</keyword>.
+<br><keyword>%name</keyword> tm E 
+<br><span class="constructor" id="app">app</span> : <a href="#tm">tm</a> (<a href="#arr">arr</a> T S) &#x2192 <a href="#tm">tm</a> T &#x2192 <a href="#tm">tm</a> S.
+<br><span class="constructor" id="lam">lam</span> : (<a href="#tm">tm</a> T &#x2192 <a href="#tm">tm</a> S) &#x2192 <a href="#tm">tm</a> (<a href="#arr">arr</a> T S).
+<br><span class="constructor" id="c">c</span> : <a href="#tm">tm</a> <a href="#b">b</a>.
+</code></pre>
+<p> The type <code>tm</code> defines our family of simply-typed lambda terms
+indexed by their type as an LF signature. In typical higher-order
+abstract syntax (HOAS) fashion, lambda abstraction takes a function
+representing the abstraction of a term over a variable. There is no
+case for variables, as they are treated implicitly in HOAS.
+</p><p>
+We now encode the step relation of the operational semantics. In
+particular, we create the <code>step</code> type indexed by two terms that
+represent each step of the computation.
+</p><p></p><br><pre><code><span class="typ" id="step">step</span> : <a href="#tm">tm</a> A &#x2192 <a href="#tm">tm</a> A &#x2192 <keyword>type</keyword>.
+<br><span class="constructor" id="beta">beta</span> : <a href="#step">step</a> (<a href="#app">app</a> (<a href="#lam">lam</a> M) N) (M N).
+<br><span class="constructor" id="stepapp">stepapp</span> : <a href="#step">step</a> M M' &#x2192 <a href="#step">step</a> (<a href="#app">app</a> M N) (<a href="#app">app</a> M' N).
+</code></pre>
+<p>Notice how the <code>beta</code> rule re-uses the LF notion of substitution by
+computing the application of <code>M</code> to <code>N</code>. <br/>
+</p><p>
+Finally, we define:
+<ul><li>  a multiple step reduction <code>mstep</code>. </li>
+<li> values <code>val</code></li>
+<li> <code>halts</code> to encode that a term halts if it steps into a value.</li></ul>
+</p><p></p><br><pre><code><span class="typ" id="mstep">mstep</span> : <a href="#tm">tm</a> A &#x2192 <a href="#tm">tm</a> A &#x2192 <keyword>type</keyword>.
+<br><keyword>%name</keyword> mstep S 
+<br><span class="constructor" id="refl">refl</span> : <a href="#mstep">mstep</a> M M.
+<br><span class="constructor" id="onestep">onestep</span> : <a href="#step">step</a> M M' &#x2192 <a href="#mstep">mstep</a> M' M'' &#x2192 <a href="#mstep">mstep</a> M M''.
+<br><span class="typ" id="val">val</span> : <a href="#tm">tm</a> A &#x2192 <keyword>type</keyword>.
+<br><keyword>%name</keyword> val V 
+<br><span class="constructor" id="val/c">val/c</span> : <a href="#val">val</a> <a href="#c">c</a>.
+<br><span class="constructor" id="val/lam">val/lam</span> : <a href="#val">val</a> (<a href="#lam">lam</a> M).
+<br><span class="typ" id="halts">halts</span> : <a href="#tm">tm</a> A &#x2192 <keyword>type</keyword>.
+<br><keyword>%name</keyword> halts H 
+<br><span class="constructor" id="halts/m">halts/m</span> : <a href="#mstep">mstep</a> M M' &#x2192 <a href="#val">val</a> M' &#x2192 <a href="#halts">halts</a> M.
+</code></pre>
+<p></p><p>
+</p><p>
+<h2> Reducibility</h2>
+</p><p>
+Reducibility cannot be directly encoded at the LF layer, since it
+involves a strong, computational function space. Hence we move to the
+computation layer of Beluga, and employ an indexed recursive
+type. Contextual LF objects and contexts which are embedded into
+computation-level types and programs are written inside <code>[ ]</code>.
+</p><p></p><br><pre><code><keyword>datatype</keyword> <span class="typ" id="Reduce">Reduce</span> : {A : [ &#x22A2 <a href="#tp">tp</a>]} &#x2192 {M : [ &#x22A2 <a href="#tm">tm</a> A]} &#x2192 <keyword>ctype</keyword> = 
+| <span class="constructor" id="I">I</span> : [ &#x22A2 (<a href="#halts">halts</a> M)] &#x2192 <a href="#Reduce">Reduce</a> [ &#x22A2 <a href="#b">b</a>] [ &#x22A2 M]
+| <span class="constructor" id="Arr">Arr</span> : [ &#x22A2 (<a href="#halts">halts</a> M)] &#x2192 {N : [ &#x22A2 <a href="#tm">tm</a> A]} (<a href="#Reduce">Reduce</a> [ &#x22A2 A] [ &#x22A2 N]) &#x2192 <a href="#Reduce">Reduce</a> [ &#x22A2 B] [ &#x22A2 <a href="#app">app</a> M N] &#x2192 <a href="#Reduce">Reduce</a> [ &#x22A2 <a href="#arr">arr</a> A B] [ &#x22A2 M];
+</code></pre>
+<p></p><p>
+A term of type <code>i</code> is reducible if it halts, and a <code>term M</code> of type
+<code>arr A B</code> is reducible if it halts, and moreover for every reducible
+<code>N</code> of type <code>A</code>, the application <code>app M N</code> is reducible. We write
+<code>{N:[.tm A]}</code> for explicit &Pi;-quantification over <code>N</code>, a closed term
+of type <code>A</code>. To the left of the turnstile in <code>[&#8866; tm A]</code> is where one
+writes the context the term is defined in – in this case, it is empty.<br>
+</p><p>
+In this definition, the arrows represent the usual computational
+function space, not the weak function space of LF. We note that this
+definition is not (strictly) positive, since <code>Reduce</code> appears to the
+left of an arrow in the <code>Arr</code> case. Allowing unrestricted such
+definitions destroys the soundness of our system. Here we note that
+this definition is stratified by the type: the recursive occurrences
+of <code>Reduce</code> are at types <code>A</code> and <code>B</code> which are smaller than <code>arr A B</code>.
+<code>Reduce</code> is defined by induction on the type of the reducible
+term(additionally this is why we cannot leave the type implicit).
+</p><p>
+</p><p>
+Now, we need to prove some more or less trivial lemmas that are
+usually omitted in paper presentations.<br>
+</p><p>
+First, we prove that halts is closed under expansion in the <code>halts_step</code> lemma.
+</p><p></p><br><pre><code><keyword>rec</keyword> <span class="function" id="halts_step">halts_step</span> : {S : [ &#x22A2 <a href="#step">step</a> M M']} [ &#x22A2 (<a href="#halts">halts</a> M')] &#x2192 [ &#x22A2 (<a href="#halts">halts</a> M)] =
+<keyword>mlam</keyword> S &#x21D2 <keyword>fn</keyword> h &#x21D2 <keyword>let</keyword>  [ &#x22A2 <a href="#halts/m">halts/m</a> MS' V] = h <keyword>in</keyword> [[ &#x22A2 <a href="#halts/m">halts/m</a> (<a href="#onestep">onestep</a> S MS') V]];
+</code></pre>
+<p></p><p>
+Next we prove closure of Reduce under expansion. This follows the
+handwritten proof, proceeding by induction on the type A which is an
+implicit argument. In the base case we appeal to <code>halts_step</code>, while
+in the <code>Arr</code> case we must also appeal to the induction hypothesis at
+the range type, going inside the function position of applications.
+</p><p></p><br><pre><code><keyword>rec</keyword> <span class="function" id="bwd_closed">bwd_closed</span> : {S : [ &#x22A2 <a href="#step">step</a> M M']} (<a href="#Reduce">Reduce</a> [ &#x22A2 T] [ &#x22A2 M']) &#x2192 <a href="#Reduce">Reduce</a> [ &#x22A2 T] [ &#x22A2 M] =
+<keyword>mlam</keyword> MS &#x21D2 <keyword>fn</keyword> r &#x21D2 <keyword>case</keyword> r <keyword>of</keyword> 
+  | <a href="#I">I</a> ha  &#x21D2 <a href="#I">I</a> (<a href="#halts_step">halts_step</a> [ &#x22A2 MS] ha)
+  | <a href="#Arr">Arr</a> ha f  &#x21D2
+    <a href="#Arr">Arr</a> (<a href="#halts_step">halts_step</a> [ &#x22A2 MS] ha) (<keyword>mlam</keyword> N &#x21D2 <keyword>fn</keyword> rn &#x21D2 <a href="#bwd_closed">bwd_closed</a> [ &#x22A2 <a href="#stepapp">stepapp</a> MS] (f [ &#x22A2 N] rn));
+</code></pre>
+<p></p><p>
+The trivial fact that reducible terms halt has a corresponding
+trivial proof, analyzing the construction of the the proof of 
+'Reduce[&#8866; T] [&#8866; M]'
+</p><p></p><br><pre><code><keyword>rec</keyword> <span class="function" id="reduce_halts">reduce_halts</span> : <a href="#Reduce">Reduce</a> [ &#x22A2 T] [ &#x22A2 M] &#x2192 [ &#x22A2 (<a href="#halts">halts</a> M)] =
+<keyword>fn</keyword> r &#x21D2 <keyword>case</keyword> r <keyword>of</keyword> 
+  | <a href="#I">I</a> h  &#x21D2 h
+  | <a href="#Arr">Arr</a> h f  &#x21D2 h;
+</code></pre>
+<p></p><p>
+<h1> Reducibility of substitutions</h1>
+</p><p></p><br><pre><code><keyword>schema</keyword> <span class="schema" id="ctx">ctx</span> = <a href="#tm">tm</a> T;
+<br><keyword>datatype</keyword> <span class="typ" id="RedSub">RedSub</span> : {g : <a href="#ctx">ctx</a>} &#x2192 [ &#x22A2 g] &#x2192 <keyword>ctype</keyword> = 
+| <span class="constructor" id="Nil">Nil</span> : <a href="#RedSub">RedSub</a> [] [ &#x22A2 ^]
+| <span class="constructor" id="Dot">Dot</span> : (<a href="#RedSub">RedSub</a> [g] [ &#x22A2  #S[^]]) &#x2192 <a href="#Reduce">Reduce</a> [ &#x22A2 A] [ &#x22A2 M] &#x2192 <a href="#RedSub">RedSub</a> [g, x : <a href="#tm">tm</a> A] [ &#x22A2  #S[^] M];
+<br><keyword>rec</keyword> <span class="function" id="lookup">lookup</span> : {g : <a href="#ctx">ctx</a>} {#p : [g &#x22A2 <a href="#tm">tm</a> A]} (<a href="#RedSub">RedSub</a> [g] [ &#x22A2  #S[^]]) &#x2192 <a href="#Reduce">Reduce</a> [ &#x22A2 A] [ &#x22A2 #p #S[^]] =
+<keyword>mlam</keyword> g &#x21D2 <keyword>mlam</keyword> #p &#x21D2 <keyword>fn</keyword> rs &#x21D2 <keyword>case</keyword> [[g &#x22A2 #p &hellip;]] <keyword>of</keyword> 
+  | [g', x : <a href="#tm">tm</a> A &#x22A2 x] &#x21D2 <keyword>let</keyword>  <a href="#Dot">Dot</a> rs' rN = rs <keyword>in</keyword> rN
+  | [g', x : <a href="#tm">tm</a> A &#x22A2 #q &hellip;] &#x21D2
+    <keyword>let</keyword>  <a href="#Dot">Dot</a> rs' rN = rs <keyword>in</keyword> <a href="#lookup">lookup</a> [g'] [g' &#x22A2 #q &hellip;] rs';
+</code></pre>
+<p></p><p>
+<h1> Main theorem</h1>
+</p><p></p><br><pre><code><keyword>rec</keyword> <span class="function" id="main">main</span> : {g : <a href="#ctx">ctx</a>} {M : [g &#x22A2 <a href="#tm">tm</a> A]} (<a href="#RedSub">RedSub</a> [g] [ &#x22A2  #S[^]]) &#x2192 <a href="#Reduce">Reduce</a> [ &#x22A2 A] [ &#x22A2 M #S[^]] =
+<keyword>mlam</keyword> g &#x21D2 <keyword>mlam</keyword> M &#x21D2 <keyword>fn</keyword> rs &#x21D2 <keyword>case</keyword> [[g &#x22A2 M &hellip;]] <keyword>of</keyword> 
+  | [g &#x22A2 #p &hellip;] &#x21D2 <a href="#lookup">lookup</a> [g] [g &#x22A2 #p &hellip;] rs
+  | [g &#x22A2 <a href="#lam">lam</a> (&lambda;x. M1 &hellip; x)] &#x21D2
+    <a href="#Arr">Arr</a> [ &#x22A2 <a href="#halts/m">halts/m</a> <a href="#refl">refl</a> <a href="#val/lam">val/lam</a>] (<keyword>mlam</keyword> N &#x21D2 <keyword>fn</keyword> rN &#x21D2 <a href="#bwd_closed">bwd_closed</a> [ &#x22A2 <a href="#beta">beta</a>] (<a href="#main">main</a> [g, x : <a href="#tm">tm</a> _] [g, x &#x22A2 M1 &hellip; x] (<a href="#Dot">Dot</a> rs rN)))
+  | [g &#x22A2 <a href="#app">app</a> (M1 &hellip;) (M2 &hellip;)] &#x21D2
+    <keyword>let</keyword>  <a href="#Arr">Arr</a> ha f = <a href="#main">main</a> [g] [g &#x22A2 M1 &hellip;] rs <keyword>in</keyword> f [ &#x22A2 _] (<a href="#main">main</a> [g] [g &#x22A2 M2 &hellip;] rs)
+  | [g' &#x22A2 <a href="#c">c</a>] &#x21D2 <a href="#I">I</a> [ &#x22A2 <a href="#halts/m">halts/m</a> <a href="#refl">refl</a> <a href="#val/c">val/c</a>];
+<br><keyword>rec</keyword> <span class="function" id="weakNorm">weakNorm</span> : {M : [ &#x22A2 <a href="#tm">tm</a> A]} [ &#x22A2 (<a href="#halts">halts</a> M)] =
+<keyword>mlam</keyword> M &#x21D2 <a href="#reduce_halts">reduce_halts</a> (<a href="#main">main</a> [] [ &#x22A2 M] <a href="#Nil">Nil</a>);
+</code></pre>
+<br><br><h3>To download the code: <a href="Weak_Normalization.bel" target="_blank">Weak_Normalization.bel</a></h3>
+     </div>
+   </div>
+   <div id="footer">
+     <iframe width="100%" height="100px" scrolling="no" frameBorder="0" src="../../../footer.html"></iframe> 
+   </div>
+
+   <script>
+   $('iframe').iframeAutoHeight({minHeight: 50);
+    </script>
+  </div>
+</body>
+</html>
+
+

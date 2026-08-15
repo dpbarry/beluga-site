@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
+
+
+    <title>Beluga Syntax Changes</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="css/beli-styles.css" rel="stylesheet">
+
+
+
+    <!-- Just for debugging purposes. Don't actually copy this line! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"> </script><![endif]-->
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body role="document">
+
+    <script type="text/javascript">
+
+    $(document).ready(function(){
+
+        $(".dropdown-toggle").dropdown();
+
+    });  
+
+    </script>
+
+
+    <!-- Fixed navbar -->
+    <div align="center">
+	<iframe width="100%" height="50px" scrolling="no" frameBorder="0" src="header.html"></iframe> 
+	</div>
+	<div class="container theme-showcase" role="main">
+	<h1>Legacy Syntax</h1>
+	
+	<p>Beluga is major research project, constantly undergoing development. Over the years
+			we've made many changes to the language's syntax. We've outlined some of the obsolete
+			syntax you may encounter in older publications.</p>
+
+	    <table class="table">
+        <thead>
+            <tr>
+			    <th>Year</th>
+                <th>Release</th>
+                <th>Old Syntax</th>
+                <th>New Syntax</th>
+				<th>Expression</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+				<td>2008</td>
+                <td>0.1</td>
+                <td><code>box(g. x)</code></td>
+                <td><code>[g |- x]</code></td>
+				<td>Contextual object where <code>g</code> : context variable, <code>x</code> : variable bound in <code>g</code></td>
+            </tr>
+            <tr>
+				<td>2008</td>
+                <td>0.1</td>
+                <td><code>all A:t</code></td>
+                <td><code>{A:t}</code></td>
+				<td>Universal quantification where <code>A</code> : meta-variable, <code>t</code> : type</td>
+            </tr>
+            <tr>
+				<td>2008</td>
+                <td>0.1</td>
+                <td><code>M[id, x]</code></td>
+                <td><code>M .. x</code></td>
+				<td>Delayed substitution where <code>M</code> : meta-variable, <code>..</code>, <code>id</code> : identity substitution, <code>x</code> : bound variable</td>
+            </tr>
+            <tr>
+				<td>2008</td>
+                <td>0.1</td>
+                <td><code>ctx schema gCtx</code></td>
+                <td><code>schema gCtx</code></td>
+				<td>Schema declaration where <code>gCtx</code> : schema identifier</td>
+            </tr>
+			<tr>
+				<td>2010</td>
+                <td>0.3</td>
+                <td><code>(obj T)[g]</code></td>
+                <td><code>[g |- obj T]</code></td>
+				<td>Contextual object where <code>g</code> : context variable, <code>obj</code> : LF constructor, <code>T</code> : meta-variable</td>
+            </tr>
+            <tr>
+			    <td>2010</td>
+                <td>0.3</td>
+                <td><code>{g:(ctx)*}</code></td>
+                <td><code>{g: ctx}</code></td>
+				<td>Universal quantification where <code>g</code> : context variable, <code>ctx</code> : schema</td>
+            </tr>
+            <tr>
+                <td>2012</td>
+                <td>0.5</td>
+				<td><code>[g. obj T]</code></td>
+				<td><code>[g |- obj T]</code></td>
+                <td>Contextual object where <code>g</code> : context variable, <code>obj</code> : LF constructor, <code>T</code> : meta-variable</td>
+            </tr>
+			<tr>
+                <td>2014</td>
+                <td>0.5</td>
+				<td><code>{#S:g[h]}</code></td>
+				<td><code>{#S: h |- g]}</code></td>
+                <td>Universal quantification where <code>#S</code> : substitution variable, <code>g</code> : domain, <code>h</code> : range</td>
+            </tr>
+			<tr>
+                <td>2014</td>
+                <td>0.5</td>
+				<td><code>#S[]</code></td>
+				<td><code>#S[^]</code></td>
+                <td>Empty subst. closure where <code>#S</code> : substitution variable</td>
+            </tr>
+        </tbody>
+    </table>
+
+    </div>
+     
+	</div> 
+	
+    <div id="footer">
+	<iframe width="100%" height="100px" scrolling="no" frameBorder="0" src="footer.html"></iframe> 
+	</div>
+
+
+
+
+
+    <script type="text/javascript" src="js/dropdown.js"></script>
+
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="../../assets/js/docs.min.js"></script>
+  </body>
+</html>

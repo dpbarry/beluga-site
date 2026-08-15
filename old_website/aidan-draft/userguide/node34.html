@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Modules</TITLE>
+<META NAME="description" CONTENT="Modules">
+<META NAME="keywords" CONTENT="userguide">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="userguide.css">
+
+<LINK REL="next" HREF="node35.html">
+<LINK REL="previous" HREF="node33.html">
+<LINK REL="up" HREF="userguide.html">
+<LINK REL="next" HREF="node35.html">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html512"
+  HREF="node35.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next"
+ SRC="/usr/share/latex2html/icons/next.png"></A> 
+<A NAME="tex2html508"
+  HREF="userguide.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up"
+ SRC="/usr/share/latex2html/icons/up.png"></A> 
+<A NAME="tex2html502"
+  HREF="node33.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous"
+ SRC="/usr/share/latex2html/icons/prev.png"></A> 
+<A NAME="tex2html510"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents"
+ SRC="/usr/share/latex2html/icons/contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html513"
+  HREF="node35.html">Interactive Programming with Emacs</A>
+<B> Up:</B> <A NAME="tex2html509"
+  HREF="userguide.html">Beluga Reference Guide</A>
+<B> Previous:</B> <A NAME="tex2html503"
+  HREF="node33.html">Coverage</A>
+ &nbsp; <B>  <A NAME="tex2html511"
+  HREF="node1.html">Contents</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION00090000000000000000">
+Modules</A>
+</H1>
+Modules provide namespace separation within a program. They are declared with ML-style syntax with the <TT>module</TT> keyword followed by an upper-case identifier. The user can specify can abbreviation with the <TT>%abbrev</TT> pragma, followed by the module's actual identifier and the desired abbreviation. Structural components are listed after the <TT>struct</TT> keyword in the usual Beluga syntax. The module declaration is terminated with the <TT>end;</TT> keyword. 
+<BR>
+<P>
+<SPAN  CLASS="textbf">Example:</SPAN> A module defining natural numbers could be declared as follows:
+<PRE> 
+module Nats = struct  
+  nat : type.
+  z : nat.
+  s : nat -&gt; nat.
+
+  rec suc : [ |- nat ] -&gt; [ |- nat] =
+  fn n =&gt; let [ |- N ] = n in [ |- s N];
+
+  let two = [ |- s (s z)];
+  let three = suc two;
+end;
+%abbrev Nats N
+</PRE>
+
+<P>
+Module components are accessed via fields as <TT>Id.id</TT>. The constructor <TT>z</TT> from the example above is called with <TT>Nats.z</TT> or <TT>N.z</TT> using the abbreviation. A module can be opened within a program using the <TT>%open</TT> pragma followed by the module identifier. The components of open modules can be access directly, ie: <TT>z</TT> instead of <TT>Nat.z</TT>. Note that if module <TT>B</TT> is opened in the body of module <TT>A</TT>, then opening <TT>A</TT> within a program also opens <TT>B</TT>.
+
+<P>
+<BR><HR>
+<ADDRESS>
+Research Group COMPLOGIC
+2014-11-12
+</ADDRESS>
+</BODY>
+</HTML>

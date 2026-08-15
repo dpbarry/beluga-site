@@ -1,0 +1,182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>HTML mode</TITLE>
+<META NAME="description" CONTENT="HTML mode">
+<META NAME="keywords" CONTENT="userguide">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="userguide.css">
+
+<LINK REL="next" HREF="node43.html">
+<LINK REL="previous" HREF="node41.html">
+<LINK REL="up" HREF="userguide.html">
+<LINK REL="next" HREF="node43.html">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html610"
+  HREF="node43.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next"
+ SRC="/usr/share/latex2html/icons/next.png"></A> 
+<A NAME="tex2html606"
+  HREF="userguide.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up"
+ SRC="/usr/share/latex2html/icons/up.png"></A> 
+<A NAME="tex2html600"
+  HREF="node41.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous"
+ SRC="/usr/share/latex2html/icons/prev.png"></A> 
+<A NAME="tex2html608"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents"
+ SRC="/usr/share/latex2html/icons/contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html611"
+  HREF="node43.html">About this document ...</A>
+<B> Up:</B> <A NAME="tex2html607"
+  HREF="userguide.html">Beluga Reference Guide</A>
+<B> Previous:</B> <A NAME="tex2html601"
+  HREF="node41.html">LaTeX mode</A>
+ &nbsp; <B>  <A NAME="tex2html609"
+  HREF="node1.html">Contents</A></B> 
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION000130000000000000000">
+HTML mode</A>
+</H1>
+Beluga source code can be outputted to HTML complete with linking, highlighting, and unicode turnstiles. From the command line, compile the program with the <TT>+HTML</TT> option.
+
+<BR><TT># bin/beluga +HTML path/to/source.bel</TT>
+<BR>
+An HTML file called <TT>&lt;source&gt;.html</TT> is created in the directory containing the source file. The type reconstruction information appears on the web page as preformatted text in code boxes between <TT>&lt;pre&gt;</TT> tags. Beluga keywords along with user-defined types, constructors, and functions are enclosed between <TT>&lt;keyword&gt;</TT> and <TT>&lt;code&gt;</TT> tags, respectively, stylized with CSS embedded directly into the HTML. To forgo the default style, use the <TT>-css</TT> option to output the HTML body only.
+
+<BR><TT># bin/beluga +HTML -css path/to/source.bel</TT>
+<BR>
+Alternatively, the user can specify a particular CSS stylesheet for the HTML page with the <TT>+cssfile</TT> option. Note that filepaths must be relative to the directory in which the Beluga program is located, not the terminal current directory.  
+
+<BR><TT># bin/beluga +HTML +cssfile path/to/style.css path/to/source.bel</TT>
+<BR>
+<P>
+
+<P>
+HTML mode includes a markup language to add text to the web page. Three backticks <TT>```</TT> introduces and concludes a block of text to be rendered onto the page. In addition to the syntax described in the table below, pure HTML can embedded directly into text blocks. In fact, the special characters listed at the end are merely mnemonics for HTML encodings. 
+<BR>
+<P>
+<TABLE CELLPADDING=3 BORDER="1">
+<TR><TD ALIGN="LEFT"><TT>```</TT></TD>
+<TD ALIGN="LEFT">Begin/end text block</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT"><TT># Level 1</TT></TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>## Level 2</TT></TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>### Level 3</TT></TD>
+</TR>
+</TABLE></TD>
+<TD ALIGN="LEFT">Headers</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>*text*</TT></TD>
+<TD ALIGN="LEFT">Italicize text</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>**text**</TT></TD>
+<TD ALIGN="LEFT">Bold text</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>'code'</TT></TD>
+<TD ALIGN="LEFT">Inline code</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT">1.</TD>
+</TR>
+<TR><TD ALIGN="LEFT">2.</TD>
+</TR>
+<TR><TD ALIGN="LEFT">3 .</TD>
+</TR>
+<TR><TD ALIGN="LEFT">..</TD>
+</TR>
+</TABLE></TD>
+<TD ALIGN="LEFT">Ordered list</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TABLE CELLPADDING=3>
+<TR><TD ALIGN="LEFT">-</TD>
+</TR>
+<TR><TD ALIGN="LEFT">-</TD>
+</TR>
+<TR><TD ALIGN="LEFT">-</TD>
+</TR>
+<TR><TD ALIGN="LEFT">..</TD>
+</TR>
+</TABLE></TD>
+<TD ALIGN="LEFT">Unordered list</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>---</TT></TD>
+<TD ALIGN="LEFT">Horizontal line</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>&amp;rarr;</TT></TD>
+<TD ALIGN="LEFT">Right-arrow</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>&amp;Gamma;</TT></TD>
+<TD ALIGN="LEFT">Upper-case gamma</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>&amp;delta;</TT></TD>
+<TD ALIGN="LEFT">Lower-case delta</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>&amp;forall;</TT></TD>
+<TD ALIGN="LEFT">Turned A</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>&amp;exist;</TT></TD>
+<TD ALIGN="LEFT">Turned E</TD>
+</TR>
+</TABLE>
+
+<P>
+
+<DIV CLASS="navigation"><HR>
+<!--Navigation Panel-->
+<A NAME="tex2html610"
+  HREF="node43.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next"
+ SRC="/usr/share/latex2html/icons/next.png"></A> 
+<A NAME="tex2html606"
+  HREF="userguide.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up"
+ SRC="/usr/share/latex2html/icons/up.png"></A> 
+<A NAME="tex2html600"
+  HREF="node41.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous"
+ SRC="/usr/share/latex2html/icons/prev.png"></A> 
+<A NAME="tex2html608"
+  HREF="node1.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents"
+ SRC="/usr/share/latex2html/icons/contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html611"
+  HREF="node43.html">About this document ...</A>
+<B> Up:</B> <A NAME="tex2html607"
+  HREF="userguide.html">Beluga Reference Guide</A>
+<B> Previous:</B> <A NAME="tex2html601"
+  HREF="node41.html">LaTeX mode</A>
+ &nbsp; <B>  <A NAME="tex2html609"
+  HREF="node1.html">Contents</A></B> </DIV>
+<!--End of Navigation Panel-->
+<ADDRESS>
+Research Group COMPLOGIC
+2014-11-12
+</ADDRESS>
+</BODY>
+</HTML>

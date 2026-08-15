@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Beluga: Functional Programming with Higher-Order Abstract Syntax</title>
+   <link rel="stylesheet" type="text/css" href="../style.css" />
+</head>
+
+<body>
+<!-- <?php include "../functions.php"; ?> -->
+<!-- <div id="wrapper"> -->
+<!--    <?php echoFile("header.html"); ?> -->
+<!--   <div id="menu">
+   </div>
+-->
+<div id="main">
+
+   <h1>Beluga: Functional Programming with Higher-Order Abstract Syntax</h1>
+
+<p> Our main interest in this project is to investigate programming
+and reasoning with data structures that provide support for
+binders. Many object languages include binding constructs, and it is
+striking that functional languages still lack direct support for
+binders and common tricky operations such as renaming,
+capture-avoiding substitution, and fresh name generation. </p>
+
+<p> We advocate the use of <i>higher-order abstract syntax</i> (HOAS) where
+we represent binders in the object language with binders in the
+meta-language. One of the key benefits is that we not only get support
+for renaming and fresh name generation, but also for capture-avoiding
+substitution. While HOAS encodings have played an important role in
+mechanizing the meta-theory of programming languages, it has been
+difficult to incorporate HOAS encodings directly into functional
+programming. </p>
+
+
+<h2>Publications</h2> 
+
+<ul>
+
+<li>Brigitte Pientka and Joshua Dunfield.
+    Programming with proofs and explicit contexts.
+In <i>ACM SIGPLAN Symposium on Principles and Practice of Declarative Programming (PPDP'08)</i>, pages 163-173.  ACM Press, July 2008.
+    (<a href="ppdp08/abstract.html">abstract</a>)
+    (<a href="ppdp08/Pientka08_dependent-hoas.pdf">pdf</a>)
+    (<a href="ppdp08/bibtex.bib">bibtex</a>)
+</li>
+
+<li>Joshua Dunfield and Brigitte Pientka.
+    Case analysis of higher-order data.
+In <i>International Workshop on Logical Frameworks and Meta-Languages: Theory and Practice (LFMTP'08)</i>.  Elsevier, June 2008.
+    (<a href="lfmtp08/abstract.html">abstract</a>)
+    (<a href="lfmtp08/Dunfield08_case-analysis-hoas.pdf">pdf</a>&mdash;extended
+     version including appendix)
+    (<a href="lfmtp08/bibtex.bib">bibtex</a>)
+</li>
+
+<!-- Joshua Dunfield and Brigitte Pientka.
+    Case analysis of higher-order data.
+    Manuscript, February 2008.
+    (<a href="tphols08-draft/abstract.html">abstract</a>)
+    (<a href="tphols08-draft/Dunfield08_case-analysis-hoas.pdf">pdf</a>)
+    (<a href="tphols08-draft/bibtex.bib">bibtex</a>)
+ -->
+
+<li>Brigitte Pientka.
+    A type-theoretic foundation for programming
+    with higher-order abstract syntax and first-class substitutions.
+    In
+    <i>35th ACM Symposium on Principles of Programming Languages (POPL'08)</i>,
+    pages 371-382.
+    ACM Press, January 2008.
+    (<a href="popl08/abstract.html">abstract</a>)
+    (<a href="popl08/Pientka08_hoasfun.pdf">pdf</a>)
+    (<a href="popl08/bibtex.bib">bibtex</a>)
+</li>
+
+</ul>
+
+<h2>Implementation</h2>
+
+<p> We are actively developing a prototype implementation of our
+language, Beluga, in OCaml. The Beluga implementation provides an
+  implementation of the logical framework LF, and in addition a
+  functional programming environment which supports dependent types
+  and analyzing LF data via pattern  matching. It is a completely new
+  implementation effort. Its implementation of the logical framework
+  LF in OCaml shares, adapts and  extends some fundamental ideas from
+  the Twelf system. The functional programming environment which is
+  built on top of the logical framework LF is a completely new
+  implementation based on previous theoretical ideas presented in
+  [Pientka:POPL08] and [PientkaDunfield:PPDP08].  
+</p>
+<p>
+The principal lead implementor is Brigitte Pientka. The following people have contributed over the past year to the implementation: Joshua Dunfield, Renaud Germain, Stefan Monnier, and Darin Morrison. 
+</p>
+
+<p>
+<strong>Code</strong>: 
+ <a href="beluga-0.1-20090925.tar.gz">Version 0.1 (25 Sep, 2009)</a>.
+</p>
+
+
+<h2>People:</h2>
+<ul>
+<li><a href="http://www.cs.mcgill.ca/~bpientka">Brigitte Pientka</a></li>
+<li><a href="http://www.iro.umontreal.ca/~monnier/">Stefan Monnier</a></li>
+<li><a href="http://www.cs.mcgill.ca/~joshua">Joshua Dunfield</a> (postdoc)</li>
+<li><a href="http://www.cs.mcgill.ca/~rgerma">Renaud Germain</a> (Masters student)</li>
+<li>Ali Assaf</a> (Undergraduate student)</li>
+</ul>
+
+</div>
+<!-- <div id="footer"> -->
+<!--    <?php echoFile("../footer.html"); ?> -->
+<!-- </div> -->
+
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html> <html lang="en">
+<head>
+  <!-- Le styles -->
+  <link href="../../../css/bootstrap.css" rel="stylesheet">
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
+  <script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+  <div align="center">
+    <iframe width="100%" height="50x" scrolling="no" frameBorder="0" src="../../../header.html"></iframe> 
+  </div>
+
+  <div class="row">
+    <div class="col-sm-2">
+      <div class="well">
+        <div>
+          <ul class="nav nav-list">
+            <li>
+                <a href="../../0Beginner.html">
+                  Beginner                </a>
+              <ul class="nav nav-list tree">
+              </ul>
+            </li>
+            <li>
+                <a href="../../1Intermediate.html">
+                  Intermediate
+                </a>
+              <ul class="nav nav-list tree">
+              </ul>
+            </li>
+            <li>
+                <a href="../../2Advanced.html">
+                  Advanced
+                </a>
+              <ul class="nav nav-list tree">
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div> <!-- end div col-sm-2 -->
+    <div class="container theme-showcase" role="main">
+      <div class="col-sm-10">
+
+
+
+<p></p><p>
+<h1> From HOAS to De Bruijn, and back</h1>
+</p><p>
+We show that the HOAS (Higher-Order Abstract Syntax) term
+representation, where we use the LF-level abstraction as a generic
+binder, is isomorphic to the first-order De Bruijn representation,
+where variables are represented by naturals.
+</p><p></p><br><pre><code><keyword>datatype</keyword> <span class="typ" id="tp">tp</span> : <keyword>type</keyword> = 
+| <span class="constructor" id="o">o</span> : <a href="#tp">tp</a>
+| <span class="constructor" id="arr">arr</span> : <a href="#tp">tp</a> &#x2192 <a href="#tp">tp</a> &#x2192 <a href="#tp">tp</a>;
+</code></pre>
+<p></p><p>
+<h2> Simply typed λ-terms in HOAS</h2>
+</p><p>
+They are represented as customary, as an LF-level <code>type</code>.
+</p><p></p><br><pre><code><keyword>datatype</keyword> <span class="typ" id="hoas">hoas</span> : (<a href="#tp">tp</a> &#x2192 <keyword>type</keyword>) = 
+| <span class="constructor" id="lam">lam</span> : (<a href="#hoas">hoas</a> A &#x2192 <a href="#hoas">hoas</a> B) &#x2192 <a href="#hoas">hoas</a> (<a href="#arr">arr</a> A B)
+| <span class="constructor" id="app">app</span> : <a href="#hoas">hoas</a> (<a href="#arr">arr</a> A B) &#x2192 <a href="#hoas">hoas</a> A &#x2192 <a href="#hoas">hoas</a> B;
+</code></pre>
+<p></p><p>
+These terms are intrinsically well-typed: values of LF type <code>hoas</code> correspond uniquely to λ-terms up to α-equivalence. For instance, here is an HOAS λ-term with one free variable, <code>z</code>:
+</p><p></p><br><pre><code><keyword>let</keyword> ex1 : [z : <a href="#hoas">hoas</a> (<a href="#arr">arr</a> <a href="#o">o</a> <a href="#o">o</a>) &#x22A2 (<a href="#hoas">hoas</a> (<a href="#arr">arr</a> (<a href="#arr">arr</a> <a href="#o">o</a> <a href="#o">o</a>) (<a href="#arr">arr</a> <a href="#o">o</a> <a href="#o">o</a>)))] =
+[[z : <a href="#hoas">hoas</a> (<a href="#arr">arr</a> <a href="#o">o</a> <a href="#o">o</a>) &#x22A2 <a href="#lam">lam</a> (&lambda;x. <a href="#lam">lam</a> (&lambda;y. <a href="#app">app</a> z (<a href="#app">app</a> x y)))]];
+</code></pre>
+<p></p><p>
+If we traverse such a term, we will have to represent open terms,
+that are valid in a context of a certain form. This context schema is
+a list of terms together with their types:
+</p><p></p><br><pre><code><keyword>schema</keyword> <span class="schema" id="ctx">ctx</span> = <keyword>some</keyword> [t : <a href="#tp">tp</a>] <a href="#hoas">hoas</a> t;
+</code></pre>
+<p></p><p>
+<h2> Simply typed λ-terms with De Bruijn indexes</h2>
+</p><p>
+We can define first-order, De Bruijn-indexed λ-terms as a
+computational type, a <code>ctype</code>, since it is strictly positive. They are
+parameterized by a (LF-level) type <code>tp</code> and a context <code>ctx</code>. Instead
+of defining a data type of list of types, we reuse Beluga's built-in
+data structure of context, classified by the schema above.
+</p><p></p><br><pre><code><keyword>datatype</keyword> <span class="typ" id="DB">DB</span> : {g : <a href="#ctx">ctx</a>} &#x2192 {y : [ &#x22A2 <a href="#tp">tp</a>]} &#x2192 <keyword>ctype</keyword> = 
+| <span class="constructor" id="Lam">Lam</span> : (<a href="#DB">DB</a> [g, x : <a href="#hoas">hoas</a> A] [ &#x22A2 B]) &#x2192 <a href="#DB">DB</a> [g] [ &#x22A2 <a href="#arr">arr</a> A B]
+| <span class="constructor" id="App">App</span> : (<a href="#DB">DB</a> [g] [ &#x22A2 <a href="#arr">arr</a> A B]) &#x2192 <a href="#DB">DB</a> [g] [ &#x22A2 A] &#x2192 <a href="#DB">DB</a> [g] [ &#x22A2 B]
+| <span class="constructor" id="O">O</span> : <a href="#DB">DB</a> [g, x : <a href="#hoas">hoas</a> A] [ &#x22A2 A]
+| <span class="constructor" id="S">S</span> : (<a href="#DB">DB</a> [g] [ &#x22A2 B]) &#x2192 <a href="#DB">DB</a> [g, x : <a href="#hoas">hoas</a> A] [ &#x22A2 B];
+</code></pre>
+<p></p><p>
+For instance, here is the same λ-term as above, in De Bruijn encoding:
+</p><p></p><br><pre><code><keyword>let</keyword> ex2 : <a href="#DB">DB</a> [z : <a href="#hoas">hoas</a> (<a href="#arr">arr</a> <a href="#o">o</a> <a href="#o">o</a>)] [ &#x22A2 <a href="#arr">arr</a> (<a href="#arr">arr</a> <a href="#o">o</a> <a href="#o">o</a>) (<a href="#arr">arr</a> <a href="#o">o</a> <a href="#o">o</a>)] =
+<a href="#Lam">Lam</a> (<a href="#Lam">Lam</a> (<a href="#App">App</a> (<a href="#S">S</a> (<a href="#S">S</a> <a href="#O">O</a>)) (<a href="#App">App</a> (<a href="#S">S</a> <a href="#O">O</a>) <a href="#O">O</a>)));
+</code></pre>
+<p></p><p>
+<h2> From HOAS to De Bruijn</h2>
+</p><p>
+The following function descend recursively inside a (possibly open) LF
+object of type <code>hoas A</code> to construct the equivalent De Bruijn term.
+</p><p></p><br><pre><code><keyword>rec</keyword> <span class="function" id="db">db</span> : (g:<a href="#ctx">ctx</a>) [g &#x22A2 (<a href="#hoas">hoas</a> A)] &#x2192 <a href="#DB">DB</a> [g] [ &#x22A2 A] =
+<keyword>fn</keyword> m &#x21D2 <keyword>case</keyword> m <keyword>of</keyword> 
+  | [g &#x22A2 <a href="#app">app</a> (M &hellip;) (N &hellip;)] &#x21D2 <a href="#App">App</a> (<a href="#db">db</a> [g &#x22A2 M &hellip;]) (<a href="#db">db</a> [g &#x22A2 N &hellip;])
+  | [g &#x22A2 <a href="#lam">lam</a> (&lambda;x. M &hellip; x)] : [g &#x22A2 (<a href="#hoas">hoas</a> (<a href="#arr">arr</a> A B))] &#x21D2
+    <a href="#Lam">Lam</a> (<a href="#db">db</a> [g, x : <a href="#hoas">hoas</a> A &#x22A2 M &hellip; x])
+  | [g, x : <a href="#hoas">hoas</a> A &#x22A2 x] &#x21D2 <a href="#O">O</a>
+  | [g, x : <a href="#hoas">hoas</a> B &#x22A2 #p &hellip;] &#x21D2 <a href="#S">S</a> (<a href="#db">db</a> [g &#x22A2 #p &hellip;]);
+</code></pre>
+<p></p><p>
+</p><p>
+Note that, in the <code>lam</code> case, we used type annotation in the pattern
+to bind a type variable <code>A</code> refered to in the branch. The
+quantification over contexts <code>(g:ctx)</code> in the type is implicit: <code>g</code> is
+not bound in the term (nor is <code>A</code>). There are two variable cases,
+corresponding respectively to whether the variable is the "top"
+variable, or a variable deeper in the environment.
+</p><p>
+As a test, the following declaration computes the expected value,
+i.e. <code>ex2</code>:
+</p><p>
+</p><p></p><br><pre><code><keyword>let</keyword> test : <a href="#DB">DB</a> [z : <a href="#hoas">hoas</a> (<a href="#arr">arr</a> <a href="#o">o</a> <a href="#o">o</a>)] [ &#x22A2 <a href="#arr">arr</a> (<a href="#arr">arr</a> <a href="#o">o</a> <a href="#o">o</a>) (<a href="#arr">arr</a> <a href="#o">o</a> <a href="#o">o</a>)] =
+<a href="#db">db</a> ex1;
+</code></pre>
+<p></p><p>
+<h2> From De Bruijn to HOAS</h2>
+</p><p>
+The following recursive function descend recursively in an indexed,
+computational object <code>DB</code> to construct the equivalent HOAS contextual
+object.
+</p><p></p><br><pre><code><keyword>rec</keyword> <span class="function" id="hoas">hoas</span> : (g:<a href="#ctx">ctx</a>) <a href="#DB">DB</a> [g] [ &#x22A2 A] &#x2192 [g &#x22A2 (<a href="#hoas">hoas</a> A)] =
+<keyword>fn</keyword> m &#x21D2 <keyword>case</keyword> m <keyword>of</keyword> 
+  | <a href="#Lam">Lam</a> m  &#x21D2
+    <keyword>let</keyword>  [g, x : <a href="#hoas">hoas</a> _ &#x22A2 M &hellip; x] = <a href="#hoas">hoas</a> m <keyword>in</keyword> [[g &#x22A2 <a href="#lam">lam</a> (&lambda;x. M &hellip; x)]]
+  | <a href="#App">App</a> m n  &#x21D2
+    <keyword>let</keyword>  [g &#x22A2 M &hellip;] = <a href="#hoas">hoas</a> m <keyword>in</keyword> 
+    <keyword>let</keyword>  [g &#x22A2 N &hellip;] = <a href="#hoas">hoas</a> n <keyword>in</keyword> [[g &#x22A2 <a href="#app">app</a> (M &hellip;) (N &hellip;)]]
+  | <a href="#O">O</a>  &#x21D2
+    <keyword>let</keyword>  m : <a href="#DB">DB</a> [g, x : <a href="#hoas">hoas</a> _] [ &#x22A2 B]= m <keyword>in</keyword> [[g, x : <a href="#hoas">hoas</a> _ &#x22A2 x]]
+  | <a href="#S">S</a> m  &#x21D2 <keyword>let</keyword>  [g &#x22A2 M &hellip;] = <a href="#hoas">hoas</a> m <keyword>in</keyword> [g, x &#x22A2 M &hellip;];
+</code></pre>
+<p></p><p>
+</p><p>
+Note that, contrarily to the previous function, the recursive calls'
+values are bound to metavariables by <code>let</code>s, and cannot be inlined in
+the returned value, because they belong to the LF level. In the <code>O</code>
+case, a dummy <code>let</code> is used to bind the environment tail <code>g</code>, so that
+it can be refered to in the returned value.
+</p><p>
+As a test, the following declaration computes the expected value,
+i.e. <code>ex1</code>:
+</p><p></p><br><pre><code><keyword>let</keyword> test : [z : <a href="#hoas">hoas</a> (<a href="#arr">arr</a> <a href="#o">o</a> <a href="#o">o</a>) &#x22A2 (<a href="#hoas">hoas</a> (<a href="#arr">arr</a> (<a href="#arr">arr</a> <a href="#o">o</a> <a href="#o">o</a>) (<a href="#arr">arr</a> <a href="#o">o</a> <a href="#o">o</a>)))] =
+<a href="#hoas">hoas</a> ex2;
+</code></pre>
+<br><br><h3>To download the code: <a href="From_HOAS_to_DeBruijn.bel" target="_blank">From_HOAS_to_DeBruijn.bel</a></h3>
+     </div>
+   </div>
+   <div id="footer">
+     <iframe width="100%" height="100px" scrolling="no" frameBorder="0" src="../../../footer.html"></iframe> 
+   </div>
+
+   <script>
+   $('iframe').iframeAutoHeight({minHeight: 50);
+    </script>
+  </div>
+</body>
+</html>
+
+

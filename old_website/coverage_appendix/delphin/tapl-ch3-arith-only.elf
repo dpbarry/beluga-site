@@ -1,0 +1,48 @@
+%{
+   Definition of terms, values, equality and small-step semantics
+   for numbers only (follows TAPL CH3)
+
+   AUTHOR: Brigitte Pientka
+
+}%
+
+%% ------------------------------------------------------------------- %%
+%% Syntax
+term  : type.
+z     : term.
+succ  : term -> term.
+pred  : term -> term.
+
+%% Values
+value     : term -> type.
+
+v_z    : value z.
+v_s    : value N -> value (succ N).
+
+%% ------------------------------------------------------------------- %%
+%% Small-step operational semantics
+
+step: term -> term -> type. 
+
+s_succ:
+   step M M' 
+-> step (succ M) (succ M').
+
+s_pred_zero:
+   step (pred z) z.
+
+s_pred_succ:
+  value N ->
+  step (pred (succ N)) N.
+
+s_pred:
+   step M M'  
+-> step (pred M) (pred M').
+
+%% ------------------------------------------------------------------- %%
+%% Equality
+
+eq: term -> term -> type.
+ref: eq M M.
+
+empty:type.

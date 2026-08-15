@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2008 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>Schemas and Context Variables</TITLE>
+<META NAME="description" CONTENT="Schemas and Context Variables">
+<META NAME="keywords" CONTENT="userguide">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2008">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="userguide.css">
+
+<LINK REL="next" HREF="node15.html">
+<LINK REL="previous" HREF="node13.html">
+<LINK REL="up" HREF="node11.html">
+<LINK REL="next" HREF="node15.html">
+</HEAD>
+
+<BODY >
+
+<DIV CLASS="navigation"><!--Navigation Panel-->
+<A NAME="tex2html197"
+  HREF="node15.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next"
+ SRC="../icons/next.png"></A> 
+<A NAME="tex2html195"
+  HREF="node11.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up"
+ SRC="../icons/up.png"></A> 
+<A NAME="tex2html189"
+  HREF="node13.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous"
+ SRC="../icons/prev.png"></A>   
+<BR>
+<B> Next:</B> <A NAME="tex2html198"
+  HREF="node15.html">Contextual Objects and Types</A>
+<B> Up:</B> <A NAME="tex2html196"
+  HREF="node11.html">Syntax</A>
+<B> Previous:</B> <A NAME="tex2html190"
+  HREF="node13.html">Operators</A>
+<BR>
+<BR></DIV>
+<!--End of Navigation Panel-->
+
+<H2><A NAME="SECTION00033000000000000000">
+Schemas and Context Variables</A>
+</H2>
+A schema, declared with the <TT>schema</TT> keyword, consists of <SPAN  CLASS="textbf"><SPAN  CLASS="textit">blocks</SPAN></SPAN> of atomic assumptions. The <TT>block</TT> keyword introduces a comma-separated list of atoms. The first assumption is always a type judgment of a free variable, followed by terms which are well-typed under that judgment. Schemas comprised of several blocks separated by the plus sign <TT>+</TT> denote alternating assumptions. 
+
+<P>
+Schemas classify terms as types classify terms. A context <TT>g</TT> has the schema <TT>sCtx</TT> if every declaration in <TT>g</TT> is an instance of schema <TT>sCtx</TT>. Schemas may quantify over a particular bound variable, written right after the declaration as <TT>[id : id]</TT> where the first identifier represents the bound variable and the second provides its type. Contexts can be passed as <SPAN  CLASS="textit"><SPAN  CLASS="textbf">context variables</SPAN></SPAN> annotated with their associated schema. 
+
+<P>
+<PRE>
+schema natCtx = block (x:tm, _t: eq_tm x x);
+schema zeroCtx = some [t:tp] block (x:tm, _t: x has_type t);
+schema altCtx = block (x:tp, eq_tp x x) + block (x:tm, eq_tm x x)
+</PRE>
+
+<P>
+<BR><HR>
+<ADDRESS>
+Research Group COMPLOGIC
+2015-01-27
+</ADDRESS>
+</BODY>
+</HTML>
