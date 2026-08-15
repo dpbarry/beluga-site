@@ -1,0 +1,6 @@
+# The site is deployed as a git clone, so make sure the repository
+# metadata is never served over the web.
+#
+# mod_alias / FileInfo only: works on both Apache 2.2 and 2.4, and is
+# silently ignored if AllowOverride is None.
+RedirectMatch 404 /\.git
